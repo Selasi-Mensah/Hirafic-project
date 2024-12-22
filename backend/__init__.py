@@ -14,6 +14,9 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = 'info'
 
+# when importing the modules I face issue with pytest for circular import
+from models.base import Base
+
 from models.user import User
 from models.client import Client
 from models.artisan import Artisan

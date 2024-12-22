@@ -1,10 +1,11 @@
 import pytest
 from flask import Flask
-from models.base import db
-from models.user import User
-from models.client import Client
-from models.artisan import Artisan
-from models.booking import Booking
+# from models.base import db
+# from models.user import User
+# from models.client import Client
+# from models.artisan import Artisan
+# from models.booking import Booking
+from __init__ import db, Base, User, Client, Artisan, Booking
 from datetime import datetime, timezone
 
 
