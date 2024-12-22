@@ -30,8 +30,8 @@ class User(Base, UserMixin):
         nullable=False
         )
 
-    client = db.relationship("Client", backref="user", cascade="delete")
-    artisan = db.relationship("Artisan", backref="user", cascade="delete")
+    client = db.relationship("Client", backref=db.backref("user"))
+    artisan = db.relationship("Artisan", backref=db.backref("user"))
 
     def __repr__(self):
         return (f"User('{self.username}', '{self.email}')")

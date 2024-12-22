@@ -4,6 +4,8 @@ Route module for the API
 """
 from __init__ import db, app, bcrypt
 from models.user import User
+from models.artisan import Artisan
+from models.client import Client
 from forms.auth import RegistrationForm, LoginForm
 from flask import redirect, render_template, url_for, flash, request
 from datetime import datetime
@@ -30,7 +32,6 @@ def registr():
     if form.validate_on_submit():
         hashed_password =\
             bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        
         user = User(
             username=form.username.data,
             email=form.email.data,
@@ -43,6 +44,26 @@ def registr():
         try:
             db.session.commit()
             flash('Your account has been created!', 'success')
+            if user.role == "Client":
+                client_user = Client(
+                   user_id = user.id,
+                   name = user.username,
+                   email = user.email,
+                   password = user.password,
+                   phone_number = user.phone_number
+                )
+                db.session.add(client_user)
+                db.session.commit()
+            elif user.role == "Artisan":
+                artisan_user = Artisan(
+                    user_id = user.id,
+                    name = user.username,
+                   email = user.email,
+                   password = user.password,
+                   phone_number = user.phone_number,
+                )
+                db.session.add(artisan_user)
+                db.session.commit()
             return redirect(url_for('login'))
             # return "register"
         except Exception as e:
@@ -111,9 +132,10 @@ def account():
 @app.route("/test")
 def test():
     # test user table
+    #with app.app_context():
     # User.query.delete()
     # db.session.query(User).delete()
-    # db.session.commit
+    # db.session.commit()
     # user_1 = User(
     #     username="Duaa",
     #     email="Duaa@gmail.com", password="password",
@@ -123,7 +145,14 @@ def test():
     # db.session.commit()
     # output = db.session.query(User).all()
     output = User.query.all()
-    print(output)
+    print(f"users: {output}")
+
+    output = Client.query.all()
+    print(f"clients: {output}")
+
+    output = Artisan.query.all()
+    print(f"artisans: {output}")
+
 
     # test
     return "Test"
