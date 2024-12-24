@@ -13,8 +13,7 @@ class Artisan(Base):
     """ Representation of Artisan table """
     __tablename__ = 'artisans'
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     name = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     # image_file = db.Column(db.String(20),
@@ -27,13 +26,9 @@ class Artisan(Base):
         Enum('Engineering', 'Nursing', 'None', name='specialization'), default='None'
         )
     skills = db.Column(db.Text, default='None')
-    created_at = db.Column(
-        db.DateTime(timezone=True),
-        server_default=db.func.now()
-        )
-    # created_at = db.Column(db.DateTime,
-    # nullable=False, default=datetime.utcnow)
 
+    # user = db.relationship("User", backref=db.backref("artisans", lazy=True))
+    
     bookings = db.relationship(
         "Booking", backref="artisan",
         cascade="delete", lazy=True

@@ -2,7 +2,7 @@
 """
 Contains class Base
 """
-from __init__ import db
+from extensions import db
 from datetime import datetime, timezone
 
 

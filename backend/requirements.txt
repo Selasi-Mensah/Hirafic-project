@@ -2,6 +2,7 @@ Python==3.12.3
 Flask==3.0.2
 Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.2
+Flask-Migrate==4.0.7
 pycodestyle==2.11.1
 SQLAlchemy-Utils==0.41.2
 pytest==8.3.4

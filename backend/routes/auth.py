@@ -45,24 +45,25 @@ def registr():
             db.session.commit()
             flash('Your account has been created!', 'success')
             if user.role == "Client":
-                client_user = Client(
-                   user_id = user.id,
-                   name = user.username,
-                   email = user.email,
-                   password = user.password,
-                   phone_number = user.phone_number
-                )
-                db.session.add(client_user)
-                db.session.commit()
-            elif user.role == "Artisan":
-                artisan_user = Artisan(
+                client = Client(
                     user_id = user.id,
                     name = user.username,
-                   email = user.email,
-                   password = user.password,
-                   phone_number = user.phone_number,
-                )
-                db.session.add(artisan_user)
+                    email = user.email,
+                    password = user.password,
+                    phone_number = user.phone_number
+                    )
+                #client_user = Client(user_client=user)
+                db.session.add(client)
+                db.session.commit()
+            elif user.role == "Artisan":
+                artisan = Artisan(
+                    user_id = user.id,
+                    name = user.username,
+                    email = user.email,
+                    password = user.password,
+                    phone_number = user.phone_number,
+                    )
+                db.session.add(artisan)
                 db.session.commit()
             return redirect(url_for('login'))
             # return "register"
@@ -131,11 +132,11 @@ def account():
 
 @app.route("/test")
 def test():
-    # test user table
-    #with app.app_context():
+    # with app.app_context():
     # User.query.delete()
-    # db.session.query(User).delete()
-    # db.session.commit()
+    # Client.query.delete()
+    # Artisan.query.delete()
+
     # user_1 = User(
     #     username="Duaa",
     #     email="Duaa@gmail.com", password="password",
@@ -144,6 +145,12 @@ def test():
     # db.session.add(user_1)
     # db.session.commit()
     # output = db.session.query(User).all()
+    
+    # test cascade
+    # user = User.query.first()
+    # db.session.delete(user)
+    # db.session.commit()
+
     output = User.query.all()
     print(f"users: {output}")
 

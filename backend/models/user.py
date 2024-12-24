@@ -7,8 +7,9 @@ from sqlalchemy_utils import PhoneNumber
 from sqlalchemy import Enum
 from wtforms import RadioField, SelectField
 from datetime import datetime
-from __init__ import login_manager
+from  extensions import login_manager
 from flask_login import UserMixin
+#from models.artisan import Artisan
 
 
 @login_manager.user_loader
@@ -29,10 +30,31 @@ class User(Base, UserMixin):
         Enum('Artisan', 'Client', name='user_role'),
         nullable=False
         )
+    
+    client = db.relationship("Client", backref="user_client", cascade="all, delete, delete-orphan", uselist=False)
+    artisan = db.relationship("Artisan", backref="user_artisan", cascade="all, delete, delete-orphan", uselist=False)
 
-    client = db.relationship("Client", backref=db.backref("user"))
-    artisan = db.relationship("Artisan", backref=db.backref("user"))
+    # def __init__(self, **kwargs):
+    #     """ constructor for client or artisan"""
+    #     super().__init__(**kwargs)
+    #     if self.role == "Artisan":
+    #         self.artisan = Artisan(
+    #             user_id = self.id,
+    #             name = self.username,
+    #             email = self.email,
+    #             password = self.password,
+    #             phone_number = self.phone_number
+    #         )
+    #     elif self.role == "Client":
+    #         self.client = Client(
+    #             user_id = self.id,
+    #             name = self.username,
+    #             email = self.email,
+    #             password = self.password,
+    #             phone_number = self.phone_number
+    #         )
 
     def __repr__(self):
+        """ representation of user"""
         return (f"User('{self.username}', '{self.email}')")
 
