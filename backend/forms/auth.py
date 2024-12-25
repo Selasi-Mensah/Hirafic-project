@@ -6,7 +6,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from models.user import User
-
+from flask_login import current_user
 
 class RegistrationForm(FlaskForm):
     """ This form for registration """
@@ -47,3 +47,4 @@ class LoginForm(FlaskForm):
                                             DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
+

@@ -5,7 +5,7 @@ API for artisan
 from __init__ import db, app, bcrypt
 from models.user import User
 from models.artisan import Artisan
-from forms.auth import RegistrationForm, LoginForm
+from forms.artisan import ArtisanProfileForm
 from flask import redirect, render_template, url_for, flash, request
 from datetime import datetime
 from flask_login import login_user, current_user, logout_user, login_required
@@ -13,6 +13,29 @@ from flask_login import login_user, current_user, logout_user, login_required
 
 @app.route("/artisan", methods=['GET', 'POST'])
 @login_required
-def artisan_profile(account_name):
+def artisan_profile():
+    form = ArtisanProfileForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        current_user.phone_number = form.phone_number.data
+        if not current_user.artisan:
+            current_user.artisan = Artisan(user=current_user)
+        current_user.artisan.name = form.username.data
+        current_user.artisan.email = form.email.data
+        current_user.artisan.phone_number = form.phone_number.data
+        current_user.artisan.location = form.location.data
+        current_user.artisan.specialization = form.specialization.data
+        current_user.artisan.skills = form.skills.data
+        db.session.commit()
+        flash('Your profile has been updated!', 'success')
+        return redirect(url_for('artisan_profile'))
+    elif request.method == "GET":
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+        form.phone_number.data = current_user.phone_number
+        form.location.data = current_user.artisan.location
+        form.specialization.data = current_user.artisan.specialization
+        form.skills.data = current_user.artisan.skills
     #return render_template('account.html', title='Account')
-    return "Artisan Profile"
+    return render_template('artisan.html', title='Artisan Profile', form=form)

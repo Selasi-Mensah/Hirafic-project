@@ -22,7 +22,7 @@ class Artisan(Base):
     phone_number = db.Column(db.String(14), nullable=False)
     location = db.Column(db.String(60))
     # Removed nullable=False in Specialization and skills; not in Registration Form
-    Specialization = db.Column(
+    specialization = db.Column(
         Enum('Engineering', 'Nursing', 'None', name='specialization'), default='None'
         )
     skills = db.Column(db.Text, default='None')
@@ -35,4 +35,4 @@ class Artisan(Base):
         )
 
     def __repr__(self):
-        return (f"Artisan('{self.name}', '{self.email})")
+        return (f"Artisan('{self.name}', '{self.email}', {self.specialization}')")

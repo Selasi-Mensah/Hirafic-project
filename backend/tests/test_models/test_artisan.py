@@ -86,3 +86,12 @@ def test_artisan_creation(app, database, user_model, artisan_model):
 
         # Test the __repr__ method
         #assert repr(retrieved_artisan) == "Artisan('Test Artisan', 'artisan@example.com')"
+
+        # Test the cascade delete
+        assert User.query.count() == 1
+        assert Artisan.query.count() == 1
+
+        db.session.delete(test_user)
+
+        assert User.query.count() == 0
+        assert Artisan.query.count() == 0
