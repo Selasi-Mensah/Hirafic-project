@@ -25,5 +25,8 @@ with app.app_context():
     from models.artisan import Artisan
     from models.booking import Booking
     from routes import auth
+    from routes import artisan
+    from routes import client
+    
     db.create_all()
 

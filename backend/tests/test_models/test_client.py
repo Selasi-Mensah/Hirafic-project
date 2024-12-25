@@ -77,4 +77,13 @@ def test_client_creation(app, database, User_model, Client_model):
         assert retrieved_client.phone_number == "+9876543210"
 
         # Test the __repr__ method
-        # assert repr(retrieved_client) == "Client('Test Client', 'client@example.com')"
+        assert repr(retrieved_client) == "Client('Test Client', 'client@example.com')"
+        
+        # Test the cascade delete
+        assert User.query.count() == 1
+        assert Client.query.count() == 1
+
+        db.session.delete(test_user)
+
+        assert User.query.count() == 0
+        assert Client.query.count() == 0

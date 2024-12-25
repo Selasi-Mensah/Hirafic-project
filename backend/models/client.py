@@ -29,4 +29,4 @@ class Client(Base):
         )
 
     def __repr__(self):
-        return (f"Client('{self.name}', '{self.email})")
+        return (f"Client('{self.name}', '{self.email}')")

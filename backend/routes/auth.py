@@ -93,13 +93,14 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
-            # if user.role == 'Artisan':
-            #     return redirect(url_for('admin_dashboard'))
-            # elif user.role == 'Client':
-            #     return redirect(url_for('client_dashboard'))
-            login_user(user, remember=form.remember.data)
-            next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('home'))
+            if user.role == 'Artisan':
+                return redirect(url_for('artisan_profile'))
+            elif user.role == 'Client':
+                return redirect(url_for('client_profile'))
+            else:
+                login_user(user, remember=form.remember.data)
+                next_page = request.args.get('next')
+                return redirect(next_page) if next_page else redirect(url_for('home'))
         else:
             flash(
                 f'Login Unsuccessful, please check email and password',
@@ -113,12 +114,6 @@ def logout():
     logout_user()
     return redirect(url_for('home'))
 
-
-@app.route("/account")
-@login_required
-def account():
-    #return render_template('account.html', title='Account')
-    return "Account"
 
 # @artisan_required
 # def account():
@@ -159,7 +154,6 @@ def test():
 
     output = Artisan.query.all()
     print(f"artisans: {output}")
-
 
     # test
     return "Test"
