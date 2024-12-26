@@ -13,7 +13,7 @@
     <div class="container mt-5">
         <h1 class="text-center">Artisan Profile</h1>
         <img class="rounded-circle account-img" src="{{ image_file }}">
-        <form method="POST" action="{{ url_for('artisan_profile') }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ url_for('artisans.artisan_profile') }}" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             
             <!-- Username Field -->

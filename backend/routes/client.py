@@ -2,7 +2,8 @@
 """
 API for client
 """
-from __init__ import db, app, bcrypt
+from flask import Blueprint
+from __init__ import db, bcrypt
 from models.user import User
 from models.client import Client
 from forms.client import ClientProfileForm
@@ -11,7 +12,10 @@ from datetime import datetime
 from flask_login import login_user, current_user, logout_user, login_required
 
 
-@app.route("/client", methods=['GET', 'POST'])
+clients_Bp = Blueprint('clients', __name__)
+
+
+@clients_Bp.route("/client", methods=['GET', 'POST'])
 @login_required
 def client_profile():
     form = ClientProfileForm()
@@ -26,7 +30,7 @@ def client_profile():
         current_user.client.phone_number = form.phone_number.data
         db.session.commit()
         flash('Your profile has been updated!', 'success')
-        return redirect(url_for('client_profile'))
+        return redirect(url_for('clients.client_profile'))
     elif request.method == "GET":
         form.username.data = current_user.username
         form.email.data = current_user.email
