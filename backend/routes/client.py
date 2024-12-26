@@ -10,7 +10,7 @@ from __init__ import db, bcrypt
 from models.user import User
 from models.client import Client
 from forms.client import ClientProfileForm
-from flask import redirect, render_template, url_for, flash, request
+from flask import redirect, render_template, url_for, flash, request, current_app
 from datetime import datetime
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -23,7 +23,7 @@ def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
     _, file_ext = os.path.splitext(form_picture.filename)
     pic_fname = random_hex + file_ext
-    picture_path = os.path.join(app.root_path, 'static/profile_pics', pic_fname)
+    picture_path = os.path.join(current_app.root_path, 'static/profile_pics', pic_fname)
     
     output_size = (125, 125)
     open_image = Image.open(form_picture)
