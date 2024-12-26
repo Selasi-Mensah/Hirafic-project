@@ -37,5 +37,6 @@ def artisan_profile():
         form.location.data = current_user.artisan.location
         form.specialization.data = current_user.artisan.specialization
         form.skills.data = current_user.artisan.skills
+    image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
     #return render_template('account.html', title='Account')
-    return render_template('artisan.html', title='Artisan Profile', form=form)
+    return render_template('artisan.html', title='Artisan Profile', image_file=image_file, form=form)

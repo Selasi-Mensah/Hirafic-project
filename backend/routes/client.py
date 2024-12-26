@@ -32,4 +32,5 @@ def client_profile():
         form.email.data = current_user.email
         form.phone_number.data = current_user.phone_number
     #return render_template('account.html', title='Account')
-    return render_template('client.html', title='Client Profile', form=form)
+    image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
+    return render_template('client.html', title='Client Profile', image_file=image_file, form=form)

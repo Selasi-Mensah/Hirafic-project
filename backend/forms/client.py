@@ -3,6 +3,7 @@
 Contains Registration and Login Forms
 """
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from models.user import User
@@ -18,6 +19,8 @@ class ClientProfileForm(FlaskForm):
                             DataRequired(), Email()])
     
     phone_number = StringField('Phone Number', validators=[DataRequired()])
+
+    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
 
     submit = SubmitField('Update')
 

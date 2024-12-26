@@ -12,7 +12,8 @@
 <body>
     <div class="container mt-5">
         <h1 class="text-center">Artisan Profile</h1>
-        <form method="POST" action="{{ url_for('artisan_profile') }}">
+        <img class="rounded-circle account-img" src="{{ image_file }}">
+        <form method="POST" action="{{ url_for('artisan_profile') }}" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
             
             <!-- Username Field -->
@@ -22,7 +23,7 @@
                 {% if form.username.errors %}
                     <div class="text-danger">
                         {% for error in form.username.errors %}
-                            <p>{{ error }}</p>
+                            <span></span>{{ error }}</span>
                         {% endfor %}
                     </div>
                 {% endif %}
@@ -90,6 +91,14 @@
                             <p>{{ error }}</p>
                         {% endfor %}
                     </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.picture.label() }}
+                {{ form.picture(class="form-control-file") }}
+                {% if form.picture.errors %}
+                    <span> {{ error }}</span>
                 {% endif %}
             </div>
 

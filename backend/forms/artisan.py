@@ -3,6 +3,7 @@
 Contains Registration and Login Forms
 """
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, TextAreaField, SelectField, RadioField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from models.user import User
@@ -27,6 +28,8 @@ class ArtisanProfileForm(FlaskForm):
                                  default='None')
     skills = TextAreaField('Skills', validators=[
         Length(max=500, message="Skills description must not exceed 500 characters.")])
+
+    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
 
     submit = SubmitField('Update')
 
