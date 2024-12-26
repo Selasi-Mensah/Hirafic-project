@@ -2,13 +2,16 @@
 """
 API for client
 """
-from __init__ import db, app, bcrypt
+from __init__ import db, bcrypt
 from models.user import User
 from models.client import Client
 from forms.client import ClientProfileForm
-from flask import redirect, render_template, url_for, flash, request
+from flask import redirect, render_template, url_for, flash, request, current_app
 from datetime import datetime
 from flask_login import login_user, current_user, logout_user, login_required
+
+
+app = current_app
 
 
 @app.route("/client", methods=['GET', 'POST'])

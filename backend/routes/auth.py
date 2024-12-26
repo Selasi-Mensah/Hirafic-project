@@ -1,16 +1,20 @@
 #!/usr/bin/python3
 """
-Route module for the API
+Route module for main API and users API
 """
-from __init__ import db, app, bcrypt
+# from flask import Blueprint
+from __init__ import db, bcrypt
 from models.user import User
 from models.artisan import Artisan
 from models.client import Client
 from forms.auth import RegistrationForm, LoginForm
-from flask import redirect, render_template, url_for, flash, request
+from flask import redirect, render_template, url_for, flash, request, current_app
 from datetime import datetime
 from flask_login import login_user, current_user, logout_user, login_required
 
+
+app = current_app
+# users = Blueprint('users', __name__)
 
 @app.route("/home", methods=['GET'])
 @app.route("/", methods=['GET'])

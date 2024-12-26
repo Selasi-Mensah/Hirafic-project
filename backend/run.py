@@ -1,4 +1,9 @@
-from __init__ import app
+#!/usr/bin/python3
+from __init__ import create_app
+"""Module to run app"""
+
+
+app = create_app()
 
 
 if __name__ == '__main__':
