@@ -2,22 +2,21 @@
 """
 Route module for main API and users API
 """
-# from flask import Blueprint
+from flask import Blueprint
 from __init__ import db, bcrypt
 from models.user import User
 from models.artisan import Artisan
 from models.client import Client
 from forms.auth import RegistrationForm, LoginForm
-from flask import redirect, render_template, url_for, flash, request, current_app
 from datetime import datetime
+from flask import redirect, render_template, url_for, flash, request
 from flask_login import login_user, current_user, logout_user, login_required
 
 
-app = current_app
-# users = Blueprint('users', __name__)
+users_Bp = Blueprint('users', __name__)
 
-@app.route("/home", methods=['GET'])
-@app.route("/", methods=['GET'])
+@users_Bp.route("/home", methods=['GET'])
+@users_Bp.route("/", methods=['GET'])
 def home():
     """ POST /home
         POST /
@@ -25,13 +24,13 @@ def home():
     return "Home Page"
 
 
-@app.route("/register", methods=['GET', 'POST'])
+@users_Bp.route("/register", methods=['GET', 'POST'])
 def registr():
     """ POST /register
         GET /register
     """
     # if current_user.is_authenticated:
-    #   return redirect(url_for('home'))
+    #   return redirect(url_for('users.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password =\
@@ -40,7 +39,7 @@ def registr():
             username=form.username.data,
             email=form.email.data,
             password=hashed_password,
-            phone_number=form.role.data,
+            phone_number=form.phone_number.data,
             role=form.role.data,
             )
         #print(user)
@@ -69,7 +68,7 @@ def registr():
                     )
                 db.session.add(artisan)
                 db.session.commit()
-            return redirect(url_for('login'))
+            return redirect(url_for('users.login'))
             # return "register"
         except Exception as e:
             db.session.rollback()
@@ -78,33 +77,33 @@ def registr():
     return render_template('register.html', titel='Register', form=form)
     #return "Registration"
 
-# @app.route('/artisan/login', methods=['GET', 'POST'])
+# @users_Bp.route('/artisan/login', methods=['GET', 'POST'])
 # def artisan_login():
 
 
-# @app.route('/client/login', methods=['GET', 'POST'])
+# @users_Bp.route('/client/login', methods=['GET', 'POST'])
 # def client_login():
 
 
-@app.route("/login", methods=['GET', 'POST'])
+@users_Bp.route("/login", methods=['GET', 'POST'])
 def login():
     """ POST /login
         GET /login
     """
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('users.home'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             if user.role == 'Artisan':
-                return redirect(url_for('artisan_profile'))
+                return redirect(url_for('artisans.artisan_profile'))
             elif user.role == 'Client':
-                return redirect(url_for('client_profile'))
+                return redirect(url_for('clients.client_profile'))
             else:
                 next_page = request.args.get('next')
-                return redirect(next_page) if next_page else redirect(url_for('home'))
+                return redirect(next_page) if next_page else redirect(url_for('users.home'))
         else:
             flash(
                 f'Login Unsuccessful, please check email and password',
@@ -113,10 +112,10 @@ def login():
     # return "Login"
 
 
-@app.route("/logout")
+@users_Bp.route("/logout")
 def logout():
     logout_user()
-    return redirect(url_for('home'))
+    return redirect(url_for('users.home'))
 
 
 # @artisan_required
@@ -129,9 +128,9 @@ def logout():
 #     return render_template('account.html', title='Client Account')
 
 
-@app.route("/test")
+@users_Bp.route("/test")
 def test():
-    # with app.app_context():
+    # with users_Bp.users_Bp_context():
     # User.query.delete()
     # Client.query.delete()
     # Artisan.query.delete()

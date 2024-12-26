@@ -2,19 +2,20 @@
 """
 API for artisan
 """
+from flask import Blueprint
 from __init__ import db, bcrypt
 from models.user import User
 from models.artisan import Artisan
 from forms.artisan import ArtisanProfileForm
-from flask import redirect, render_template, url_for, flash, request, current_app
+from flask import redirect, render_template, url_for, flash, request
 from datetime import datetime
 from flask_login import login_user, current_user, logout_user, login_required
 
 
-app = current_app
+artisans_Bp = Blueprint('artisans', __name__)
 
 
-@app.route("/artisan", methods=['GET', 'POST'])
+@artisans_Bp.route("/artisan", methods=['GET', 'POST'])
 @login_required
 def artisan_profile():
     form = ArtisanProfileForm()
@@ -32,7 +33,7 @@ def artisan_profile():
         current_user.artisan.skills = form.skills.data
         db.session.commit()
         flash('Your profile has been updated!', 'success')
-        return redirect(url_for('artisan_profile'))
+        return redirect(url_for('artisans.artisan_profile'))
     elif request.method == "GET":
         form.username.data = current_user.username
         form.email.data = current_user.email
