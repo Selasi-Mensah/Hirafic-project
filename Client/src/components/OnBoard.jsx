@@ -1,11 +1,18 @@
-
+import "./component.scss";
+// import ScreenOne from "./ScreenOne";
+import { useNavigate } from "react-router-dom";
 
 const onboard = () => {
-  return (
-    <div>
-      
-    </div>
-  )
-}
+  const navigate = useNavigate();
 
-export default onboard
+  setTimeout(() => {
+    navigate("/OnBoard");
+  }, 5000);
+  return (
+    <div className="Board">
+      <span>HIRAFIC</span>
+    </div>
+  );
+};
+
+export default onboard;
