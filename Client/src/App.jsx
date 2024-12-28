@@ -1,4 +1,4 @@
-import OnBoard from "./components/onboard";
+// import OnBoard from "./components/onboard";
 import ScreenOne from "./components/ScreenOne";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
@@ -12,16 +12,16 @@ function App() {
   return (
     <>
       <Router>
-        <OnBoard />
-        {/* <ScreenOne /> */}
+        {/* <OnBoard />
+        <ScreenOne /> */}
         <Routes>
-          <Route path="/OnBoard" Component={<ScreenOne />} />
-          <Route path="/Login" Component={<Login />} />
-          <Route path="/Artisan" Component={<Artisan />} />
-          <Route path="/Client" Component={<Client />} />
-          <Route exact path="/Home" Component={<Home />} />
-          <Route path="/register" Component={<Register />} />
-          <Route path="/About" Component={<About />} />
+          <Route path="/OnBoard" element={<ScreenOne />} />
+          <Route path="/Login" element={<Login />} />
+          <Route path="/Artisan" element={<Artisan />} />
+          <Route path="/Client" element={<Client />} />
+          <Route exact path="/" element={<Home />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/About" element={<About />} />
         </Routes>
       </Router>
     </>
