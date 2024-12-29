@@ -2,12 +2,13 @@
 """Module to run app"""
 from __init__ import create_app
 from flask import make_response
+# from flask import BuildError
 
 
 app = create_app()
 
 
-# @app.errorhandler(404)
+# @app.errorhandler(BuildError)
 # def not_found(error):
 #      return make_response(jsonify({'error': 'Not found'}), 404)
 

@@ -5,7 +5,7 @@ API for client
 import os
 import uuid
 from PIL import Image
-from flask import Blueprint
+from flask import Blueprint, request, abort
 from __init__ import db, bcrypt
 from models.user import User
 from models.client import Client
@@ -34,11 +34,12 @@ def save_picture(form_picture):
 
 
 @clients_Bp.route("/client", methods=['GET', 'POST'], strict_slashes=False)
-@clients_Bp.route("/client/<username>", methods=['GET', 'POST'])
+@clients_Bp.route("/client/<username>", methods=['GET', 'POST'], strict_slashes=False)
 @login_required
 def client_profile(username=""):
-    username = current_user.username
     form = ClientProfileForm()
+    if username != current_user.username and username != "":
+        abort(403)
     if form.validate_on_submit():
         if form.picture.data:
             picture_file = save_picture(form.picture.data)
