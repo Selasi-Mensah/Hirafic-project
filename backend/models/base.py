@@ -15,6 +15,7 @@ class Base(db.Model):
     created_at = db.Column(
         db.DateTime(timezone=True),
         server_default=db.func.now(), nullable=False)
+    
     # created_at = db.Column(db.DateTime(timezone=True),
     # nullable=False, default=datetime.utcnow)
 

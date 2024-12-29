@@ -34,3 +34,16 @@ class Artisan(Base):
 
     def __repr__(self):
         return (f"Artisan('{self.name}', '{self.email}', {self.specialization}')")
+
+    def to_dict(self):
+        """return dictionary for the record"""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'name': self.name,
+            'email': self.email,
+            'phone_number': self.phone_number,
+            'specialization': self.specialization,
+            'sills': self.skills,
+            #'bookings': [b.to_dict() for b in self.bookings] if self.bookings else None
+        }

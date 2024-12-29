@@ -1,9 +1,15 @@
 #!/usr/bin/python3
-from __init__ import create_app
 """Module to run app"""
+from __init__ import create_app
+from flask import make_response
 
 
 app = create_app()
+
+
+# @app.errorhandler(404)
+# def not_found(error):
+#      return make_response(jsonify({'error': 'Not found'}), 404)
 
 
 if __name__ == '__main__':

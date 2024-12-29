@@ -30,3 +30,14 @@ class Client(Base):
 
     def __repr__(self):
         return (f"Client('{self.name}', '{self.email}')")
+    
+    def to_dict(self):
+        """return dictionary for the record"""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'name': self.name,
+            'email': self.email,
+            'phone_number': self.phone_number,
+            #'bookings': [b.to_dict() for b in self.bookings] if self.bookings else None
+        }
