@@ -39,7 +39,8 @@ def save_picture(form_picture):
 @artisans_Bp.route("/artisan/<username>", methods=['GET', 'POST'])
 @login_required
 def artisan_profile(username=""):
-    username = current_user.username
+    if username != current_user.username and username != "":
+        abort(403)
     form = ArtisanProfileForm()
     if form.validate_on_submit():
         if form.picture.data:
