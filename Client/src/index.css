@@ -1,1 +1,6 @@
-@import url(./components/component.css);
+@import url(./components/component.scss);
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
