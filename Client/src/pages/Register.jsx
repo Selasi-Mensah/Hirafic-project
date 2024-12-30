@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -224,3 +225,15 @@ const RegistrationForm = () => {
 };
 
 export default RegistrationForm;
+
+
+const Register = () => {
+  return (
+    <div>
+      
+    </div>
+  )
+}
+
+export default Register
+

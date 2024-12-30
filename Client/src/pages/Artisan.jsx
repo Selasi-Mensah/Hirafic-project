@@ -140,3 +140,14 @@ const ArtisanLogin = () => {
 
 export default ArtisanLogin;
 */
+
+const Artisan = () => {
+  return (
+    <div>
+      
+    </div>
+  )
+}
+
+export default Artisan
+
