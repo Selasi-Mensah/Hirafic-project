@@ -1,4 +1,3 @@
-
 const Artisan = () => {
   return (
     <div>
