@@ -15,6 +15,7 @@ from flask_login import UserMixin
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+    # return db.session.get(User, int(user_id))
 
 class User(Base, UserMixin):
     """ Representation of user table """
@@ -32,6 +33,18 @@ class User(Base, UserMixin):
     
     client = db.relationship("Client", backref="user_client", cascade="all, delete, delete-orphan", uselist=False)
     artisan = db.relationship("Artisan", backref="user_artisan", cascade="all, delete, delete-orphan", uselist=False)
+
+
+    def to_dict(self):
+        """return dictionary for the record"""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'name': self.name,
+            'email': self.email,
+            'phone_number': self.phone_number,
+            #'bookings': [b.to_dict() for b in self.bookings] if self.bookings else None
+        }
 
     # def __init__(self, **kwargs):
     #     """ constructor for client or artisan"""

@@ -3,7 +3,7 @@
 API for artisan
 """
 import os
-import secrets
+import uuid
 from PIL import Image
 from flask import Blueprint
 from __init__ import db, bcrypt
@@ -21,7 +21,7 @@ artisans_Bp = Blueprint('artisans', __name__)
 
 def save_picture(form_picture):
     """ function to save the updated profile picture"""
-    random_hex = secrets.token_hex(8)
+    random_hex = uuid.uuid4().hex[:8]
     _, file_ext = os.path.splitext(form_picture.filename)
     pic_fname = random_hex + file_ext
     picture_path = os.path.join(current_app.root_path, 'static/profile_pics', pic_fname)
@@ -34,9 +34,12 @@ def save_picture(form_picture):
     return pic_fname
 
 
-@artisans_Bp.route("/artisan", methods=['GET', 'POST'])
+# we can make the /artisan with different route redirect to /artisan/<username>
+@artisans_Bp.route("/artisan", methods=['GET', 'POST'], strict_slashes=False)
+@artisans_Bp.route("/artisan/<username>", methods=['GET', 'POST'])
 @login_required
-def artisan_profile():
+def artisan_profile(username=""):
+    username = current_user.username
     form = ArtisanProfileForm()
     if form.validate_on_submit():
         if form.picture.data:
@@ -55,7 +58,7 @@ def artisan_profile():
         current_user.artisan.skills = form.skills.data
         db.session.commit()
         flash('Your profile has been updated!', 'success')
-        return redirect(url_for('artisans.artisan_profile'))
+        return redirect(url_for('artisans.artisan_profile', username=current_user.username))
     elif request.method == "GET":
         form.username.data = current_user.username
         form.email.data = current_user.email
@@ -65,4 +68,4 @@ def artisan_profile():
         form.skills.data = current_user.artisan.skills
     image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
     #return render_template('account.html', title='Account')
-    return render_template('artisan.html', title='Artisan Profile', image_file=image_file, form=form)
+    return render_template('artisan.html', title='Artisan Profile', image_file=image_file, form=form, username=username)
