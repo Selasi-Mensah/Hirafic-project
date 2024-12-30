@@ -8,13 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 const RegistrationForm = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    username: '',
     email: '',
     phone: '',
     password: '',
-    confirmPassword: '',
-    userType: '',
+    confirm_password: '',
+    role: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,14 +36,14 @@ const RegistrationForm = () => {
   };
 
   const validateForm = () => {
-    if (!formData.firstName || !formData.lastName || !formData.email || 
-        !formData.phone || !formData.password || !formData.confirmPassword || 
-        !formData.userType) {
+    if (!formData.username || !formData.email || 
+        !formData.phone || !formData.password || !formData.confirm_password || 
+        !formData.role) {
       setError('Please fill in all fields');
       return false;
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (formData.password !== formData.confirm_password) {
       setError('Passwords do not match');
       return false;
     }
@@ -108,32 +107,24 @@ const RegistrationForm = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="firstName" className="block text-sm font-medium">
-                  First Name
+                <label htmlFor="userame" className="block text-sm font-medium">
+                  User Name
                 </label>
                 <Input
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
+                  id="username"
+                  name="username"
+                  value={formData.username}
                   onChange={handleChange}
-                  placeholder="Enter your first name"
+                  placeholder="Enter your user name"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="lastName" className="block text-sm font-medium">
-                  Last Name
+                <label htmlFor className="block text-sm font-medium">
                 </label>
-                <Input
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  placeholder="Enter your last name"
-                  required
-                />
-              </div>
+                  
+                   </div>
             </div>
 
             <div className="space-y-2">
@@ -159,7 +150,7 @@ const RegistrationForm = () => {
                 id="phone"
                 name="phone"
                 type="tel"
-                value={formData.phone}
+                value={formData.phone_number}
                 onChange={handleChange}
                 placeholder="Enter your phone number"
                 required
@@ -168,11 +159,11 @@ const RegistrationForm = () => {
 
             <div className="space-y-2">
               <label className="block text-sm font-medium">
-                User Type
+                Role
               </label>
-              <Select onValueChange={handleSelectChange} value={formData.userType}>
+              <Select onValueChange={handleSelectChange} value={formData.role}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select user type" />
+                  <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="artisan">Artisan</SelectItem>
@@ -201,10 +192,10 @@ const RegistrationForm = () => {
                 Confirm Password
               </label>
               <Input
-                id="confirmPassword"
-                name="confirmPassword"
+                id="confirm_password"
+                name="confirm_password"
                 type="password"
-                value={formData.confirmPassword}
+                value={formData.confirm_password}
                 onChange={handleChange}
                 placeholder="Confirm your password"
                 required
