@@ -21,8 +21,8 @@ class Artisan(Base):
     phone_number = db.Column(db.String(14), nullable=False)
     location = db.Column(db.String(60))
     # Added latitude and longitude attributes to the table 'Artisans'
-    latitude = db.column(db.float, nullable=True)
-    longitude = db.column(db.float, nullable=True)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
     # Removed nullable=False in Specialization and skills; not in Registration Form
     specialization = db.Column(
         Enum('Engineering', 'Nursing', 'None', name='specialization'), default='None'
@@ -57,30 +57,31 @@ class Artisan(Base):
         }
     
     # Geosoding method to fetch latitude and longitude for the location
-    def geocode_locatio(self, api_key):
-        """
-        Fetch latitude and longitude for the location using
-        Google Geocoding API
-        """
-        if not self.location:
-            raise ValueError("Location is not set for this artisan.")
+    # def geocode_locatio(self, api_key):
+    #     """
+    #     Fetch latitude and longitude for the location using
+    #     Google Geocoding API
+    #     """
+    #     if not self.location:
+    #         raise ValueError("Location is not set for this artisan.")
         
-        base_url = "https://maps.googleapis.com/maps/api/geocode/json"
-        params = {
-            'address': self.location,
-            'key': api_key
-        }
-        response = requests.get(base_url, params=params)
+    #     base_url = "https://maps.googleapis.com/maps/api/geocode/json"
+    #     params = {
+    #         'address': self.location,
+    #         'key': api_key
+    #     }
+    #     response = requests.get(base_url, params=params)
 
-        if response.status_code == 200:
-            data = response.json()
-            if data['results']:
-                location_data = data['results'][0]['geometry']['location']
-                self.latitude = location_data['lat']
-                self.longitude = location_data['lng']
-                return True
-            else:
-                raise ValueError(f"Could not geocode location: {self.location}")
+    #     if response.status_code == 200:
+    #         data = response.json()
+    #         if data['results']:
+    #             location_data = data['results'][0]['geometry']['location']
+    #             self.latitude = location_data['lat']
+    #             self.longitude = location_data['lng']
+    #             return True
+    #         else:
+    #             raise ValueError(f"Could not geocode location: {self.location}")
             
-        else:
-            raise ConnectionError("Failed to connect to Google Geocoding API.")
+    #     else:
+    #         raise ConnectionError("Failed to connect to Google Geocoding API.")
+
