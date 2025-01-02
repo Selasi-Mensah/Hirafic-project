@@ -12,6 +12,7 @@ const RegistrationForm = () => {
     username: '',
     email: '',
     phone: '',
+    location: '',
     password: '',
     confirm_password: '',
     role: '',
@@ -38,7 +39,7 @@ const RegistrationForm = () => {
 
   const validateForm = () => {
     if (!formData.username || !formData.email || 
-        !formData.phone || !formData.password || !formData.confirm_password || 
+        !formData.phone || !formData.location || !formData.password || !formData.confirm_password || 
         !formData.role) {
       setError('Please fill in all fields');
       return false;
@@ -108,8 +109,8 @@ const RegistrationForm = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="userame" className="block text-sm font-medium">
-                  User Name
+                <label htmlFor="username" className="block text-sm font-medium">
+                  Full Name
                 </label>
                 <Input
                   id="username"
@@ -154,6 +155,21 @@ const RegistrationForm = () => {
                 value={formData.phone_number}
                 onChange={handleChange}
                 placeholder="Enter your phone number"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="Location" className="block text-sm font-medium">
+                Location Address
+              </label>
+              <Input
+                id="location"
+                name="location"
+                type="location"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter your Location"
                 required
               />
             </div>
