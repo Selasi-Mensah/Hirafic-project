@@ -30,7 +30,8 @@ class User(Base, UserMixin):
         Enum('Artisan', 'Client', name='user_role'),
         nullable=False
         )
-    
+    location = db.Column(db.String(60), nullable=False)
+
     client = db.relationship("Client", backref="user_client", cascade="all, delete, delete-orphan", uselist=False)
     artisan = db.relationship("Artisan", backref="user_artisan", cascade="all, delete, delete-orphan", uselist=False)
 

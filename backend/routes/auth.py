@@ -37,8 +37,8 @@ def registr():
     """ POST /register
         GET /register
     """
-    # if current_user.is_authenticated:
-    #   return redirect(url_for('users.home'))
+    if current_user.is_authenticated:
+        return redirect(url_for('users.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password =\
@@ -48,6 +48,7 @@ def registr():
             email=form.email.data,
             password=hashed_password,
             phone_number=form.phone_number.data,
+            location=form.location.data,
             role=form.role.data,
             )
         #print(user)
@@ -57,22 +58,24 @@ def registr():
             flash('Your account has been created!', 'success')
             if user.role == "Client":
                 client = Client(
-                    user_id = user.id,
-                    name = user.username,
-                    email = user.email,
-                    password = user.password,
-                    phone_number = user.phone_number
+                    user_id=user.id,
+                    name=user.username,
+                    email=user.email,
+                    location=user.location,
+                    password=user.password,
+                    phone_number=user.phone_number
                     )
                 #client_user = Client(user_client=user)
                 db.session.add(client)
                 db.session.commit()
             elif user.role == "Artisan":
-                artisan = Artisan(
-                    user_id = user.id,
-                    name = user.username,
-                    email = user.email,
-                    password = user.password,
-                    phone_number = user.phone_number,
+                artisan=Artisan(
+                    user_id=user.id,
+                    name=user.username,
+                    email=user.email,
+                    location=user.location,
+                    password=user.password,
+                    phone_number=user.phone_number,
                     )
                 db.session.add(artisan)
                 db.session.commit()
@@ -81,7 +84,7 @@ def registr():
         except Exception as e:
             db.session.rollback()
             print(f"An error occurred during registration: {str(e)}")
-            return "Registration failed", 400
+            return jsonify({'error':"Registration failed"}) 400
     return render_template('register.html', titel='Register', form=form)
     #return jsonify({'user': user.to_dic()})
 
@@ -165,6 +168,9 @@ def test():
 
     output = Artisan.query.all()
     print(f"artisans: {output}")
+
+    # client = Client.query.first()
+    # print(client.longitude)
 
     # test
     return "Test"

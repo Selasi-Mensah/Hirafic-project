@@ -19,6 +19,13 @@ class ClientProfileForm(FlaskForm):
                             DataRequired(), Email()])
     
     phone_number = StringField('Phone Number', validators=[DataRequired()])
+    location = StringField('Location', validators=[
+        DataRequired(),
+        Length(
+            min=2, max=100,
+            message="Location must not exceed 60 characters."
+            )
+        ])
 
     picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
 
