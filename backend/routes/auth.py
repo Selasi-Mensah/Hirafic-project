@@ -37,8 +37,8 @@ def registr():
     """ POST /register
         GET /register
     """
-    if current_user.is_authenticated:
-        return redirect(url_for('users.home'))
+    # if current_user.is_authenticated:
+    #   return redirect(url_for('users.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password =\
@@ -84,7 +84,7 @@ def registr():
         except Exception as e:
             db.session.rollback()
             print(f"An error occurred during registration: {str(e)}")
-            return jsonify({'error':"Registration failed"}) 400
+            return "Registration failed", 400
     return render_template('register.html', titel='Register', form=form)
     #return jsonify({'user': user.to_dic()})
 
