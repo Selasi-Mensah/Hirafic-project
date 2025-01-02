@@ -20,6 +20,13 @@ class RegistrationForm(FlaskForm):
                                                         DataRequired(),
                                                         EqualTo('password')])
     phone_number = StringField('Phone Number', validators=[DataRequired()])
+    location = StringField('Location', validators=[
+        DataRequired(),
+        Length(
+            min=2, max=100,
+            message="Location must not exceed 60 characters."
+            )
+        ])
     role = RadioField(
         'Role',
         choices=[('Artisan', 'Artisan'), ('Client', 'Client')],
