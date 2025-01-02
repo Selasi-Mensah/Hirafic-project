@@ -10,7 +10,7 @@ from models.client import Client
 from forms.auth import RegistrationForm, LoginForm
 from datetime import datetime
 from flask import redirect, render_template, url_for, flash, request
-from flask_login import login_user, current_user, logout_user, login_required, current_user
+from flask_login import login_user, current_user, logout_user, current_user
 
 
 users_Bp = Blueprint('users', __name__)
@@ -29,16 +29,29 @@ def home():
     # if not artisans:
     #     abort(404)
     # return jsonify({'artisans': [artisan.to_dict() for artisan in artisans]})
-    #return jsonify([artisan.to_dict() for artisan in artisans])
+    # return jsonify([artisan.to_dict() for artisan in artisans])
     return "Home"
+
 
 @users_Bp.route("/register", methods=['GET', 'POST'], strict_slashes=False)
 def registr():
-    """ POST /register
-        GET /register
+    """ 
+    GET /register
+        - return JSON with fields
+    POST /register
+    JSON body:
+        - username
+        - email
+        - phone_number
+        - location
+        - role
+    Return:
+        - User Object JSON representation
+        - 400 if can't creat the new User
     """
-    # if current_user.is_authenticated:
-    #   return redirect(url_for('users.home'))
+    if current_user.is_authenticated:
+        # return redirect(url_for('users.home'))
+        return jsonify({"error": "User already Loged in"})
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password =\
@@ -49,9 +62,8 @@ def registr():
             password=hashed_password,
             phone_number=form.phone_number.data,
             location=form.location.data,
-            role=form.role.data,
+            role=form.role.data
             )
-        #print(user)
         db.session.add(user)
         try:
             db.session.commit()
@@ -65,11 +77,10 @@ def registr():
                     password=user.password,
                     phone_number=user.phone_number
                     )
-                #client_user = Client(user_client=user)
                 db.session.add(client)
                 db.session.commit()
             elif user.role == "Artisan":
-                artisan=Artisan(
+                artisan = Artisan(
                     user_id=user.id,
                     name=user.username,
                     email=user.email,
@@ -79,64 +90,65 @@ def registr():
                     )
                 db.session.add(artisan)
                 db.session.commit()
-            return redirect(url_for('users.login'))
-            # return "register"
+            return jsonify({user.to_dict()}), 201
+            # return redirect(url_for('users.login'))
         except Exception as e:
             db.session.rollback()
-            print(f"An error occurred during registration: {str(e)}")
-            return "Registration failed", 400
-    return render_template('register.html', titel='Register', form=form)
-    #return jsonify({'user': user.to_dic()})
-
-# @users_Bp.route('/artisan/login', methods=['GET', 'POST'])
-# def artisan_login():
-
-
-# @users_Bp.route('/client/login', methods=['GET', 'POST'])
-# def client_login():
+            # print(f"An error occurred during registration: {str(e)}")
+            return jsonify({"error": "Registration failed"}), 400
+    # return render_template('register.html', titel='Register', form=form)
+    return jsonify({
+        "fields_to_submit": "username, email, password, "
+        "confirm_password, phone_number, location, role"
+        })
 
 
 @users_Bp.route("/login", methods=['GET', 'POST'], strict_slashes=False)
 def login():
-    """ POST /login
-        GET /login
+    """
+    GET /login
+        - return JSON with fields 
+    POST /login
+        JSON body:
+        - email
+        - password
+        - remember
+        - submit
+    Return:
+        - 
     """
     if current_user.is_authenticated:
         return redirect(url_for('users.home'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
+        if user and\
+                bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             if user.role == 'Artisan':
-                return redirect(url_for('artisans.artisan_profile', username=user.username))
+                return redirect(url_for(
+                    'artisans.artisan_profile',
+                    username=user.username))
             elif user.role == 'Client':
-                return redirect(url_for('clients.client_profile', username=user.username))
+                return redirect(url_for(
+                    'clients.client_profile',
+                    username=user.username))
             else:
                 next_page = request.args.get('next')
-                return redirect(next_page) if next_page else redirect(url_for('users.home'))
+                return redirect(next_page) if next_page else\
+                    redirect(url_for('users.home'))
         else:
             flash(
                 f'Login Unsuccessful, please check email and password',
                 'danger')
     return render_template('login.html', titel='login', form=form)
-    # return "Login"
+    # return jsonify({"fields_to_submit": "email, password, remember, submit"})
 
 
 @users_Bp.route("/logout", strict_slashes=False)
 def logout():
     logout_user()
     return redirect(url_for('users.home'))
-
-
-# @artisan_required
-# def account():
-#     return render_template('account.html', title='Artisan Account')
-
-
-# @client_required
-# def account():
-#     return render_template('account.html', title='Client Account')
 
 
 @users_Bp.route("/test")
@@ -154,7 +166,7 @@ def test():
     # db.session.add(user_1)
     # db.session.commit()
     # output = db.session.query(User).all()
-    
+
     # test cascade
     # user = User.query.first()
     # db.session.delete(user)
