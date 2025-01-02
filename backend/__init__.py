@@ -3,12 +3,14 @@
 from flask import Flask
 from extensions import db, migrate, bcrypt, login_manager
 from config import Config
+from flask_cors import CORS
 
 
 def create_app(config_class=Config):
     # creating flask instant and db
     app = Flask(__name__)
     app.config.from_object(Config)
+    CORS(app, resources={r"/routes/*": {"origins": "*"}})
     # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
     # app.config['SECRET_KEY'] = 'e4307d4b50f2d467b26d69469749871a'
 

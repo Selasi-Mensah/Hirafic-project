@@ -118,6 +118,7 @@ def login():
         - 
     """
     if current_user.is_authenticated:
+        # return jsonify({"error": "User already Loged in"})
         return redirect(url_for('users.home'))
     form = LoginForm()
     if form.validate_on_submit():
@@ -126,28 +127,31 @@ def login():
                 bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             if user.role == 'Artisan':
+                # return jsonify({"client": user.artisan.to_dict()})
                 return redirect(url_for(
                     'artisans.artisan_profile',
                     username=user.username))
             elif user.role == 'Client':
+                # return jsonify({"client": user.client.to_dict()})
                 return redirect(url_for(
                     'clients.client_profile',
                     username=user.username))
-            else:
-                next_page = request.args.get('next')
-                return redirect(next_page) if next_page else\
-                    redirect(url_for('users.home'))
+            # else:
+            #     next_page = request.args.get('next')
+            #     return redirect(next_page) if next_page else\
+            #         redirect(url_for('users.home'))
         else:
             flash(
                 f'Login Unsuccessful, please check email and password',
                 'danger')
-    return render_template('login.html', titel='login', form=form)
-    # return jsonify({"fields_to_submit": "email, password, remember, submit"})
+    # return render_template('login.html', titel='login', form=form)
+    return jsonify({"fields_to_submit": "email, password, remember, submit"})
 
 
 @users_Bp.route("/logout", strict_slashes=False)
 def logout():
     logout_user()
+    # return jsonify({"error": "User already Loged in"})
     return redirect(url_for('users.home'))
 
 
