@@ -224,16 +224,5 @@ const RegistrationForm = () => {
   );
 };
 
+
 export default RegistrationForm;
-
-
-const Register = () => {
-  return (
-    <div>
-      
-    </div>
-  )
-}
-
-export default Register
-
