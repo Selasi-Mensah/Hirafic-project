@@ -49,6 +49,19 @@
                 {% endif %}
             </div>
 
+             <!-- Location Field -->
+             <div class="mb-3">
+                {{ form.location.label(class="form-label") }}
+                {{ form.location(class_="form-control", placeholder="Enter your location") }}
+                {% if form.location.errors %}
+                    <div class="text-danger">
+                        {% for error in form.location.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
             <div class="form-group">
                 {{ form.picture.label() }}
                 {{ form.picture(class="form-control-file") }}

@@ -19,7 +19,12 @@ class ArtisanProfileForm(FlaskForm):
                             DataRequired(), Email()])
     phone_number = StringField('Phone Number', validators=[DataRequired()])
     location = StringField('Location', validators=[
-        Length(max=60, message="Location must not exceed 60 characters.")])
+        DataRequired(),
+        Length(
+            min=2, max=100,
+            message="Location must not exceed 60 characters."
+            )
+        ])
     specialization = SelectField('Specialization',
                                  choices=[
                                      ('Engineering', 'Engineering'),
@@ -32,7 +37,6 @@ class ArtisanProfileForm(FlaskForm):
     picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
 
     submit = SubmitField('Update')
-
 
     def validate_username(self, username):
         """ to validate username """
