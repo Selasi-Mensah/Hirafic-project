@@ -11,10 +11,17 @@ from forms.auth import RegistrationForm, LoginForm
 from datetime import datetime
 from flask import redirect, render_template, url_for, flash, request
 from flask_login import login_user, current_user, logout_user, current_user
+# from flask_wtf.csrf import generate_csrf, CSRFProtect
 
 
 users_Bp = Blueprint('users', __name__)
 # users_Bp.template_folder = 'path/to/your/templates'
+
+
+# @users_Bp.route('/csrf-token')
+# def csrf_token():
+#     token = generate_csrf()  # Generate CSRF token
+#     return jsonify({'csrf_token': token})
 
 
 @users_Bp.route("/home", methods=['GET'], strict_slashes=False)
@@ -34,7 +41,7 @@ def home():
 
 
 @users_Bp.route("/register", methods=['GET', 'POST'], strict_slashes=False)
-def registr():
+def register():
     """ 
     GET /register
         - return JSON with fields
@@ -52,22 +59,29 @@ def registr():
     if current_user.is_authenticated:
         # return redirect(url_for('users.home'))
         return jsonify({"error": "User already Loged in"})
+    if request.method == "GET":
+        return jsonify({
+            "fields_to_submit": "username, email, password, "
+            "confirm_password, phone_number, location, role"
+            })
     form = RegistrationForm()
-    if form.validate_on_submit():
+    if request.method == "POST":
+    # if form.validate_on_submit():
         hashed_password =\
             bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = User(
-            username=form.username.data,
-            email=form.email.data,
-            password=hashed_password,
-            phone_number=form.phone_number.data,
-            location=form.location.data,
-            role=form.role.data
-            )
-        db.session.add(user)
         try:
+            user = User(
+                username=form.username.data,
+                email=form.email.data,
+                password=hashed_password,
+                phone_number=form.phone_number.data,
+                location=form.location.data,
+                role=form.role.data
+                )
+            db.session.add(user)
             db.session.commit()
             flash('Your account has been created!', 'success')
+            
             if user.role == "Client":
                 client = Client(
                     user_id=user.id,
@@ -90,17 +104,14 @@ def registr():
                     )
                 db.session.add(artisan)
                 db.session.commit()
-            return jsonify({user.to_dict()}), 201
+            #return jsonify({user.to_dict()}), 201
+            return jsonify({'message': 'Registration successful!'}), 201
             # return redirect(url_for('users.login'))
         except Exception as e:
             db.session.rollback()
-            # print(f"An error occurred during registration: {str(e)}")
-            return jsonify({"error": "Registration failed"}), 400
+            return jsonify({"error": form.errors}), 400
     # return render_template('register.html', titel='Register', form=form)
-    return jsonify({
-        "fields_to_submit": "username, email, password, "
-        "confirm_password, phone_number, location, role"
-        })
+    return jsonify({"error": form.errors}), 400
 
 
 @users_Bp.route("/login", methods=['GET', 'POST'], strict_slashes=False)
@@ -118,8 +129,8 @@ def login():
         - 
     """
     if current_user.is_authenticated:
-        # return jsonify({"error": "User already Loged in"})
-        return redirect(url_for('users.home'))
+        return jsonify({"error": "User already Loged in"})
+        # return redirect(url_for('users.home'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -144,8 +155,8 @@ def login():
             flash(
                 f'Login Unsuccessful, please check email and password',
                 'danger')
-    # return render_template('login.html', titel='login', form=form)
-    return jsonify({"fields_to_submit": "email, password, remember, submit"})
+    return render_template('login.html', titel='login', form=form)
+    # return jsonify({"fields_to_submit": "email, password, remember, submit"})
 
 
 @users_Bp.route("/logout", strict_slashes=False)

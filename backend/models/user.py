@@ -9,7 +9,7 @@ from wtforms import RadioField, SelectField
 from datetime import datetime
 from  extensions import login_manager
 from flask_login import UserMixin
-#from models.artisan import Artisan
+from models.artisan import Artisan
 
 
 @login_manager.user_loader

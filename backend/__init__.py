@@ -10,7 +10,8 @@ def create_app(config_class=Config):
     # creating flask instant and db
     app = Flask(__name__)
     app.config.from_object(Config)
-    CORS(app, resources={r"/routes/*": {"origins": "*"}})
+    # CORS(app, resources={r"/routes/*": {"origins": "*"}})
+    CORS(app)
     # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
     # app.config['SECRET_KEY'] = 'e4307d4b50f2d467b26d69469749871a'
 
