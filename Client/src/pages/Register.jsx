@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 const Register = () => {
   return (
@@ -10,6 +11,9 @@ const Register = () => {
 
 export default Register
 =======
+=======
+
+>>>>>>> origin/Maps
 import React, { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -235,5 +239,21 @@ const RegistrationForm = () => {
   );
 };
 
+<<<<<<< HEAD
 export default RegistrationForm;
 >>>>>>> remotes/origin/Registration
+=======
+export default RegistrationForm;
+
+
+const Register = () => {
+  return (
+    <div>
+      
+    </div>
+  )
+}
+
+export default Register
+
+>>>>>>> origin/Maps
