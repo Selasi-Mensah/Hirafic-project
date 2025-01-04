@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect} from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -79,12 +78,12 @@ const RegistrationForm = () => {
 
     setLoading(true);
     try {
+      // console.log("Form Data Submitted:", formData);
       // Here you would typically make an API call to your backend
       // await new Promise(resolve => setTimeout(resolve, 1000));
       await axios.post('http://127.0.0.1:5000/register', formData)
       // Handle successful registration here
-      console.log('Registration successful', formData);
-      
+      console.log('Registration successful');
     } catch (err) {
 
       console.error('Registration failed', err);
