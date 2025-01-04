@@ -1,24 +1,21 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """creating the Flask app"""
 from flask import Flask
-from extensions import db, migrate, bcrypt, login_manager
+from extensions import db, migrate, bcrypt, login_manager, cors
 from config import Config
-from flask_cors import CORS
 
 
 def create_app(config_class=Config):
     # creating flask instant and db
     app = Flask(__name__)
     app.config.from_object(Config)
-    # CORS(app, resources={r"/routes/*": {"origins": "*"}})
-    CORS(app)
-    # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-    # app.config['SECRET_KEY'] = 'e4307d4b50f2d467b26d69469749871a'
 
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
+    cors.init_app(app)
+    # csrf.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'login'
     login_manager.login_message_category = 'info'
@@ -41,6 +38,5 @@ def create_app(config_class=Config):
         app.register_blueprint(errors_Bp)
 
         db.create_all()
-        
-    return app
 
+    return app

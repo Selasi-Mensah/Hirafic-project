@@ -1,18 +1,15 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """Module to run app"""
 from __init__ import create_app
 from flask import make_response
-# from flask import BuildError
-# from flask_wtf.csrf import CSRFProtect
+from os import getenv
 
 
 app = create_app()
 # csrf = CSRFProtect(app)
 
-# @app.errorhandler(BuildError)
-# def not_found(error):
-#      return make_response(jsonify({'error': 'Not found'}), 404)
-
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port='5000', debug=True)
+    host = getenv("API_HOST", "0.0.0.0")
+    port = getenv("API_PORT", "5000")
+    app.run(host=host, port=port, debug=True)
