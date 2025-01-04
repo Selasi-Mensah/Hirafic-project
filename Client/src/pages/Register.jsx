@@ -1,22 +1,24 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import axios from 'axios';
+
 
 const RegistrationForm = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    phone: '',
-    location: '',
     password: '',
     confirm_password: '',
+    phone_number: '',
+    location: '',
     role: '',
   });
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -32,14 +34,14 @@ const RegistrationForm = () => {
   const handleSelectChange = (value) => {
     setFormData(prev => ({
       ...prev,
-      userType: value
+      role: value
     }));
     setError('');
   };
 
   const validateForm = () => {
     if (!formData.username || !formData.email || 
-        !formData.phone || !formData.location || !formData.password || !formData.confirm_password || 
+        !formData.phone_number || !formData.location || !formData.password || !formData.confirm_password || 
         !formData.role) {
       setError('Please fill in all fields');
       return false;
@@ -62,7 +64,7 @@ const RegistrationForm = () => {
     }
 
     const phoneRegex = /^\+?[\d\s-]{10,}$/;
-    if (!phoneRegex.test(formData.phone)) {
+    if (!phoneRegex.test(formData.phone_number)) {
       setError('Please enter a valid phone number');
       return false;
     }
@@ -76,14 +78,16 @@ const RegistrationForm = () => {
 
     setLoading(true);
     try {
+      // console.log("Form Data Submitted:", formData);
       // Here you would typically make an API call to your backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // await new Promise(resolve => setTimeout(resolve, 1000));
+      await axios.post('http://127.0.0.1:5000/register', formData)
       // Handle successful registration here
-      console.log('Registration successful', formData);
-      
+      console.log('Registration successful');
     } catch (err) {
-      setError('Registration failed. Please try again.');
+
+      console.error('Registration failed', err);
+    
     } finally {
       setLoading(false);
     }
@@ -95,7 +99,7 @@ const RegistrationForm = () => {
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
           <CardDescription className="text-center">
-            Join our artisan community today
+            Join our community today
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -149,8 +153,8 @@ const RegistrationForm = () => {
                 Phone Number
               </label>
               <Input
-                id="phone"
-                name="phone"
+                id="phone_number"
+                name="phone_number"
                 type="tel"
                 value={formData.phone_number}
                 onChange={handleChange}
@@ -167,7 +171,7 @@ const RegistrationForm = () => {
                 id="location"
                 name="location"
                 type="location"
-                value={formData.email}
+                value={formData.location}
                 onChange={handleChange}
                 placeholder="Enter your Location"
                 required
@@ -178,13 +182,13 @@ const RegistrationForm = () => {
               <label className="block text-sm font-medium">
                 Role
               </label>
-              <Select onValueChange={handleSelectChange} value={formData.role}>
+              <Select value={formData.role} onValueChange={handleSelectChange} placeholder="Select role">
                 <SelectTrigger>
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="artisan">Artisan</SelectItem>
-                  <SelectItem value="client">Client</SelectItem>
+                  <SelectItem value="Artisan">Artisan</SelectItem>
+                  <SelectItem value="Client">Client</SelectItem>
                 </SelectContent>
               </Select>
             </div>
