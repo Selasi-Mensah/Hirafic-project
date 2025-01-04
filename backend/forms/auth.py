@@ -31,19 +31,21 @@ class RegistrationForm(FlaskForm):
         'Role',
         choices=[('Artisan', 'Artisan'), ('Client', 'Client')],
         validators=[DataRequired()])
-
-    submit = SubmitField('Sign Up')
+    
+    # submit = SubmitField('Sign Up')
 
     def validate_username(self, username):
         """ to validate username """
         user = User.query.filter_by(username=username.data).first()
         if user:
+            print("username issue")
             raise ValidationError('Username is already taken!')
 
     def validate_email(self, email):
         """ to validate password """
         user = User.query.filter_by(email=email.data).first()
         if user:
+            print("email issue")
             raise ValidationError('Email is already taken!')
 
 class LoginForm(FlaskForm):

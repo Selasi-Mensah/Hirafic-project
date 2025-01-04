@@ -3,10 +3,11 @@
 from __init__ import create_app
 from flask import make_response
 # from flask import BuildError
+# from flask_wtf.csrf import CSRFProtect
 
 
 app = create_app()
-
+# csrf = CSRFProtect(app)
 
 # @app.errorhandler(BuildError)
 # def not_found(error):
