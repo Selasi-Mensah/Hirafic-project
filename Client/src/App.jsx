@@ -7,6 +7,7 @@ import Artisan from "./pages/Artisan";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import About from "./pages/About";
+// import "./App.css";
 
 function App() {
   return (

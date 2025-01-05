@@ -45,5 +45,9 @@
   border-radius: 10px;
   color: #ffffff;
   font-family: poppins;
+  text-decoration: none;
   cursor: pointer;
+}
+.screen .btn #link {
+  color: white;
 }/*# sourceMappingURL=component.css.map */
