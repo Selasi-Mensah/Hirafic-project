@@ -1,12 +1,9 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """
 Contains Booking Class
 """
 from models.base import db, Base
-from sqlalchemy_utils import PhoneNumber
 from sqlalchemy import Enum
-from wtforms import RadioField, SelectField
-from datetime import datetime
 
 
 class Booking(Base):

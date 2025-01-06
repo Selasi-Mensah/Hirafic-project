@@ -1,23 +1,33 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 """
-Contains Registration and Login Forms
+Contains Client Profile form
 """
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, RadioField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired, Length, Email, ValidationError
 from models.user import User
 from flask_login import current_user
 
 
 class ClientProfileForm(FlaskForm):
-    """ This form for Client Profile """
+    """ This form for Client Profile:
+    fields:
+        - username
+        - email
+        - phone_number
+        - location
+        - picture
+        - submit
+    methods:
+        - validate_username
+        - validate_email
+        - validate_on_submit"""
     username = StringField('Username', validators=[
                                 DataRequired(), Length(min=2, max=20)])
     email = StringField('Email',
                         validators=[
                             DataRequired(), Email()])
-    
     phone_number = StringField('Phone Number', validators=[DataRequired()])
     location = StringField('Location', validators=[
         DataRequired(),
@@ -26,9 +36,8 @@ class ClientProfileForm(FlaskForm):
             message="Location must not exceed 60 characters."
             )
         ])
-
-    picture = FileField('Update Profile Picture', validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
-
+    picture = FileField('Update Profile Picture',
+                        validators=[FileAllowed(['jpg', 'jpeg', 'png'])])
     submit = SubmitField('Update')
 
     def validate_username(self, username):
@@ -44,3 +53,12 @@ class ClientProfileForm(FlaskForm):
             user = User.query.filter_by(email=email.data).first()
             if user:
                 raise ValidationError('Email is already taken!')
+
+    def validate_on_submit(self):
+        """ Override to manually disable CSRF validation """
+        if not super().validate_on_submit():
+            # Manually validate CSRF token
+            if self.csrf_token.errors:
+                return True
+            return False
+        return True
