@@ -1,19 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-const Register = () => {
-  return (
-    <div>
-      
-    </div>
-  )
-}
-
-export default Register
-=======
-=======
-
->>>>>>> origin/Maps
 import React, { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -22,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const RegistrationForm = () => {
+const Registration = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -239,21 +224,6 @@ const RegistrationForm = () => {
   );
 };
 
-<<<<<<< HEAD
-export default RegistrationForm;
->>>>>>> remotes/origin/Registration
-=======
-export default RegistrationForm;
+export default Registration;
 
 
-const Register = () => {
-  return (
-    <div>
-      
-    </div>
-  )
-}
-
-export default Register
-
->>>>>>> origin/Maps
