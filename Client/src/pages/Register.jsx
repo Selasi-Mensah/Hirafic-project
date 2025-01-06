@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import axios from 'axios';
 
 
-const RegistrationForm = () => {
+const Registration = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -245,4 +245,4 @@ const RegistrationForm = () => {
 };
 
 
-export default RegistrationForm;
+export default Registration;
