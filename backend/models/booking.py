@@ -25,4 +25,12 @@ class Booking(Base):
     completion_date = db.Column(db.DateTime(timezone=True))
 
     def __repr__(self):
-        return (f"Booking('{self.id}', '{self.status})")
+        return (f"Booking('{self.id}', '{self.status}')")
+    
+    
+    def to_dict(self):
+        return {
+            'status': self.status,
+            'request_date': self.request_date,
+            'completion_date': self.completion_date
+        }

@@ -73,7 +73,9 @@ class ArtisanProfileForm(FlaskForm):
         """ Override to manually disable CSRF validation """
         if not super().validate_on_submit():
             # Manually validate CSRF token
-            if self.csrf_token.errors:
-                return True
+            if hasattr(self, 'csrf_token'):
+                if self.csrf_token.errors:
+                    return True
+                return False
             return False
         return True

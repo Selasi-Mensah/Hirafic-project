@@ -47,7 +47,7 @@ class Artisan(Base):
             'latitude': self.latitude,
             'longitude': self.longitude,
             'specialization': self.specialization,
-            'sills': self.skills,
+            'skills': self.skills,
             # 'bookings': [b.to_dict() for b in self.bookings]
             # if self.bookings else None
         }
@@ -89,3 +89,4 @@ class Artisan(Base):
 
         else:
             raise ConnectionError("Failed to connect to OpenStreetMap API.")
+
