@@ -62,7 +62,8 @@ def update_artisan_object(form):
 
 
 @artisans_Bp.route("/artisan", methods=['GET', 'POST'], strict_slashes=False)
-@artisans_Bp.route("/artisan/<username>", methods=['GET', 'POST'])
+@artisans_Bp.route(
+    "/artisan/<username>", methods=['GET', 'POST'], strict_slashes=False)
 @login_required
 def artisan_profile(username=""):
     """ artisan profile route
@@ -112,7 +113,8 @@ def artisan_profile(username=""):
             # If an error occurs, rollback the session
             db.session.rollback()
             # return error if unable to complete registration
-            return jsonify({"error": "An error occurred during updating"}), 400
+            return jsonify(
+                {"error": "An error occurred during updating"}), 400
 
     else:
         # return error if form validation failed
@@ -120,6 +122,7 @@ def artisan_profile(username=""):
 
 
 @artisans_Bp.route('/location')
+@login_required
 def location():
     """ route to get the location of the artisan
     GET /location

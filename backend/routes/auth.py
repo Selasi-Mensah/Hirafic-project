@@ -41,7 +41,7 @@ def register():
         - return JSON with fields to submit
     POST /register
     Return:
-        - Success: JSON with user object
+        - Success: JSON with user object, 201
             - JSON body:
                 - username
                 - email
@@ -123,7 +123,7 @@ def register():
         except Exception as e:
             db.session.rollback()
             # return error if unable to complete registration
-            return jsonify({"error": "Unable to complete registration"}), 400
+            return jsonify({"error": "Unable to complete registration"}), 500
 
     else:
         # return error if form validation failed

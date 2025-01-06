@@ -3,6 +3,7 @@ from flask import Flask
 from extensions import db
 from models.base import Base
 
+
 @pytest.fixture(scope="module")
 def app():
     app = Flask(__name__)
@@ -15,12 +16,14 @@ def app():
 
     return app
 
+
 @pytest.fixture(scope="module")
 def database(app):
     with app.app_context():
         db.create_all()  # Create tables
         yield db  # Provide the database object to the test
         db.drop_all()  # Clean up tables after tests
+
 
 def test_base_model(database):
     """Test the Base model."""

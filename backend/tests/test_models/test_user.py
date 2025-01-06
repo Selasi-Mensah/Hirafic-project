@@ -136,7 +136,7 @@ def test_user_validations(app: Flask, database: SQLAlchemy):
 
         database.session.add(user2)
         with pytest.raises(IntegrityError):
-                        database.session.commit()
+            database.session.commit()
         database.session.rollback()
 
         # Test creating a user with a missing required field

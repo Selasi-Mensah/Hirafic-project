@@ -131,6 +131,8 @@ def search_nearby_artisans(
     results = []
     # search for artisans within the max distance
     for artisan in Artisan.query.all():
+        # make sure to geocode location before search
+        artisan.geocode_location()
         # get the artisan location
         artisan_location = (artisan.latitude, artisan.longitude)
         # calculate the distance between the current location and the artisan
@@ -143,10 +145,11 @@ def search_nearby_artisans(
     return results
 
 
-@clients_Bp.route("/client/nearby_artisan", methods=['GET', 'POST'],
-                  strict_slashes=False)
+@clients_Bp.route(
+        "/client/<username>/nearby_artisan",
+        methods=['GET', 'POST'], strict_slashes=False)
 @login_required
-def nearby_artisan() -> List:
+def nearby_artisan(username="") -> List:
     """ route to search nearby artisan
     GET /client/nearby_artisan
         - Success: JSON with nearby artisans
@@ -162,16 +165,14 @@ def nearby_artisan() -> List:
     # check if the user is a client
     if current_user.role != 'Client':
         return jsonify({"error": "User is not a client"}), 403
-
+    
     try:
         # make sure to geocode the client location
         current_user.client.geocode_location()
         # get the location tuple (longitude, latitude) of the client
         current_location = (current_user.client.longitude,
                             current_user.client.latitude)
-        # make sure to geocode all the artisans location before search
-        for artisan in artisans:
-            artisan.geocode_location()
+
         # search for nearby artisans within 5km
         artisans = search_nearby_artisans(current_location, 5000)
         # return JSON list of nearby artisans with name, longitude and latitude
