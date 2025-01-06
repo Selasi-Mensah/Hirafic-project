@@ -1,15 +1,14 @@
-// import React from "react";
+// import React from 'react'
 import Back from "../assets/Group 42.png";
-import Notifications from "../assets/Not.png";
-import Bookings from "../assets/Book.png";
-import Profile from "../assets/Profile.png";
+// import Email from "../assets/email.png";
+// import user from "../assets/Profile.png";
+import { Link } from "react-router-dom";
 import pic from "../assets/me.jpeg";
 import prof from "../assets/Edit-icon.png";
-import { Link } from "react-router-dom";
 
-const Artisan = () => {
+const Profile = () => {
   return (
-    <div className="Artisan">
+    <div className="profile">
       <div className="header">
         <Link to="/">
           <img src={Back} alt="" />
@@ -22,26 +21,23 @@ const Artisan = () => {
           <img src={pic} />
           <div className="name">
             <span id="head">Paul Levites</span>
-            <span id="desc">Barber</span>
           </div>
         </div>
         <div className="information">
           <div className="links">
             <div className="Link">
-              <img src={Profile} alt="" />
-              <Link to="/profile">Personal Information</Link>
+              {/* <img src={Email} alt="" /> */}
+              <label>Email</label>
+              <a href="mailto:paullevites84@gmail.com">
+                Paullevites84@gmail.com
+              </a>
             </div>
           </div>
           <div className="links">
             <div className="Link">
-              <img src={Bookings} alt="" />
-              <Link to="/book">Book Me</Link>
-            </div>
-          </div>
-          <div className="links">
-            <div className="Link">
-              <img src={Notifications} alt="" />
-              <Link to="/notification">Notifications</Link>
+              {/* <img src={user} alt="" /> */}
+              <label>Adrress</label>
+              <span>Dummy adrress</span>
             </div>
           </div>
         </div>
@@ -50,4 +46,4 @@ const Artisan = () => {
   );
 };
 
-export default Artisan;
+export default Profile;
