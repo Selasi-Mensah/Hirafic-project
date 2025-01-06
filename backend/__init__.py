@@ -31,11 +31,15 @@ def create_app(config_class=Config):
         from routes.artisan import artisans_Bp
         from routes.client import clients_Bp
         from routes.handlers import errors_Bp
+        from routes.booking import booking_bp
 
         app.register_blueprint(users_Bp)
         app.register_blueprint(artisans_Bp)
         app.register_blueprint(clients_Bp)
         app.register_blueprint(errors_Bp)
+        # Register booking_bp blueprint
+        app.register_blueprint(booking_bp)
+
 
         db.create_all()
         
