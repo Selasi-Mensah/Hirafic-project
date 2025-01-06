@@ -89,4 +89,3 @@ class Artisan(Base):
 
         else:
             raise ConnectionError("Failed to connect to OpenStreetMap API.")
-

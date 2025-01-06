@@ -26,8 +26,7 @@ class Booking(Base):
 
     def __repr__(self):
         return (f"Booking('{self.id}', '{self.status}')")
-    
-    
+
     def to_dict(self):
         return {
             'status': self.status,

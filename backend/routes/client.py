@@ -165,7 +165,7 @@ def nearby_artisan(username="") -> List:
     # check if the user is a client
     if current_user.role != 'Client':
         return jsonify({"error": "User is not a client"}), 403
-    
+
     try:
         # make sure to geocode the client location
         current_user.client.geocode_location()
