@@ -240,7 +240,6 @@ def test_client_nearby_artisan_success(client: Any, database: SQLAlchemy):
     user = User.query.filter_by(username='testuser').first()
     login_user(user)
     response = client.get('/client/testuser/nearby_artisan')
-
     assert response.status_code == 200
     assert response.is_json
     assert isinstance(response.json, list)

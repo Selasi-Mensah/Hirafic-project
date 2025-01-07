@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-API for client
+Contains API for client
 """
 import os
 import uuid
@@ -53,7 +53,7 @@ def update_user_object(form: ClientProfileForm) -> None:
     current_user.location = form.location.data
 
 
-def update_client_object(form: ClientProfileForm) -> None:
+def update_client_object(form: ClientProfileForm):
     """ Update the client object details """
     if not current_user.client:
         current_user.client = Client(user=current_user)
@@ -67,7 +67,7 @@ def update_client_object(form: ClientProfileForm) -> None:
 @clients_Bp.route("/client/<username>", methods=['GET', 'POST'],
                   strict_slashes=False)
 @login_required
-def client_profile(username: str = "") -> Dict[str, Any]:
+def client_profile(username: str = "") -> str:
     """ client profile route
     GET /client
     GET /client/<username>
@@ -149,7 +149,7 @@ def search_nearby_artisans(
         "/client/<username>/nearby_artisan",
         methods=['GET', 'POST'], strict_slashes=False)
 @login_required
-def nearby_artisan(username="") -> List:
+def nearby_artisan(username: str = "") -> List:
     """ route to search nearby artisan
     GET /client/nearby_artisan
         - Success: JSON with nearby artisans

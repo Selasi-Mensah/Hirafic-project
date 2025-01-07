@@ -46,19 +46,19 @@ class RegistrationForm(FlaskForm):
         validators=[DataRequired()])
     # submit = SubmitField('Sign Up')
 
-    def validate_username(self, username):
-        """ to validate username """
+    def validate_username(self, username: StringField) -> None:
+        """ method to validate username """
         user = User.query.filter_by(username=username.data).first()
         if user:
             raise ValidationError('Username is already taken!')
 
-    def validate_email(self, email):
-        """ to validate password """
+    def validate_email(self, email: StringField) -> None:
+        """ method to validate password """
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError('Email is already taken!')
 
-    def validate_on_submit(self):
+    def validate_on_submit(self) -> bool:
         """ Override to manually disable CSRF validation """
         if not super().validate_on_submit():
             # Manually validate CSRF token

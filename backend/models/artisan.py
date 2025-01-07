@@ -5,6 +5,7 @@ Contains Artisan Class
 import requests
 from models.base import db, Base
 from sqlalchemy import Enum
+from typing import Dict, Any
 
 
 class Artisan(Base):
@@ -33,11 +34,11 @@ class Artisan(Base):
         cascade="delete", lazy=True
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """ artisan representation method """
         return (f"Artisan('{self.name}', '{self.specialization}')")
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         """ return dictionary for the object """
         return {
             'name': self.name,
@@ -52,7 +53,7 @@ class Artisan(Base):
             # if self.bookings else None
         }
 
-    def geocode_location(self):
+    def geocode_location(self) -> bool:
         """
         Fetch latitude and longitude for the location using
         OpenStreetMap's Nominatim API.
