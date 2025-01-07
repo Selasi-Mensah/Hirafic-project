@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-API for artisan
+Contains API for artisan
 """
 import os
 import uuid
@@ -17,7 +17,7 @@ from flask_login import current_user, login_required
 artisans_Bp = Blueprint('artisans', __name__)
 
 
-def save_picture(form_picture):
+def save_picture(form_picture: any) -> str:
     """ function to save the updated profile picture"""
     # get a random hex to avoid file name collision
     random_hex = uuid.uuid4().hex[:8]
@@ -35,10 +35,10 @@ def save_picture(form_picture):
     # save the image
     open_image.save(picture_path)
     # return the file name
-    return pic_fnam
+    return pic_fname
 
 
-def update_user_object(form):
+def update_user_object(form: ArtisanProfileForm):
     """ Update the user object details """
     if form.picture.data:
         picture_file = save_picture(form.picture.data)
@@ -49,7 +49,7 @@ def update_user_object(form):
     current_user.location = form.location.data
 
 
-def update_artisan_object(form):
+def update_artisan_object(form: ArtisanProfileForm):
     """ Update the artisan object details """
     if not current_user.artisan:
         current_user.artisan = Artisan(user=current_user)
@@ -62,9 +62,10 @@ def update_artisan_object(form):
 
 
 @artisans_Bp.route("/artisan", methods=['GET', 'POST'], strict_slashes=False)
-@artisans_Bp.route("/artisan/<username>", methods=['GET', 'POST'])
+@artisans_Bp.route(
+    "/artisan/<username>", methods=['GET', 'POST'], strict_slashes=False)
 @login_required
-def artisan_profile(username=""):
+def artisan_profile(username: str = "") -> str:
     """ artisan profile route
     GET /artisan
     GET /artisan/<username>
@@ -112,7 +113,8 @@ def artisan_profile(username=""):
             # If an error occurs, rollback the session
             db.session.rollback()
             # return error if unable to complete registration
-            return jsonify({"error": "An error occurred during updating"}), 400
+            return jsonify(
+                {"error": "An error occurred during updating"}), 400
 
     else:
         # return error if form validation failed
@@ -120,7 +122,8 @@ def artisan_profile(username=""):
 
 
 @artisans_Bp.route('/location')
-def location():
+@login_required
+def location() -> str:
     """ route to get the location of the artisan
     GET /location
         Return:

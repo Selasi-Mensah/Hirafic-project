@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-API for client
+Contains API for client
 """
 import os
 import uuid
@@ -53,7 +53,7 @@ def update_user_object(form: ClientProfileForm) -> None:
     current_user.location = form.location.data
 
 
-def update_client_object(form: ClientProfileForm) -> None:
+def update_client_object(form: ClientProfileForm):
     """ Update the client object details """
     if not current_user.client:
         current_user.client = Client(user=current_user)
@@ -67,7 +67,7 @@ def update_client_object(form: ClientProfileForm) -> None:
 @clients_Bp.route("/client/<username>", methods=['GET', 'POST'],
                   strict_slashes=False)
 @login_required
-def client_profile(username: str = "") -> Dict[str, Any]:
+def client_profile(username: str = "") -> str:
     """ client profile route
     GET /client
     GET /client/<username>
@@ -131,6 +131,8 @@ def search_nearby_artisans(
     results = []
     # search for artisans within the max distance
     for artisan in Artisan.query.all():
+        # make sure to geocode location before search
+        artisan.geocode_location()
         # get the artisan location
         artisan_location = (artisan.latitude, artisan.longitude)
         # calculate the distance between the current location and the artisan
@@ -143,10 +145,11 @@ def search_nearby_artisans(
     return results
 
 
-@clients_Bp.route("/client/nearby_artisan", methods=['GET', 'POST'],
-                  strict_slashes=False)
+@clients_Bp.route(
+        "/client/<username>/nearby_artisan",
+        methods=['GET', 'POST'], strict_slashes=False)
 @login_required
-def nearby_artisan() -> List:
+def nearby_artisan(username: str = "") -> List:
     """ route to search nearby artisan
     GET /client/nearby_artisan
         - Success: JSON with nearby artisans
@@ -169,9 +172,7 @@ def nearby_artisan() -> List:
         # get the location tuple (longitude, latitude) of the client
         current_location = (current_user.client.longitude,
                             current_user.client.latitude)
-        # make sure to geocode all the artisans location before search
-        for artisan in artisans:
-            artisan.geocode_location()
+
         # search for nearby artisans within 5km
         artisans = search_nearby_artisans(current_location, 5000)
         # return JSON list of nearby artisans with name, longitude and latitude

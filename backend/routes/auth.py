@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Route module for main API and users API
+Contains Route module for main API and users API
 """
 from flask import Blueprint, jsonify, abort, request
 from __init__ import db, bcrypt
@@ -18,7 +18,7 @@ users_Bp = Blueprint('users', __name__)
 
 @users_Bp.route("/home", methods=['GET'], strict_slashes=False)
 @users_Bp.route("/", methods=['GET'], strict_slashes=False)
-def home():
+def home() -> str:
     """
     GET /home
     GET /
@@ -35,13 +35,13 @@ def home():
 
 @users_Bp.route("/register", methods=['GET', 'POST'],
                 strict_slashes=False)
-def register():
+def register() -> str:
     """
     GET /register
         - return JSON with fields to submit
     POST /register
     Return:
-        - Success: JSON with user object
+        - Success: JSON with user object, 201
             - JSON body:
                 - username
                 - email
@@ -123,7 +123,7 @@ def register():
         except Exception as e:
             db.session.rollback()
             # return error if unable to complete registration
-            return jsonify({"error": "Unable to complete registration"}), 400
+            return jsonify({"error": "Unable to complete registration"}), 500
 
     else:
         # return error if form validation failed
@@ -131,7 +131,7 @@ def register():
 
 
 @users_Bp.route("/login", methods=['GET', 'POST'], strict_slashes=False)
-def login():
+def login() -> str:
     """
     GET /login
         - return JSON with fields to submit
@@ -196,7 +196,7 @@ def login():
 
 
 @users_Bp.route("/logout", strict_slashes=False)
-def logout():
+def logout() -> str:
     """
     GET /logout
     Return:

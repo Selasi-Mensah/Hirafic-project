@@ -7,10 +7,11 @@ from sqlalchemy import Enum
 from extensions import login_manager
 from flask_login import UserMixin
 from models.artisan import Artisan
+from typing import Dict, Any
 
 
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(user_id: int) -> 'User':
     return User.query.get(int(user_id))
     # return db.session.get(User, int(user_id))
 
@@ -38,11 +39,11 @@ class User(Base, UserMixin):
                               cascade="all, delete, delete-orphan",
                               uselist=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """ user representation method """
         return (f"User('{self.username}', '{self.email}')")
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
         """ return dictionary for the object """
         return {
             'username': self.username,

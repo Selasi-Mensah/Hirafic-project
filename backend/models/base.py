@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Contains class Base
+Contains Base Class
 """
 from extensions import db
 

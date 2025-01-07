@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-""" Contains the error handlers """
+"""
+Contains the error handlers
+"""
 from flask import Blueprint, make_response, jsonify
 
 
@@ -7,10 +9,10 @@ from flask import Blueprint, make_response, jsonify
 errors_Bp = Blueprint('errors', __name__)
 
 
-@errors_Bp.errorhandler(401)
+@errors_Bp.app_errorhandler(401)
 def unauthorized(error) -> str:
     """ Unauthorized handler """
-    return jsonify({"error": "Unauthorized"}), 401
+    return make_response(jsonify({"error": "Unauthorized"}), 401)
 
 
 @errors_Bp.app_errorhandler(403)
