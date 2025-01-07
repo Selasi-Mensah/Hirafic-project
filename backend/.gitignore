@@ -4,6 +4,7 @@
 *$py.class
 
 # database
+**/instance/
 instance/
 ../instance/
 
@@ -12,11 +13,11 @@ instance/
 .venv
 venv/
 myenv/
-../newenv/
+**/newenv/
 
 # VS Code
 .vscode/
-../.vscode/
+**/.vscode/
 
 # Templates for testing
 templates/
