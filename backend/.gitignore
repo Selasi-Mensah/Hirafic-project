@@ -5,6 +5,7 @@
 
 # database
 instance/
+../instance/
 
 # virtualenv
 .env
@@ -15,6 +16,7 @@ myenv/
 
 # VS Code
 .vscode/
+../.vscode/
 
 # Templates for testing
 templates/
