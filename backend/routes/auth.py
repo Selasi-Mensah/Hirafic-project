@@ -159,7 +159,6 @@ def login() -> str:
     if request.method == "GET":
         return jsonify({"fields_to_submit":
                         "email, password, remember, submit"})
-
     # handle POST request after validating the form
     elif form.validate_on_submit():
         # check if user exists and password is correct
