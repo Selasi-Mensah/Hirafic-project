@@ -9,7 +9,9 @@ import { Input } from '@/components/ui/input';
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    remember: '',
+    submit: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -38,8 +40,8 @@ const Login = () => {
     try {
       // Here you would typically make an API call to your backend
       // For demonstration, we'll just simulate an API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // await new Promise(resolve => setTimeout(resolve, 1000));
+      await axios.post('http://127.0.0.1:5000/login', formData)
       // Handle successful login here
       console.log('Login successful', formData);
       
@@ -56,7 +58,7 @@ const Login = () => {
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
           <CardDescription className="text-center">
-            Login to your artisan account
+            Login to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -102,7 +104,7 @@ const Login = () => {
 
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center">
-                <input type="checkbox" className="rounded border-gray-300" />
+                <input type="checkbox" value={formData.remember} className="rounded border-gray-300" />
                 <span className="ml-2">Remember me</span>
               </label>
               <a href="/forgot-password" className="text-blue-600 hover:text-blue-800">

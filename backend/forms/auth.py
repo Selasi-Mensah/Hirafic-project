@@ -44,7 +44,7 @@ class RegistrationForm(FlaskForm):
         'Role',
         choices=[('Artisan', 'Artisan'), ('Client', 'Client')],
         validators=[DataRequired()])
-    # submit = SubmitField('Sign Up')
+    submit = SubmitField('Sign Up')
 
     def validate_username(self, username: StringField) -> None:
         """ method to validate username """
@@ -61,12 +61,10 @@ class RegistrationForm(FlaskForm):
     def validate_on_submit(self) -> bool:
         """ Override to manually disable CSRF validation """
         if not super().validate_on_submit():
-            # Manually validate CSRF token
-            if hasattr(self, 'csrf_token'):
-                if self.csrf_token.errors:
-                    return True
+            # check if there are more than the csrf error
+            if len(self.errors) > 1:
                 return False
-            return False
+            return True
         return True
 
 

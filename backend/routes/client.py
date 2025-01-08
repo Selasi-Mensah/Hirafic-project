@@ -7,7 +7,7 @@ import uuid
 from typing import Dict, Any, Tuple, List
 from PIL import Image
 from flask import Blueprint, request
-from __init__ import db
+from extensions import db
 from models.user import User
 from models.client import Client
 from models.artisan import Artisan
@@ -98,7 +98,7 @@ def client_profile(username: str = "") -> str:
         return jsonify(client_data), 200
 
     # handle POST request after validating the form
-    if form.validate_on_submit():
+    elif form.validate_on_submit():
         try:
             # update the user and client profile
             update_user_object(form)

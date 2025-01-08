@@ -6,7 +6,7 @@ import os
 import uuid
 from PIL import Image
 from flask import Blueprint
-from __init__ import db
+from extensions import db
 from models.artisan import Artisan
 from forms.artisan import ArtisanProfileForm
 from flask import (flash, request, current_app, jsonify)
