@@ -1,6 +1,11 @@
 from flask import Blueprint, request, jsonify
-from models import db, Client, Artisan, Booking
-from email_service import send_email # I'll create this later
+from __init__ import db, bcrypt
+from models.client import Client
+from models.user import User
+from models.artisan import Artisan
+from models.booking import Booking
+from forms.auth import RegistrationForm, LoginForm
+from utils.email_service import send_email  # I'll create this later
 
 # Create the Blueprint
 booking_bp = Blueprint('booking', __name__, url_prefix='/booking')
