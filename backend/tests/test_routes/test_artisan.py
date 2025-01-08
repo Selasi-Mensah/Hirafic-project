@@ -161,7 +161,8 @@ def test_artisan_profile_invalid_form(client: Any, database: SQLAlchemy):
     user = User.query.filter_by(username='testuser').first()
     login_user(user)
     response = client.post('/artisan', data={
-        'email': user.email,
+        # use email for another user
+        'email': 'testuser1@example.com',
         'phone_number': user.phone_number,
         'location': user.location,
         'specialization': 'Engineering',
@@ -176,9 +177,9 @@ def test_artisan_profile_invalid_form(client: Any, database: SQLAlchemy):
     logout_user()
 
 
-def test_artisan_profile_internal_error(
+def test_artisan_profile_rollback(
         client: FlaskClient, database: SQLAlchemy, app: Flask):
-    """ Test the artisan profile route with internal error """
+    """ Test the artisan profile route with rollback """
     # Mock internal error
     original_commit = database.session.commit
     try:

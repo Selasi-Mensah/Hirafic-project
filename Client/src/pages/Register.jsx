@@ -85,9 +85,17 @@ const Registration = () => {
       // Handle successful registration here
       console.log('Registration successful');
     } catch (err) {
-
-      console.error('Registration failed', err);
-    
+      console.log(err)
+      if (err.response && err.response.status === 400) {
+        if (err.response.data.error.username) {
+          setError("The username you entered is already taken. Please choose a different username.");
+        }
+        else {
+          setError("The email address you entered is already registered. Please use a different email address or log in.");
+        }
+      } else {
+        console.error('Registration failed', err);
+      }
     } finally {
       setLoading(false);
     }

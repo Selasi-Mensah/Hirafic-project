@@ -3,7 +3,7 @@
 Contains Route module for main API and users API
 """
 from flask import Blueprint, jsonify, abort, request
-from __init__ import db, bcrypt
+from extensions import db, bcrypt
 from models.user import User
 from models.artisan import Artisan
 from models.client import Client
@@ -127,7 +127,7 @@ def register() -> str:
 
     else:
         # return error if form validation failed
-        return jsonify({"error": "Invalid form data"}), 400
+        return jsonify({"error": form.errors}), 400
 
 
 @users_Bp.route("/login", methods=['GET', 'POST'], strict_slashes=False)
@@ -159,7 +159,6 @@ def login() -> str:
     if request.method == "GET":
         return jsonify({"fields_to_submit":
                         "email, password, remember, submit"})
-
     # handle POST request after validating the form
     elif form.validate_on_submit():
         # check if user exists and password is correct
