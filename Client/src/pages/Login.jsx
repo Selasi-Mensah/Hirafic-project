@@ -12,6 +12,7 @@ const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    remember: false,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,6 +24,13 @@ const Login = () => {
       [name]: value
     }));
     setError(''); // Clear error when user starts typing
+  };
+
+  const handleCheckboxChange = (e) => {
+    setFormData({
+      ...formData,
+      remember: e.target.checked,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -47,7 +55,11 @@ const Login = () => {
       console.log('Login successful', formData);
     } catch (err) {
       console.log(err)
-      setError('Invalid email or password');
+      if (err.response && err.response.status === 400) {
+          setError('Invalid email or password'); 
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -105,7 +117,11 @@ const Login = () => {
 
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center">
-                <input type="checkbox" value={formData.remember} className="rounded border-gray-300" />
+                <input
+                  type="checkbox"
+                  checked={formData.remember}
+                  onChange={handleCheckboxChange}
+                  className="rounded border-gray-300" />
                 <span className="ml-2">Remember me</span>
               </label>
               <a href="/forgot-password" className="text-blue-600 hover:text-blue-800">
