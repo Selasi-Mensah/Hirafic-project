@@ -5,13 +5,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import axios from 'axios';
+
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    remember: '',
-    submit: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -41,11 +41,12 @@ const Login = () => {
       // Here you would typically make an API call to your backend
       // For demonstration, we'll just simulate an API call
       // await new Promise(resolve => setTimeout(resolve, 1000));
-      await axios.post('http://127.0.0.1:5000/login', formData)
+      console.log(formData);
+      await axios.post('http://127.0.0.1:5000/login', formData);
       // Handle successful login here
       console.log('Login successful', formData);
-      
     } catch (err) {
+      console.log(err)
       setError('Invalid email or password');
     } finally {
       setLoading(false);
