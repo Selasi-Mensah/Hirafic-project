@@ -5,11 +5,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import axios from 'axios';
+
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    remember: false,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,6 +24,13 @@ const Login = () => {
       [name]: value
     }));
     setError(''); // Clear error when user starts typing
+  };
+
+  const handleCheckboxChange = (e) => {
+    setFormData({
+      ...formData,
+      remember: e.target.checked,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -38,13 +48,18 @@ const Login = () => {
     try {
       // Here you would typically make an API call to your backend
       // For demonstration, we'll just simulate an API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log(formData);
+      await axios.post('http://127.0.0.1:5000/login', formData);
       // Handle successful login here
       console.log('Login successful', formData);
-      
     } catch (err) {
-      setError('Invalid email or password');
+      console.log(err)
+      if (err.response && err.response.status === 400) {
+          setError('Invalid email or password'); 
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -56,7 +71,7 @@ const Login = () => {
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
           <CardDescription className="text-center">
-            Login to your artisan account
+            Login to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -102,7 +117,11 @@ const Login = () => {
 
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center">
-                <input type="checkbox" className="rounded border-gray-300" />
+                <input
+                  type="checkbox"
+                  checked={formData.remember}
+                  onChange={handleCheckboxChange}
+                  className="rounded border-gray-300" />
                 <span className="ml-2">Remember me</span>
               </label>
               <a href="/forgot-password" className="text-blue-600 hover:text-blue-800">

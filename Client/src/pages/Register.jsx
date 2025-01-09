@@ -1,21 +1,24 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import axios from 'axios';
+
 
 const Registration = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    phone: '',
     password: '',
     confirm_password: '',
+    phone_number: '',
+    location: '',
     role: '',
   });
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -31,14 +34,14 @@ const Registration = () => {
   const handleSelectChange = (value) => {
     setFormData(prev => ({
       ...prev,
-      userType: value
+      role: value
     }));
     setError('');
   };
 
   const validateForm = () => {
     if (!formData.username || !formData.email || 
-        !formData.phone || !formData.password || !formData.confirm_password || 
+        !formData.phone_number || !formData.location || !formData.password || !formData.confirm_password || 
         !formData.role) {
       setError('Please fill in all fields');
       return false;
@@ -61,7 +64,7 @@ const Registration = () => {
     }
 
     const phoneRegex = /^\+?[\d\s-]{10,}$/;
-    if (!phoneRegex.test(formData.phone)) {
+    if (!phoneRegex.test(formData.phone_number)) {
       setError('Please enter a valid phone number');
       return false;
     }
@@ -75,14 +78,24 @@ const Registration = () => {
 
     setLoading(true);
     try {
+      // console.log("Form Data Submitted:", formData);
       // Here you would typically make an API call to your backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      // await new Promise(resolve => setTimeout(resolve, 1000));
+      await axios.post('http://127.0.0.1:5000/register', formData)
       // Handle successful registration here
-      console.log('Registration successful', formData);
-      
+      console.log('Registration successful');
     } catch (err) {
-      setError('Registration failed. Please try again.');
+      console.log(err)
+      if (err.response && err.response.status === 400) {
+        if (err.response.data.error.username) {
+          setError("The username you entered is already taken. Please choose a different username.");
+        }
+        else {
+          setError("The email address you entered is already registered. Please use a different email address or log in.");
+        }
+      } else {
+        console.error('Registration failed', err);
+      }
     } finally {
       setLoading(false);
     }
@@ -94,7 +107,7 @@ const Registration = () => {
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
           <CardDescription className="text-center">
-            Join our artisan community today
+            Join our community today
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -108,8 +121,8 @@ const Registration = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="userame" className="block text-sm font-medium">
-                  User Name
+                <label htmlFor="username" className="block text-sm font-medium">
+                  Full Name
                 </label>
                 <Input
                   id="username"
@@ -148,8 +161,8 @@ const Registration = () => {
                 Phone Number
               </label>
               <Input
-                id="phone"
-                name="phone"
+                id="phone_number"
+                name="phone_number"
                 type="tel"
                 value={formData.phone_number}
                 onChange={handleChange}
@@ -159,16 +172,31 @@ const Registration = () => {
             </div>
 
             <div className="space-y-2">
+              <label htmlFor="Location" className="block text-sm font-medium">
+                Location Address
+              </label>
+              <Input
+                id="location"
+                name="location"
+                type="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="Enter your Location"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
               <label className="block text-sm font-medium">
                 Role
               </label>
-              <Select onValueChange={handleSelectChange} value={formData.role}>
+              <Select value={formData.role} onValueChange={handleSelectChange} placeholder="Select role">
                 <SelectTrigger>
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="artisan">Artisan</SelectItem>
-                  <SelectItem value="client">Client</SelectItem>
+                  <SelectItem value="Artisan">Artisan</SelectItem>
+                  <SelectItem value="Client">Client</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -224,6 +252,5 @@ const Registration = () => {
   );
 };
 
+
 export default Registration;
-
-

@@ -1,7 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """creating the Flask app"""
 from flask import Flask
-from extensions import db, migrate, bcrypt, login_manager
+from extensions import db, migrate, bcrypt, login_manager, cors
 from config import Config
 
 
@@ -9,13 +9,13 @@ def create_app(config_class=Config):
     # creating flask instant and db
     app = Flask(__name__)
     app.config.from_object(Config)
-    # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
-    # app.config['SECRET_KEY'] = 'e4307d4b50f2d467b26d69469749871a'
 
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
+    cors.init_app(app)
+    # csrf.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'login'
     login_manager.login_message_category = 'info'
@@ -31,13 +31,16 @@ def create_app(config_class=Config):
         from routes.artisan import artisans_Bp
         from routes.client import clients_Bp
         from routes.handlers import errors_Bp
+        from routes.booking import booking_bp
 
         app.register_blueprint(users_Bp)
         app.register_blueprint(artisans_Bp)
         app.register_blueprint(clients_Bp)
         app.register_blueprint(errors_Bp)
+        # Register booking_bp blueprint
+        app.register_blueprint(booking_bp)
+
 
         db.create_all()
-        
-    return app
 
+    return app

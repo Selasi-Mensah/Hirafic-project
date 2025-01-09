@@ -1,0 +1,23 @@
+# Byte-compiled / optimized / DLL files
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# database
+**/instance/
+instance/
+../instance/
+
+# virtualenv
+.env
+.venv
+venv/
+myenv/
+**/newenv/
+
+# VS Code
+.vscode/
+**/.vscode/
+
+# Templates for testing
+templates/

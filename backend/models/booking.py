@@ -1,12 +1,10 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """
 Contains Booking Class
 """
 from models.base import db, Base
-from sqlalchemy_utils import PhoneNumber
 from sqlalchemy import Enum
-from wtforms import RadioField, SelectField
-from datetime import datetime
+from typing import Dict, Any
 
 
 class Booking(Base):
@@ -26,6 +24,14 @@ class Booking(Base):
         db.DateTime(timezone=True),
         server_default=db.func.now())
     completion_date = db.Column(db.DateTime(timezone=True))
+    details = db.Column(db.String(255), nullable=True)
 
-    def __repr__(self):
-        return (f"Booking('{self.id}', '{self.status})")
+    def __repr__(self) -> str:
+        return (f"Booking('{self.id}', '{self.status}')")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'status': self.status,
+            'request_date': self.request_date,
+            'completion_date': self.completion_date
+        }
