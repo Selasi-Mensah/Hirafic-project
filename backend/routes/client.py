@@ -13,7 +13,8 @@ from models.client import Client
 from models.artisan import Artisan
 from forms.client import ClientProfileForm
 from flask import (flash, request, current_app, jsonify)
-from flask_login import current_user, login_required
+from flask_jwt_extended import get_jwt_identity, jwt_required
+# from flask_login import current_user, login_required
 from geopy.distance import geodesic
 
 
@@ -42,7 +43,7 @@ def save_picture(form_picture: Any) -> str:
     return pic_fname
 
 
-def update_user_object(form: ClientProfileForm) -> None:
+def update_user_object(form: ClientProfileForm, current_user: User):
     """ Update the user object details """
     if form.picture.data:
         picture_file = save_picture(form.picture.data)
@@ -53,7 +54,7 @@ def update_user_object(form: ClientProfileForm) -> None:
     current_user.location = form.location.data
 
 
-def update_client_object(form: ClientProfileForm):
+def update_client_object(form: ClientProfileForm, current_user: User):
     """ Update the client object details """
     if not current_user.client:
         current_user.client = Client(user=current_user)
@@ -63,10 +64,12 @@ def update_client_object(form: ClientProfileForm):
     current_user.client.location = form.location.data
 
 
-@clients_Bp.route("/client", methods=['GET', 'POST'], strict_slashes=False)
-@clients_Bp.route("/client/<username>", methods=['GET', 'POST'],
+@clients_Bp.route("/client", methods=['GET', 'POST', 'OPTIONS'],
                   strict_slashes=False)
-@login_required
+@clients_Bp.route("/client/<username>",
+                  methods=['GET', 'POST', 'OPTIONS'],
+                  strict_slashes=False)
+@jwt_required()
 def client_profile(username: str = "") -> str:
     """ client profile route
     GET /client
@@ -80,9 +83,16 @@ def client_profile(username: str = "") -> str:
             - 400 if an error occurred during update
             - 400 if form validation failed
     """
-    # check if the user is authorized to view the page
-    if username != current_user.username and username != "":
-        return jsonify({"error": "User not authenticated"}), 403
+    # check OPTIONS method
+    if request.method == 'OPTIONS':
+        return jsonify({"message": "Preflight request"}), 200
+
+    # check if user is authenticated
+    user_id = get_jwt_identity()
+    current_user = User.query.filter_by(id=user_id).first()
+    if current_user:
+        if username != current_user.username and username != "":
+            return jsonify({"error": "User not authenticated"}), 403
 
     # check if the user is a client
     if current_user.role != 'Client':
@@ -147,8 +157,8 @@ def search_nearby_artisans(
 
 @clients_Bp.route(
         "/client/<username>/nearby_artisan",
-        methods=['GET', 'POST'], strict_slashes=False)
-@login_required
+        methods=['GET', 'POST', 'OPTIONS'], strict_slashes=False)
+@jwt_required()
 def nearby_artisan(username: str = "") -> List:
     """ route to search nearby artisan
     GET /client/nearby_artisan
@@ -158,9 +168,16 @@ def nearby_artisan(username: str = "") -> List:
             - 403 if user is not a client
             - 400 if an error occurred during search
     """
-    # check if the user is authorized to view the page
-    if username != current_user.username and username != "":
-        return jsonify({"error": "User not authenticated"}), 403
+    # check OPTIONS method
+    if request.method == 'OPTIONS':
+        return jsonify({"message": "Preflight request"}), 200
+
+    # check if user is authenticated
+    user_id = get_jwt_identity()
+    current_user = User.query.filter_by(id=user_id).first()
+    if current_user:
+        if username != current_user.username and username != "":
+            return jsonify({"error": "User not authenticated"}), 403
 
     # check if the user is a client
     if current_user.role != 'Client':
