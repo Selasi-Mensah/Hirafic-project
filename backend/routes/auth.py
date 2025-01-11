@@ -3,13 +3,17 @@
 Contains Route module for main API and users API
 """
 from flask import Blueprint, jsonify, abort, request
-from extensions import db, bcrypt
+from extensions import db, bcrypt, redis_client
 from models.user import User
 from models.artisan import Artisan
 from models.client import Client
 from forms.auth import RegistrationForm, LoginForm
 from flask import flash, request
-from flask_login import login_user, current_user, logout_user, current_user
+# from flask_login import login_user, current_user, logout_user, current_user
+from flask_jwt_extended import (create_access_token, jwt_required,
+                                get_jwt_identity, get_jwt,
+                                verify_jwt_in_request)
+from config import Config
 
 
 # create users blueprint
@@ -54,8 +58,12 @@ def register() -> str:
             - 400 if form validation failed
     """
     # check if user is already authenticated
-    if current_user.is_authenticated:
-        return jsonify({"error": "User already Loged in"}), 400
+    if 'Authorization' in request.headers:
+        try:
+            verify_jwt_in_request()
+            return jsonify({"error": "User already Loged in"}), 400
+        except Exception as e:
+            pass
 
     # set up  registration form
     form = RegistrationForm()
@@ -130,7 +138,8 @@ def register() -> str:
         return jsonify({"error": form.errors}), 400
 
 
-@users_Bp.route("/login", methods=['GET', 'POST'], strict_slashes=False)
+@users_Bp.route("/login", methods=['GET', 'POST', 'OPTIONS'],
+                strict_slashes=False)
 def login() -> str:
     """
     GET /login
@@ -148,9 +157,18 @@ def login() -> str:
             - 400 if invalid email or password
             - 400 if invalid form data
     """
+    # check OPTIONS method
+    if request.method == 'OPTIONS':
+        return jsonify({"message": "Preflight request"}), 200
+
     # check if user is already authenticated
-    if current_user.is_authenticated:
-        return jsonify({"error": "User already Loged in"}), 400
+    # will be check by frontend too
+    if 'Authorization' in request.headers:
+        try:
+            verify_jwt_in_request()
+            return jsonify({"error": "User already Loged in"}), 400
+        except Exception as e:
+            pass
 
     # set up login form
     form = LoginForm()
@@ -159,6 +177,7 @@ def login() -> str:
     if request.method == "GET":
         return jsonify({"fields_to_submit":
                         "email, password, remember, submit"})
+
     # handle POST request after validating the form
     elif form.validate_on_submit():
         # check if user exists and password is correct
@@ -166,20 +185,17 @@ def login() -> str:
         if user and\
                 bcrypt.check_password_hash(user.password, form.password.data):
             # login user
-            login_user(user, remember=form.remember.data)
+            # login_user(user, remember=form.remember.data)
+            access_token = create_access_token(identity=user.id)
+
             # flash message
             flash(f'Welcome {user.username}!', 'success')
 
-            # check user role to redirect to the correct profile
-            if user.role == 'Artisan':
-                # return artisan object
-                return jsonify({"artisan": user.artisan.to_dict()})
-            elif user.role == 'Client':
-                # return client object
-                return jsonify({"client": user.client.to_dict()})
-            else:
-                # return user object
-                return jsonify({"user": user.to_dict()})
+            return jsonify({
+                "message": "Login successful",
+                "access_token": access_token,
+                "user": user.to_dict()
+                }), 200
         else:
             # flash message
             flash(
@@ -194,7 +210,9 @@ def login() -> str:
         return jsonify({"error": "Invalid form data"}), 400
 
 
-@users_Bp.route("/logout", strict_slashes=False)
+@users_Bp.route("/logout", methods=['GET', 'OPTIONS'],
+                strict_slashes=False)
+@jwt_required()
 def logout() -> str:
     """
     GET /logout
@@ -202,12 +220,18 @@ def logout() -> str:
         - Success: JSON with logout message
         - Error: 400 if user is not authenticated
     """
+    # handle OPTIONS method
+    if request.method == 'OPTIONS':
+        return jsonify({"message": "Preflight request"}), 200
     # check if user is authenticated
-    if not current_user.is_authenticated:
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
         return jsonify({"error": "User is not authenticated"}), 400
     # logout user
-    logout_user()
-    return jsonify({"message": "User logged out"})
+    jti = get_jwt()["jti"]
+    redis_client.set(jti, "", ex=Config.JWT_ACCESS_TOKEN_EXPIRES)
+    return jsonify({"message": "User logged out"}), 200
 
 
 # Ignore this route please, it's for testing only

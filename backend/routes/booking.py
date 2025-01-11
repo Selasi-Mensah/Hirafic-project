@@ -5,10 +5,13 @@ from models.user import User
 from models.artisan import Artisan
 from models.booking import Booking
 from forms.auth import RegistrationForm, LoginForm
-from utils.email_service import send_email  # I'll create this later
+# I will create this later
+from utils.email_service import send_email
+
 
 # Create the Blueprint
 booking_bp = Blueprint('booking', __name__, url_prefix='/booking')
+
 
 @booking_bp.route('/book', methods=['POST'])
 def book_artisan():
@@ -25,7 +28,8 @@ def book_artisan():
         return jsonify({"error": "Client or Artisan not found"}), 404
 
     # Creat booking
-    booking = Booking(client_id=client_id, artisan_id=artisan_id, details=details)
+    booking = Booking(
+        client_id=client_id, artisan_id=artisan_id, details=details)
     db.session.add(booking)
     db.session.commit()
 
@@ -43,4 +47,5 @@ def book_artisan():
     """
     send_email(artisan.email, subject, body)
 
-    return jsonify({"message": "Booking created and email sent successfully!"}), 201
+    return jsonify(
+        {"message": "Booking created and email sent successfully!"}), 201

@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """creating the Flask app"""
+from datetime import timedelta
 from flask import Flask
-from extensions import db, migrate, bcrypt, login_manager, cors
+from extensions import ( db, migrate, bcrypt, login_manager,
+                        cors, jwt, redis_client )
 from config import Config
 
 
@@ -15,6 +17,10 @@ def create_app(config_class=Config):
     migrate.init_app(app, db)
     bcrypt.init_app(app)
     cors.init_app(app)
+    jwt.init_app(app)
+    redis_client.init_app(app)
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+
     # csrf.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'login'
@@ -33,14 +39,20 @@ def create_app(config_class=Config):
         from routes.handlers import errors_Bp
         from routes.booking import booking_bp
 
+        # Register blueprints
         app.register_blueprint(users_Bp)
         app.register_blueprint(artisans_Bp)
         app.register_blueprint(clients_Bp)
         app.register_blueprint(errors_Bp)
-        # Register booking_bp blueprint
         app.register_blueprint(booking_bp)
 
-
         db.create_all()
+
+        # Check if token is in blacklist
+    @jwt.token_in_blocklist_loader
+    def check_if_token_in_blocklist(jwt_header, jwt_payload):
+        jti = jwt_payload["jti"]
+        token_in_redis = redis_client.get(jti)
+        return token_in_redis is not None
 
     return app
