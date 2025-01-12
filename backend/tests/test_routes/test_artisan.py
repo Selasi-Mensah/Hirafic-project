@@ -40,9 +40,6 @@ def app() -> Flask:
     app.register_blueprint(users_Bp)
     app.register_blueprint(artisans_Bp)
 
-    # Create a test client
-    client = app.test_client()
-
     return app
 
 
