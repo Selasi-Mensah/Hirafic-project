@@ -7,7 +7,7 @@ from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Email, ValidationError
 from models.user import User
-from flask_login import current_user
+from flask_jwt_extended import get_jwt_identity
 
 
 class ClientProfileForm(FlaskForm):
@@ -42,6 +42,8 @@ class ClientProfileForm(FlaskForm):
 
     def validate_username(self, username: StringField) -> None:
         """ method to validate username """
+        user_id = get_jwt_identity()
+        current_user = User.query.filter_by(id=user_id).first()
         if username.data != current_user.username:
             user = User.query.filter_by(username=username.data).first()
             if user:
@@ -49,6 +51,8 @@ class ClientProfileForm(FlaskForm):
 
     def validate_email(self, email: StringField) -> None:
         """ method to validate password """
+        user_id = get_jwt_identity()
+        current_user = User.query.filter_by(id=user_id).first()
         if email.data != current_user.email:
             user = User.query.filter_by(email=email.data).first()
             if user:

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 
 const Registration = () => {
@@ -21,6 +22,7 @@ const Registration = () => {
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -79,11 +81,11 @@ const Registration = () => {
     setLoading(true);
     try {
       // console.log("Form Data Submitted:", formData);
-      // Here you would typically make an API call to your backend
-      // await new Promise(resolve => setTimeout(resolve, 1000));
+      // Calling backend API to register
       await axios.post('http://127.0.0.1:5000/register', formData)
       // Handle successful registration here
       console.log('Registration successful');
+      navigate('/login');
     } catch (err) {
       console.log(err)
       if (err.response && err.response.status === 400) {
@@ -119,26 +121,19 @@ const Registration = () => {
               </Alert>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label htmlFor="username" className="block text-sm font-medium">
-                  Full Name
-                </label>
-                <Input
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  placeholder="Enter your user name"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor className="block text-sm font-medium">
-                </label>
-                  
-                   </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="username" className="block text-sm font-medium">
+                Full Name
+              </label>
+              <Input
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="Enter your user name"
+                required
+              />
             </div>
 
             <div className="space-y-2">
@@ -187,7 +182,7 @@ const Registration = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium">
+              <label htmlFor="role" className="block text-sm font-medium">
                 Role
               </label>
               <Select value={formData.role} onValueChange={handleSelectChange} placeholder="Select role">

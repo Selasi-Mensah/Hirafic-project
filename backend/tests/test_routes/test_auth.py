@@ -11,8 +11,7 @@ import pytest
 from flask import Flask
 from typing import Any
 from flask_sqlalchemy import SQLAlchemy
-from extensions import db, login_manager
-from flask_login import login_user, logout_user
+from extensions import db, jwt, redis_client
 from models.user import User
 # unused import for models is needed for mapping
 from models.artisan import Artisan
@@ -30,17 +29,14 @@ def app() -> Flask:
     app.config["SECRET_KEY"] = "test_secret_key"
     # Disable CSRF for testing
     app.config["WTF_CSRF_ENABLED"] = False
-
-    # Initialize login manager
-    login_manager.init_app(app)
-
-    # Define user_loader callback
-    @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(int(user_id))
+    app.config["JWT_VERIFY_SUB"] = False
 
     # Bind SQLAlchemy to the Flask app
     db.init_app(app)
+    # Initialize JWT
+    jwt.init_app(app)
+    # Initialize redis
+    redis_client.init_app(app)
 
     # Register blueprints
     app.register_blueprint(users_Bp)
@@ -96,16 +92,26 @@ def test_register_post_success(client: Any, database: SQLAlchemy):
 def test_register_post_authenticated(
         client: FlaskClient, database: SQLAlchemy):
     """ Mock authenticated user """
-    user = User.query.filter_by(username='testuser').first()
-    login_user(user)
-
-    response = client.get('/register', follow_redirects=True)
-    print(response)
+    response = client.post('/register', data={
+        'username': 'testoken',
+        'email': 'testoken@example.com',
+        'password': 'securepassword',
+        'confirm_password': 'securepassword',
+        'phone_number': '+1234567890',
+        'location': 'Test Location',
+        'role': 'Client',
+    }, follow_redirects=True)
+    login_response = client.post('/login', data={
+        'email': 'testoken@example.com',
+        'password': 'securepassword',
+    })
+    token = login_response.json['access_token']
+    response = client.get('/register', headers={
+        'Authorization': f'Bearer {token}'
+    })
     assert response.status_code == 400
     assert response.is_json
     assert response.json['error'] == "User already Loged in"
-
-    logout_user()
 
 
 def test_register_post_validation_error(
@@ -176,14 +182,18 @@ def test_login_post_authenticated(
         client: FlaskClient, database: SQLAlchemy):
     """ Mock authenticated user """
     user = User.query.filter_by(username='testuser').first()
-    login_user(user)
-
-    response = client.get('/login', follow_redirects=True)
+    login_response = client.post('/login', data={
+        'email': 'testuser@example.com',
+        'password': 'securepassword',
+    })
+    token = login_response.json['access_token']
+    response = client.get('/login', headers={
+        'Authorization': f'Bearer {token}'
+    })
     assert response.status_code == 400
     assert response.is_json
     assert response.json['error'] == "User already Loged in"
-
-    logout_user()
+    response = client.get('/logout')
 
 
 def test_login_post_validation_error(
@@ -218,14 +228,24 @@ def test_login_post_validation_error(
 def test_logout_get(client: Any, database: SQLAlchemy):
     """ Test the login route with get method """
     # Test no user is loged in (not authenticated)
-    response = client.get('/logout')
-    assert response.status_code == 400
-    assert response.json['error'] == "User is not authenticated"
+    response = client.get('/logout', headers={
+        'Authorization': 'something'
+    })
+    assert response.status_code == 401
+    assert response.json['msg'] == "Missing 'Bearer' type in 'Authorization'"\
+        " header. Expected 'Authorization: Bearer <JWT>'"
 
     # Test successful logout
     user = User.query.filter_by(username='testuser').first()
-    login_user(user)
-    response = client.get('/logout')
+    login_response = client.post('/login', data={
+        'email': "testuser@example.com",
+        'password': 'securepassword',
+    })
+    token = login_response.json['access_token']
+    response = client.get('/logout', headers={
+        'content-type': 'application/json',
+        'Authorization': f'Bearer {token}'
+    })
     assert response.status_code == 200
     assert response.is_json is True
     assert response.json['message'] == "User logged out"

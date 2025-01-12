@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 
 const Login = () => {
@@ -16,6 +17,19 @@ const Login = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (sessionStorage.getItem('access_token')) {
+      const username = sessionStorage.getItem('username');
+      if (sessionStorage.getItem('role') === 'Artisan') {
+        navigate(`/artisan/${username}`);
+      }
+      else {
+        navigate(`/client/${username}`);
+      }
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,11 +60,22 @@ const Login = () => {
     }
 
     try {
-      // Here you would typically make an API call to your backend
-      // For demonstration, we'll just simulate an API call
-      // await new Promise(resolve => setTimeout(resolve, 1000));
+      // Calling backend API to login
       console.log(formData);
-      await axios.post('http://127.0.0.1:5000/login', formData);
+      const response = await axios.post('http://127.0.0.1:5000/login', formData);
+      // console.log(response.data['access_token']);
+      sessionStorage.setItem('access_token', response.data.access_token);
+      sessionStorage.setItem('username', response.data.user.username);
+      sessionStorage.setItem('role', response.data.user.role);
+      const username = response.data.user.username;
+      console.log(response.data.user.username);
+      if (response.data.user.role === 'Artisan') {
+        navigate(`/artisan/${username}`);
+      } else if (response.data.user.role === 'Client') {
+        navigate(`/client/${username}`);
+      } else {
+        navigate('/')
+      }
       // Handle successful login here
       console.log('Login successful', formData);
     } catch (err) {
@@ -58,7 +83,7 @@ const Login = () => {
       if (err.response && err.response.status === 400) {
           setError('Invalid email or password'); 
       } else {
-        setError('An unexpected error occurred. Please try again.');
+        setError('Unexpected error occurred. Please try again.');
       }
     } finally {
       setLoading(false);
