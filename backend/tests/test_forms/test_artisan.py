@@ -8,7 +8,6 @@ import pytest
 from flask import Flask
 from unittest.mock import patch
 from extensions import db, jwt, redis_client
-from flask_jwt_extended import create_access_token
 # The unused models are needed for mapping
 from models.user import User
 from models.artisan import Artisan
@@ -27,7 +26,8 @@ def app() -> Flask:
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SECRET_KEY"] = "test_secret_key"
-    app.config["WTF_CSRF_ENABLED"] = False
+    # commented cause my validate_on_submit method depends on CSRF failure
+    # app.config["WTF_CSRF_ENABLED"] = False
     app.config["JWT_VERIFY_SUB"] = False
 
     # Bind SQLAlchemy to the Flask app
@@ -107,13 +107,14 @@ def test_artisan_profile_form_valid(
     assert response.status_code == 200
     assert response.json == user.artisan.to_dict()
 
+
 def test_artisan_profile_form_invalid_email(
         client: FlaskClient, user_and_token: tuple):
     """ Test artisan profile form with invalid email """
     _, token = user_and_token
     form = ArtisanProfileForm(
         username="testuser",
-        email="Invalid email",
+        email="Invalid",
         phone_number="+1234567890",
         location="Somewhere",
         specialization="Engineering",
@@ -124,79 +125,67 @@ def test_artisan_profile_form_invalid_email(
     response = client.post('/artisan', data=form.data, headers={
         'Authorization': f'Bearer {token}'
     })
-    assert response.status == 400
-    print(response.json['error'])
+    assert response.status_code == 400
+    assert response.json['error'] == "Invalid form data"
 
 
-# def test_artisan_profile_form_duplicate_username(
-#         app: Flask, database: SQLAlchemy):
-#     """ Test artisan profile form with duplicate username """
-#     with app.app_context():
-#         user = User(
-#             username="uniqueuser2",
-#             email="testuser2@example.com",
-#             password="securepassword",
-#             phone_number="+1234567890",
-#             role="Client",
-#             location="Test Location",
-#             created_at=datetime.now(timezone.utc),
-#             image_file="default.jpeg"
-#         )
-#         database.session.add(user)
-#         database.session.commit()
-
-#         user = User.query.filter_by(username="uniqueuser").first()
-#         # update with an already taken username
-#         form = ArtisanProfileForm(
-#             username="uniqueuser2",
-#             email="artisan@example.com",
-#             phone_number="+1234567890",
-#             location="Somewhere",
-#             specialization="Engineering",
-#             skills="coding",
-#             picture="default.jpeg",
-#             submit="True",
-#         )
-#         assert not form.validate()
-#         assert "Username is already taken!" in form.username.errors
-
-
-# def test_artisan_profile_form_duplicate_email(
-#         app: Flask, database: SQLAlchemy):
-#     """ Test artisan profile form with duplicate email """
-#     with app.app_context():
-#         # update with an already taken email
-#         user = User.query.filter_by(username="uniqueuser").first()
-#         login_user(user)
-
-#         form = ArtisanProfileForm(
-#             username="uniqueuser3",
-#             email="testuser2@example.com",
-#             phone_number="+1234567890",
-#             location="Somewhere",
-#             specialization="Engineering",
-#             skills="coding",
-#             picture="default.jpeg",
-#             submit="True",
-#         )
-#         assert not form.validate()
-#         assert "Email is already taken!" in form.email.errors
+def test_artisan_profile_form_duplicate_username(
+        client: FlaskClient, database: SQLAlchemy,
+        app: Flask, user_and_token: tuple):
+    """ Test artisan profile form with duplicate username """
+    with app.app_context():
+        user = User(
+            username="uniqueuser2",
+            email="testuser2@example.com",
+            password="securepassword",
+            phone_number="+1234567890",
+            role="Client",
+            location="Test Location",
+            created_at=datetime.now(timezone.utc),
+            image_file="default.jpeg"
+        )
+        database.session.add(user)
+        database.session.commit()
+    _, token = user_and_token
+    form = ArtisanProfileForm(
+        username="uniqueuser2",
+        email="testuser@example.com",
+        phone_number="+1234567890",
+        location="Somewhere",
+        specialization="Engineering",
+        skills="coding",
+        picture="default.jpeg",
+        submit="True",
+    )
+    response = client.post('/artisan', data=form.data, headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert response.status_code == 400
+    assert response.json['error'] == "Invalid form data"
 
 
-# def test_artian_form_validate_on_submit(app: Flask, database: SQLAlchemy):
-#     """ Test artisan form validate_on_submit method """
-#     with app.app_context():
-#         user = User.query.filter_by(username="uniqueuser").first()
-#         login_user(user)
-#         with app.test_request_context(method="POST"):
-#             form = ArtisanProfileForm(
-#                 username="uniqueuser",
-#                 email="testuser@example.com",
-#                 phone_number="+1234567890",
-#                 location="Test Location",
-#                 specialization="Engineering",
-#                 skills="coding",
-#                 picture="default.jpeg",
-#                 submit="True",
-#             )
-#             assert form.validate_on_submit() is True
+def test_artisan_profile_form_duplicate_email(
+        client: FlaskClient, database: SQLAlchemy,
+        app: Flask, user_and_token: tuple):
+    """ Test artisan profile form with duplicate email """
+    with app.app_context():
+        # update with an already taken email
+        user = User.query.filter_by(username="uniqueuser").first()
+        print(user)
+
+    _, token = user_and_token
+    form = ArtisanProfileForm(
+        username="uniqueuser",
+        email="testuser2@example.com",
+        phone_number="+1234567890",
+        location="Somewhere",
+        specialization="Engineering",
+        skills="coding",
+        picture="default.jpeg",
+        submit="True",
+    )
+    response = client.post('/artisan', data=form.data, headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert response.status_code == 400
+    assert response.json['error'] == "Invalid form data"

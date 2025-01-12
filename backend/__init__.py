@@ -48,7 +48,7 @@ def create_app(config_class=Config):
 
         db.create_all()
 
-        # Check if token is in blacklist
+    # Check if token is in blacklist
     @jwt.token_in_blocklist_loader
     def check_if_token_in_blocklist(jwt_header, jwt_payload):
         jti = jwt_payload["jti"]
