@@ -224,9 +224,9 @@ def logout() -> str:
     if request.method == 'OPTIONS':
         return jsonify({"message": "Preflight request"}), 200
     # check if user is authenticated
-    user_id = get_jwt_identity()
-    user = User.query.get(user_id)
-    if not user:
+    try:
+        verify_jwt_in_request()
+    except Exception as e:
         return jsonify({"error": "User is not authenticated"}), 400
     # logout user
     jti = get_jwt()["jti"]

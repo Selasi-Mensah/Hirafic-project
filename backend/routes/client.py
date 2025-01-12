@@ -111,8 +111,8 @@ def client_profile(username: str = "") -> str:
     elif form.validate_on_submit():
         try:
             # update the user and client profile
-            update_user_object(form)
-            update_client_object(form)
+            update_user_object(form, current_user)
+            update_client_object(form, current_user)
             # commit the changes
             db.session.commit()
             # flash a success message
@@ -187,8 +187,8 @@ def nearby_artisan(username: str = "") -> List:
         # make sure to geocode the client location
         current_user.client.geocode_location()
         # get the location tuple (longitude, latitude) of the client
-        current_location = (current_user.client.longitude,
-                            current_user.client.latitude)
+        current_location = (current_user.client.latitude,
+                            current_user.client.longitude)
 
         # search for nearby artisans within 5km
         artisans = search_nearby_artisans(current_location, 5000)
@@ -197,7 +197,7 @@ def nearby_artisan(username: str = "") -> List:
             'name': artisan.name,
             'longitude': artisan.longitude,
             'latitude': artisan.latitude
-        } for artisan in artisans])
+        } for artisan in artisans]), 200
     except Exception as e:
         # return error if unable to complete search
         return jsonify({"error": "An error occurred during search"}), 400
