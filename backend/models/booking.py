@@ -2,6 +2,9 @@
 """
 Contains Booking Class
 """
+from multiprocessing.connection import Client
+from models.artisan import Artisan
+from models.client import Client
 from models.base import db, Base
 from sqlalchemy import Enum
 from typing import Dict, Any
@@ -31,6 +34,9 @@ class Booking(Base):
 
     def to_dict(self) -> Dict[str, Any]:
         return {
+            'artisan_name': db.session.get(Artisan, self.artisan_id).name,
+            'client_name': db.session.get(Client, self.client_id).name,
+            'details': self.details,
             'status': self.status,
             'request_date': self.request_date,
             'completion_date': self.completion_date

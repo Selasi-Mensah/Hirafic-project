@@ -151,6 +151,8 @@ def location() -> str:
     # check if user is authenticated
     user_id = get_jwt_identity()
     current_user = User.query.filter_by(user_id=user_id).first()
+    if not current_user:
+        return jsonify({"error": "User not authenticated"}), 403
     # check if user is an artisan
     if current_user.role != 'Artisan':
         return jsonify({"error": "User not authenticated"}), 403
