@@ -3,7 +3,7 @@ import Back from "../assets/Group 42.png";
 import Bookings from "../assets/Book.png";
 import Profile from "../assets/Profile.png";
 import pic from "../assets/me.jpeg";
-import prof from "../assets/Edit-icon.png";
+import prof from "../assets/Edit-Icon.png";
 import { Link } from "react-router-dom";
 const Client = () => {
   return (

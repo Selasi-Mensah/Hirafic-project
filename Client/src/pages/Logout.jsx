@@ -12,6 +12,7 @@ const Logout = () => {
 
     const logout = async () => {
       try {
+        console.log(token)
         hasLoggedOut = true; // Set the flag to true
         const response = await axios.get('http://127.0.0.1:5000/logout', {
           headers: {
