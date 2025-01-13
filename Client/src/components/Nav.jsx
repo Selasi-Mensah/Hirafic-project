@@ -1,7 +1,7 @@
 
 const Nav = () => {
   return (
-    <div>
+    <div className="">
       
     </div>
   )

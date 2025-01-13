@@ -1,7 +1,15 @@
 @import url(./components/component.scss);
-@tailwind base;
+
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+/* @tailwind components;
+@tailwind utilities; */
+
+/* @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities; */
+
 * {
   margin: 0;
   padding: 0;
