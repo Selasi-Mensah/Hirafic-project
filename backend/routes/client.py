@@ -175,9 +175,9 @@ def nearby_artisan(username: str = "") -> List:
     # check if user is authenticated
     user_id = get_jwt_identity()
     current_user = User.query.filter_by(id=user_id).first()
-    if current_user:
-        if username != current_user.username and username != "":
-            return jsonify({"error": "User not authenticated"}), 403
+    if not current_user\
+            or (username != current_user.username and username != ""):
+        return jsonify({"error": "User not authenticated"}), 403
 
     # check if the user is a client
     if current_user.role != 'Client':
