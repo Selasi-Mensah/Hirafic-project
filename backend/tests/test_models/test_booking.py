@@ -95,6 +95,8 @@ def test_booking_creation(app: Flask, database: SQLAlchemy):
             client_id=test_client.id,
             artisan_id=test_artisan.id,
             status="Pending",
+            request_date=datetime.now(timezone.utc),
+            details=None,
             completion_date=None,
             created_at=datetime.now(timezone.utc)
         )
@@ -117,6 +119,9 @@ def test_booking_creation(app: Flask, database: SQLAlchemy):
             f"Booking('{retrieved_booking.id}', 'Pending')"
         # Test the to_dict method
         assert retrieved_booking.to_dict() == {
+            'artisan_name': db.session.get(Artisan, test_artisan.id).name,
+            'client_name': db.session.get(Client, test_client.id).name,
+            'details': None,
             'status': 'Pending',
             'request_date': retrieved_booking.request_date,
             'completion_date': None

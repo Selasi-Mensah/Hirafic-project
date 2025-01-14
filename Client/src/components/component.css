@@ -45,5 +45,148 @@
   border-radius: 10px;
   color: #ffffff;
   font-family: poppins;
+  text-decoration: none;
   cursor: pointer;
+}
+.screen .btn #link {
+  color: white;
+}
+
+.search {
+  background: #161622;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: white;
+}
+.search .header {
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+  padding: 1rem;
+}
+.search .header img {
+  width: 40px;
+}
+.search .header .h1 {
+  font-family: poppins;
+  font-weight: 600;
+  font-size: 1.2rem;
+  position: relative;
+  left: 2.5rem;
+}
+.search .input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-size: 1.2rem;
+}
+.search .input input {
+  outline: none;
+  border: none;
+  background: transparent;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #7e848d;
+}
+.search .input .btn {
+  margin: 1rem;
+  border-radius: 10px;
+  padding: 0.2rem 2rem;
+  background-color: #034ab6;
+  transition: all ease-in-out 0.5s;
+}
+.search .input .btn:hover {
+  background: transparent;
+  color: white;
+  transition: all ease-in-out 0.5s;
+}
+
+.profile {
+  background: #161622;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: white;
+}
+.profile .header {
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+  padding: 1rem;
+}
+.profile .header img {
+  width: 40px;
+}
+.profile .header .h1 {
+  font-family: poppins;
+  font-weight: 600;
+  font-size: 1.2rem;
+  position: relative;
+  left: 3rem;
+}
+.profile .header .img {
+  position: relative;
+  left: 6rem;
+}
+.profile .info {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+}
+.profile .info .head {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+.profile .info .head img {
+  width: 70px;
+  border-radius: 50px;
+}
+.profile .info .head .name {
+  font-family: poppins;
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.profile .info .head .name #head {
+  font-weight: 500;
+}
+.profile .info .head .name #desc {
+  font-weight: 200;
+  font-size: 1rem;
+  color: #7e848d;
+}
+.profile .info .information {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.profile .info .information .links {
+  border-bottom: 1px #707070 solid;
+  outline: none;
+  color: white;
+  font-size: 1rem;
+  font-family: inter;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+.profile .info .information .links label {
+  color: #707070;
+  font-size: 0.9rem;
+}
+.profile .info .information .links .Link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: white;
+  text-decoration: none;
 }/*# sourceMappingURL=component.css.map */

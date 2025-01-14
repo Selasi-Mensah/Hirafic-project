@@ -1,0 +1,168 @@
+.Artisan {
+  background: #161622;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: white;
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    padding: 1rem;
+    img {
+      width: 40px;
+    }
+    .h1 {
+      font-family: poppins;
+      font-weight: 600;
+      font-size: 1.2rem;
+      position: relative;
+      left: 3rem;
+    }
+    .img {
+      position: relative;
+      left: 6rem;
+    }
+  }
+  .info {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    .head {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      img {
+        width: 70px;
+        border-radius: 50px;
+      }
+      .name {
+        font-family: poppins;
+        font-weight: 600;
+        font-size: 1rem;
+        // text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+        #head {
+          font-weight: 500;
+        }
+        #desc {
+          font-weight: 200;
+          font-size: 1rem;
+          color: #7e848d;
+        }
+      }
+    }
+    .information {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      .links {
+        border-bottom: 1px #707070 solid;
+        outline: none;
+        color: white;
+        font-size: 1rem;
+        font-family: inter;
+        padding: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+
+        .Link {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          color: white;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}
+
+.client {
+  background: #161622;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: white;
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    padding: 1rem;
+    img {
+      width: 40px;
+    }
+    .h1 {
+      font-family: poppins;
+      font-weight: 600;
+      font-size: 1.2rem;
+      position: relative;
+      left: 3rem;
+    }
+    .img {
+      position: relative;
+      left: 6rem;
+    }
+  }
+  .info {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    .head {
+      display: flex;
+      gap: 2rem;
+      // align-items: center;
+      img {
+        width: 70px;
+        border-radius: 50px;
+      }
+      .name {
+        font-family: poppins;
+        font-weight: 600;
+        font-size: 1rem;
+        // text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+        #head {
+          font-weight: 500;
+          position: relative;
+          top: .5rem;
+        }
+      }
+    }
+    .information {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      .links {
+        border-bottom: 1px #707070 solid;
+        outline: none;
+        color: white;
+        font-size: 1rem;
+        font-family: inter;
+        padding: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+
+        .Link {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          color: white;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+}

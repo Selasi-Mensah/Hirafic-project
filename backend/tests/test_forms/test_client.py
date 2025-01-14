@@ -2,18 +2,20 @@
 """
 This contains test for artisan profile form
 """
+from flask.testing import FlaskClient
 from flask_sqlalchemy import SQLAlchemy
 import pytest
 from flask import Flask
-from extensions import db, login_manager
+from extensions import db, jwt, redis_client
 # The unused models are needed for mapping
 from models.user import User
 from models.artisan import Artisan
 from models.client import Client
 from models.booking import Booking
 from forms.client import ClientProfileForm
+from routes.auth import users_Bp
+from routes.client import clients_Bp
 from datetime import datetime, timezone
-from flask_login import login_user, current_user
 
 
 @pytest.fixture(scope="module")
@@ -23,18 +25,22 @@ def app() -> Flask:
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SECRET_KEY"] = "test_secret_key"
-    # Disable CSRF for testing
-    app.config["WTF_CSRF_ENABLED"] = False
-    # Initialize login manager
-    login_manager.init_app(app)
-
-    # Define user_loader callback
-    @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(int(user_id))
+    # commented cause my validate_on_submit method depends on CSRF failure
+    # app.config["WTF_CSRF_ENABLED"] = False
+    app.config["JWT_VERIFY_SUB"] = False
 
     # Bind SQLAlchemy to the Flask app
     db.init_app(app)
+
+    # Initialize JWT
+    jwt.init_app(app)
+    # Initialize redis
+    redis_client.init_app(app)
+
+    # Register blueprints
+    app.register_blueprint(users_Bp)
+    app.register_blueprint(clients_Bp)
+
     return app
 
 
@@ -50,52 +56,81 @@ def database(app: Flask):
         db.drop_all()
 
 
-def test_client_profile_form_valid(app: Flask, database: SQLAlchemy):
+@pytest.fixture(scope="module")
+def client(app: Flask):
+    return app.test_client()
+
+
+@pytest.fixture(scope="module")
+def user_and_token(client: FlaskClient, database: SQLAlchemy):
+    # Register the user
+    response = client.post('/register', data={
+        'username': 'testuser',
+        'email': 'testuser@example.com',
+        'password': 'securepassword',
+        'confirm_password': 'securepassword',
+        'phone_number': '+1234567890',
+        'location': 'Test Location',
+        'role': 'Client',
+    })
+    assert response.status_code == 201
+
+    # Log in the user
+    login_response = client.post('/login', data={
+        'email': 'testuser@example.com',
+        'password': 'securepassword'
+    })
+    assert login_response.status_code == 200
+    user = User.query.filter_by(username="testuser").first()
+    token = login_response.json['access_token']
+    return user, token
+
+
+def test_client_profile_form_valid(
+        client: FlaskClient, user_and_token: tuple):
     """ Test client profile form with valid fields """
-    with app.app_context():
-        user = User(
-            username="uniqueuser",
-            email="testuser@example.com",
-            password="securepassword",
-            phone_number="+1234567890",
-            role="Client",
-            location="Test Location",
-            created_at=datetime.now(timezone.utc),
-            image_file="default.jpeg"
-        )
-        database.session.add(user)
-        database.session.commit()
-        login_user(user)
-
-        form = ClientProfileForm(
-            username="Test Artisan",
-            email="artisan@example.com",
-            phone_number="+1234567890",
-            location="Somewhere"
-        )
-        if not form.validate():
-            print(form.errors)
-        assert form.validate() is True
+    user, token = user_and_token
+    form = ClientProfileForm(
+        username="testuser",
+        email="test@example.com",
+        phone_number="+1234567890",
+        location="Somewhere",
+        specialization="Engineering",
+        skills="coding and testing",
+        picture="default.jpeg",
+        submit="True",
+    )
+    response = client.post('/client', data=form.data, headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert response.status_code == 200
+    assert response.json == user.client.to_dict()
 
 
-def test_client_profile_form_invalid_email(app: Flask, database: SQLAlchemy):
+def test_client_profile_form_invalid_email(
+        client: FlaskClient, user_and_token: tuple):
     """ Test client profile form with invalid email """
-    with app.app_context():
-        user = User.query.filter_by(username="uniqueuser").first()
-        login_user(user)
-
-        form = ClientProfileForm(
-            username="Test Artisan",
-            email="Invalid email",
-            phone_number="+1234567890",
-            location="Somewhere",
-        )
-        assert not form.validate()
-        assert "Invalid email address." in form.email.errors
+    _, token = user_and_token
+    form = ClientProfileForm(
+        username="testuser",
+        email="Invalid",
+        phone_number="+1234567890",
+        location="Somewhere",
+        specialization="Engineering",
+        skills="coding",
+        picture="default.jpeg",
+        submit="True",
+    )
+    response = client.post('/client', data=form.data, headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert response.status_code == 400
+    assert response.json['error'] == "Invalid form data"
 
 
 def test_client_profile_form_duplicate_username(
-        app: Flask, database: SQLAlchemy):
+        client: FlaskClient, database: SQLAlchemy,
+        app: Flask, user_and_token: tuple):
     """ Test client profile form with duplicate username """
     with app.app_context():
         user = User(
@@ -103,55 +138,53 @@ def test_client_profile_form_duplicate_username(
             email="testuser2@example.com",
             password="securepassword",
             phone_number="+1234567890",
-            role="Client",
+            role="Artisan",
             location="Test Location",
             created_at=datetime.now(timezone.utc),
             image_file="default.jpeg"
         )
         database.session.add(user)
         database.session.commit()
+    _, token = user_and_token
+    form = ClientProfileForm(
+        username="uniqueuser2",
+        email="testuser@example.com",
+        phone_number="+1234567890",
+        location="Somewhere",
+        specialization="Engineering",
+        skills="coding",
+        picture="default.jpeg",
+        submit="True",
+    )
+    response = client.post('/client', data=form.data, headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert response.status_code == 400
+    assert response.json['error'] == "Invalid form data"
 
-        user = User.query.filter_by(username="uniqueuser").first()
-        login_user(user)
-        # update with an already taken username
-        form = ClientProfileForm(
-            username="uniqueuser2",
-            email="artisan@example.com",
-            phone_number="+1234567890",
-            location="Somewhere",
-        )
-        assert not form.validate()
-        assert "Username is already taken!" in form.username.errors
 
-
-def test_client_profile_form_duplicate_email(app: Flask, database: SQLAlchemy):
+def test_client_profile_form_duplicate_email(
+        client: FlaskClient, database: SQLAlchemy,
+        app: Flask, user_and_token: tuple):
     """ Test client profile form with duplicate email """
     with app.app_context():
         # update with an already taken email
         user = User.query.filter_by(username="uniqueuser").first()
-        login_user(user)
+        print(user)
 
-        form = ClientProfileForm(
-            username="uniqueuser3",
-            email="testuser2@example.com",
-            phone_number="+1234567890",
-            location="Somewhere",
-        )
-        assert not form.validate()
-        assert "Email is already taken!" in form.email.errors
-
-
-def test_client_form_validate_on_submit(app: Flask, database: SQLAlchemy):
-    """ Test client form validate_on_submit method """
-    with app.app_context():
-        user = User.query.filter_by(username="uniqueuser").first()
-        login_user(user)
-        with app.test_request_context(method="POST"):
-            form = ClientProfileForm(
-                username="uniqueuser",
-                email="uniqueuser@example.com",
-                phone_number="+1234567890",
-                location="Somewhere",
-                submit="True"
-            )
-            assert form.validate_on_submit() is True
+    _, token = user_and_token
+    form = ClientProfileForm(
+        username="uniqueuser",
+        email="testuser2@example.com",
+        phone_number="+1234567890",
+        location="Somewhere",
+        specialization="Engineering",
+        skills="coding",
+        picture="default.jpeg",
+        submit="True",
+    )
+    response = client.post('/client', data=form.data, headers={
+        'Authorization': f'Bearer {token}'
+    })
+    assert response.status_code == 400
+    assert response.json['error'] == "Invalid form data"
