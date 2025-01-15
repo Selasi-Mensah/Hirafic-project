@@ -1,4 +1,3 @@
-Python==3.12.3
 Flask==3.0.2
 Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.2
@@ -9,9 +8,10 @@ pytest==8.3.4
 pytest-flask==1.3.0
 Flask-Bcrypt==1.0.1
 email_validator==2.2.0
-Flask-Login==0.6.3
 pillow==11.0.0
 geopy==2.4.1
 Flask-Cors==5.0.0
 requests-mock==1.12.1
 Flask-JWT-Extended==4.7.1
+redis==4.5.1
+flask-redis==0.4.0

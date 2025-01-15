@@ -2,7 +2,7 @@
 """creating the Flask app"""
 from datetime import timedelta
 from flask import Flask
-from extensions import ( db, migrate, bcrypt, login_manager,
+from extensions import ( db, migrate, bcrypt,
                         cors, jwt, redis_client )
 from config import Config
 
@@ -22,9 +22,9 @@ def create_app(config_class=Config):
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 
     # csrf.init_app(app)
-    login_manager.init_app(app)
-    login_manager.login_view = 'login'
-    login_manager.login_message_category = 'info'
+    # login_manager.init_app(app)
+    # login_manager.login_view = 'login'
+    # login_manager.login_message_category = 'info'
 
     # Import models (inside app context to avoid circular imports)
     with app.app_context():

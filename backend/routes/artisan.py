@@ -13,7 +13,6 @@ from forms.artisan import ArtisanProfileForm
 from flask import (flash, request, current_app, jsonify)
 # from flask_login import current_user, login_required
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from werkzeug.exceptions import UnprocessableEntity
 
 
 # create artisans blueprint

@@ -16,9 +16,10 @@ const Login = () => {
     remember: false,
   });
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // if user is already logged in, redirect to their dashboard
   useEffect(() => {
     if (sessionStorage.getItem('access_token')) {
       const username = sessionStorage.getItem('username');
@@ -28,6 +29,8 @@ const Login = () => {
       else {
         navigate(`/client/${username}`);
       }
+    } else {
+      setLoading(false);
     }
   }, [navigate]);
 
@@ -89,6 +92,10 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
