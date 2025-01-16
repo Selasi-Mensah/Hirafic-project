@@ -19,7 +19,7 @@ def create_app(config_class=Config):
     cors.init_app(app)
     jwt.init_app(app)
     redis_client.init_app(app)
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
 
     # csrf.init_app(app)
     # login_manager.init_app(app)

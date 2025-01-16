@@ -66,7 +66,7 @@ def register() -> str:
             pass
 
     # set up  registration form
-    form = RegistrationForm()
+    form = RegistrationForm(request.form, meta={'csrf': False})
 
     # handle GET request
     if request.method == "GET":
@@ -135,7 +135,10 @@ def register() -> str:
 
     else:
         # return error if form validation failed
-        return jsonify({"error": form.errors}), 400
+        return jsonify({
+            "message": "Invalid form data",
+            "error": form.errors
+        }), 400
 
 
 @users_Bp.route("/login", methods=['GET', 'POST', 'OPTIONS'],
@@ -171,7 +174,7 @@ def login() -> str:
             pass
 
     # set up login form
-    form = LoginForm()
+    form = LoginForm(request.form, meta={'csrf': False})
 
     # handle GET request
     if request.method == "GET":
@@ -207,7 +210,10 @@ def login() -> str:
 
     else:
         # return error if form validation failed
-        return jsonify({"error": "Invalid form data"}), 400
+        return jsonify({
+            "message": "Invalid form data",
+            "error": form.errors
+        }), 400
 
 
 @users_Bp.route("/logout", methods=['GET', 'OPTIONS'],

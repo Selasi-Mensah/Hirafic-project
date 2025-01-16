@@ -77,6 +77,17 @@ def artisan_profile(username: str = "") -> str:
     POST /artisan/<username>
     Return:
         - Success: JSON with artisan object
+            - JSON body:
+                - name
+                - email
+                - phone_number
+                - location
+                - longitude
+                - latitude
+                - specialization
+                - skills
+                - image_file
+                - bookings
         - Error:
             - 403 if user is not authenticated
             - 403 if user is not an artisan
@@ -99,7 +110,7 @@ def artisan_profile(username: str = "") -> str:
         return jsonify({"error": "User is not an artisan"}), 403
 
     # set up  artisan profile form
-    form = ArtisanProfileForm()
+    form = ArtisanProfileForm(request.form, meta={'csrf': False})
 
     # handle GET request
     if request.method == "GET":
@@ -127,7 +138,10 @@ def artisan_profile(username: str = "") -> str:
 
     else:
         # return error if form validation failed
-        return jsonify({"error": "Invalid form data"}), 400
+        return jsonify({
+            "message": "Invalid form data",
+            "error": form.errors
+        }), 400
 
 
 @artisans_Bp.route('/location', methods=['GET', 'OPTIONS'],

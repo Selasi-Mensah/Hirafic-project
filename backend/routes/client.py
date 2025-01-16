@@ -76,28 +76,28 @@ def client_profile(username: str = "") -> str:
     GET /client/<username>
     POST /client
     POST /client/<username>
-        - form fields to update:
+        - form fields to submit (POST):
             - username
             - email
             - phone_number
             - location
             - picture
             - submit
-        - Success : JSON with client profile
-        - Error:
+        - Success (GET, POST): return JSON with client profile
+            - JSON body:
+                    - name
+                    - email
+                    - phone_number
+                    - location
+                    - latitude
+                    - longitude
+                    - image_file
+                    - bookings
+        - Error (GET, POST):
             - 403 if user is not authenticated
             - 403 if user is not a client
             - 400 if an error occurred during update
             - 400 if form validation failed
-        - JSON body:
-                - name
-                - email
-                - phone_number
-                - location
-                - latitude
-                - longitude
-                - image_file
-                - bookings
     """
     # check OPTIONS method
     if request.method == 'OPTIONS':
@@ -115,7 +115,7 @@ def client_profile(username: str = "") -> str:
         return jsonify({"error": "User is not a client"}), 403
 
     # set up client profile form
-    form = ClientProfileForm()
+    form = ClientProfileForm(request.form, meta={'csrf': False})
 
     # handle GET request
     if request.method == "GET":
@@ -142,7 +142,10 @@ def client_profile(username: str = "") -> str:
 
     else:
         # return error if form validation failed
-        return jsonify({"error": "Invalid form data"}), 400
+        return jsonify({
+            "message": "Invalid form data",
+            "error": form.errors
+        }), 400
 
 
 def search_nearby_artisans(
@@ -172,15 +175,26 @@ def search_nearby_artisans(
 
 @clients_Bp.route(
         "/client/<username>/nearby_artisan",
-        methods=['GET', 'POST', 'OPTIONS'], strict_slashes=False)
+        methods=['GET', 'OPTIONS'], strict_slashes=False)
 @clients_Bp.route(
         "/nearby_artisan",
-        methods=['GET', 'POST', 'OPTIONS'], strict_slashes=False)
+        methods=['GET', 'OPTIONS'], strict_slashes=False)
 @jwt_required()
 def nearby_artisan(username: str = "") -> List:
     """ route to search nearby artisan
-    GET /client/nearby_artisan
-        - Success: JSON with nearby artisans
+    GET /client/<username>/nearby_artisan
+    GET /nearby_artisan
+        - Success: return JSON with nearby artisans
+            - JSON body:
+                - name
+                - email
+                - phone_number
+                - image_file
+                - skills
+                - specialization
+                - location
+                - longitude
+                - latitude
         - Error:
             - 403 if user is not authenticated
             - 403 if user is not a client
@@ -202,14 +216,11 @@ def nearby_artisan(username: str = "") -> List:
         return jsonify({"error": "User is not a client"}), 403
 
     # get the distance from the request body
-    data = request.get_json()
-    if data:
-        if data.get('distance'):
-            distance = data.get('distance')
-        else:
-            distance = 5000
+    data = request.get_json(silent=True)
+    distance = data.get('distance', 5000) if data else 5000
 
     try:
+        # distance = 5000
         # make sure to geocode the client location
         current_user.client.geocode_location()
         # get the location tuple (longitude, latitude) of the client
@@ -221,6 +232,12 @@ def nearby_artisan(username: str = "") -> List:
         # return JSON list of nearby artisans with name, longitude and latitude
         return jsonify([{
             'name': artisan.name,
+            'email': artisan.email,
+            'phone_number': artisan.phone_number,
+            'image_file': artisan.user_artisan.image_file,
+            'skills': artisan.skills,
+            'specialization': artisan.specialization,
+            'location': artisan.location,
             'longitude': artisan.longitude,
             'latitude': artisan.latitude
         } for artisan in artisans]), 200
