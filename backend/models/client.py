@@ -4,6 +4,7 @@ Contains Client Class
 """
 import requests
 from models.base import db, Base
+from models.user import User
 
 
 class Client(Base):
@@ -39,8 +40,10 @@ class Client(Base):
             'location': self.location,
             'latitude': self.latitude,
             'longitude': self.longitude,
-            # 'bookings': [b.to_dict() for b in self.bookings]
-            # if self.bookings else None
+            'image_file': self.user_client.image_file
+            if self.user_client else None,
+            'bookings': [b.to_dict() for b in self.bookings]
+            if self.bookings else None
         }
 
     def geocode_location(self):

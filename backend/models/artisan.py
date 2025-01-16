@@ -49,8 +49,10 @@ class Artisan(Base):
             'longitude': self.longitude,
             'specialization': self.specialization,
             'skills': self.skills,
-            # 'bookings': [b.to_dict() for b in self.bookings]
-            # if self.bookings else None
+            'image_file': self.user_artisan.image_file
+            if self.user_artisan else None,
+            'bookings': [b.to_dict() for b in self.bookings]
+            if self.bookings else None
         }
 
     def geocode_location(self) -> bool:

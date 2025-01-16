@@ -76,12 +76,28 @@ def client_profile(username: str = "") -> str:
     GET /client/<username>
     POST /client
     POST /client/<username>
-        - Success: JSON with client profile
+        - form fields to update:
+            - username
+            - email
+            - phone_number
+            - location
+            - picture
+            - submit
+        - Success : JSON with client profile
         - Error:
             - 403 if user is not authenticated
             - 403 if user is not a client
             - 400 if an error occurred during update
             - 400 if form validation failed
+        - JSON body:
+                - name
+                - email
+                - phone_number
+                - location
+                - latitude
+                - longitude
+                - image_file
+                - bookings
     """
     # check OPTIONS method
     if request.method == 'OPTIONS':
@@ -103,9 +119,8 @@ def client_profile(username: str = "") -> str:
 
     # handle GET request
     if request.method == "GET":
-        client_data = current_user.client.to_dict()
-        client_data['image_file'] = current_user.image_file
-        return jsonify(client_data), 200
+        # return the client object
+        return jsonify(current_user.client.to_dict()), 200
 
     # handle POST request after validating the form
     elif form.validate_on_submit():
@@ -158,6 +173,9 @@ def search_nearby_artisans(
 @clients_Bp.route(
         "/client/<username>/nearby_artisan",
         methods=['GET', 'POST', 'OPTIONS'], strict_slashes=False)
+@clients_Bp.route(
+        "/nearby_artisan",
+        methods=['GET', 'POST', 'OPTIONS'], strict_slashes=False)
 @jwt_required()
 def nearby_artisan(username: str = "") -> List:
     """ route to search nearby artisan
@@ -183,6 +201,14 @@ def nearby_artisan(username: str = "") -> List:
     if current_user.role != 'Client':
         return jsonify({"error": "User is not a client"}), 403
 
+    # get the distance from the request body
+    data = request.get_json()
+    if data:
+        if data.get('distance'):
+            distance = data.get('distance')
+        else:
+            distance = 5000
+
     try:
         # make sure to geocode the client location
         current_user.client.geocode_location()
@@ -191,7 +217,7 @@ def nearby_artisan(username: str = "") -> List:
                             current_user.client.longitude)
 
         # search for nearby artisans within 5km
-        artisans = search_nearby_artisans(current_location, 5000)
+        artisans = search_nearby_artisans(current_location, distance)
         # return JSON list of nearby artisans with name, longitude and latitude
         return jsonify([{
             'name': artisan.name,

@@ -108,5 +108,7 @@ def bookings():
         bookings = current_user.artisan.bookings
     else:
         bookings = current_user.client.bookings
-    # return JSON list of bookings
+    # return JSON list of bookings or message if no bookings found
+    if not bookings:
+        return jsonify({"message": "No bookings found"}), 404
     return jsonify([booking.to_dict() for booking in bookings]), 200

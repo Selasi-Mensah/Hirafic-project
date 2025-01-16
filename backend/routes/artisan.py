@@ -104,9 +104,7 @@ def artisan_profile(username: str = "") -> str:
     # handle GET request
     if request.method == "GET":
         # return the artisan object
-        artisan_data = current_user.artisan.to_dict()
-        artisan_data['image_file'] = current_user.image_file
-        return jsonify(artisan_data), 200
+        return jsonify(current_user.artisan.to_dict())
 
     # handle POST request after validating the form
     if form.validate_on_submit():

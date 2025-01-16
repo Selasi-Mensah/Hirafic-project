@@ -84,7 +84,7 @@ def register() -> str:
             # create user object
             user = User(
                 username=form.username.data,
-                email=form.email.data,
+                email=form.email.data.lower(),
                 password=hashed_password,
                 phone_number=form.phone_number.data,
                 location=form.location.data,
@@ -161,7 +161,7 @@ def login() -> str:
     if request.method == 'OPTIONS':
         return jsonify({"message": "Preflight request"}), 200
 
-    # check if user is already authenticated
+    # Double check if user is already authenticated
     # will be check by frontend too
     if 'Authorization' in request.headers:
         try:
@@ -181,7 +181,7 @@ def login() -> str:
     # handle POST request after validating the form
     elif form.validate_on_submit():
         # check if user exists and password is correct
-        user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(email=form.email.data.lower()).first()
         if user and\
                 bcrypt.check_password_hash(user.password, form.password.data):
             # login user
