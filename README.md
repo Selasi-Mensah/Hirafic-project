@@ -16,7 +16,6 @@ Hirafic is a web application that connects clients with artisans. The project co
 ### Database
 - **Database Management System**: PostgreSQL
 ### Authentication
-### Authentication
 - **Method**: JWT (JSON Web Tokens)
 
 ### Deployment
