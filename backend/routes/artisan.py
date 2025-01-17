@@ -6,6 +6,7 @@ import os
 import uuid
 from PIL import Image
 from flask import Blueprint
+from werkzeug.datastructures import MultiDict
 from extensions import db
 from models.user import User
 from models.artisan import Artisan
@@ -109,8 +110,8 @@ def artisan_profile(username: str = "") -> str:
     if current_user.role != 'Artisan':
         return jsonify({"error": "User is not an artisan"}), 403
 
-    # set up  artisan profile form
-    form = ArtisanProfileForm(request.form, meta={'csrf': False})
+    # Set up Artisan profile form and disable CSRF
+    form = ArtisanProfileForm(meta={'csrf': False})
 
     # handle GET request
     if request.method == "GET":
@@ -118,7 +119,7 @@ def artisan_profile(username: str = "") -> str:
         return jsonify(current_user.artisan.to_dict())
 
     # handle POST request after validating the form
-    if form.validate_on_submit():
+    elif form.validate_on_submit():
         try:
             # update the user and artisan profile
             update_user_object(form, current_user)

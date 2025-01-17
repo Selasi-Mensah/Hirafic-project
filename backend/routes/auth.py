@@ -14,6 +14,7 @@ from flask_jwt_extended import (create_access_token, jwt_required,
                                 get_jwt_identity, get_jwt,
                                 verify_jwt_in_request)
 from config import Config
+from werkzeug.datastructures import MultiDict
 
 
 # create users blueprint
@@ -65,8 +66,8 @@ def register() -> str:
         except Exception as e:
             pass
 
-    # set up  registration form
-    form = RegistrationForm(request.form, meta={'csrf': False})
+    # set up registration form and disable CSRF
+    form = RegistrationForm(meta={'csrf': False})
 
     # handle GET request
     if request.method == "GET":
@@ -173,8 +174,12 @@ def login() -> str:
         except Exception as e:
             pass
 
+    # Convert the JSON request data to MultiDict format
+    # form_data = MultiDict(request.json)
     # set up login form
-    form = LoginForm(request.form, meta={'csrf': False})
+    # form = LoginForm(form_data, meta={'csrf': False})
+    # set up login form and disable CSRF
+    form = LoginForm(meta={'csrf': False})
 
     # handle GET request
     if request.method == "GET":
@@ -271,8 +276,11 @@ def test():
     output = Artisan.query.all()
     print(f"artisans: {output}")
 
-    # client = Client.query.first()
-    # print(client.longitude)
+    client = Client.query.filter_by(email="Duaa11@gmail.com").first()
+    print(f"Client: {client}")
+    if client:
+        decrypted_password = bcrypt.check_password_hash(client.password, "duaaduaa")
+        print(f"Decrypted password: {decrypted_password}")
 
     # test
     return "Test"

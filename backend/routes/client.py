@@ -7,6 +7,7 @@ import uuid
 from typing import Dict, Any, Tuple, List
 from PIL import Image
 from flask import Blueprint, request
+from werkzeug.datastructures import MultiDict
 from extensions import db
 from models.user import User
 from models.client import Client
@@ -114,8 +115,8 @@ def client_profile(username: str = "") -> str:
     if current_user.role != 'Client':
         return jsonify({"error": "User is not a client"}), 403
 
-    # set up client profile form
-    form = ClientProfileForm(request.form, meta={'csrf': False})
+    # Set up client profile form and disable CSRF
+    form = ClientProfileForm(meta={'csrf': False})
 
     # handle GET request
     if request.method == "GET":

@@ -54,7 +54,7 @@ class RegistrationForm(FlaskForm):
 
     def validate_email(self, email: StringField) -> None:
         """ method to validate password """
-        user = User.query.filter_by(email=email.data).first()
+        user = User.query.filter_by(email=email.data.lower()).first()
         if user:
             raise ValidationError('Email is already taken!')
 

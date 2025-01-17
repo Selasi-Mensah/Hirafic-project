@@ -54,7 +54,7 @@ class ClientProfileForm(FlaskForm):
         user_id = get_jwt_identity()
         current_user = User.query.filter_by(id=user_id).first()
         if email.data != current_user.email:
-            user = User.query.filter_by(email=email.data).first()
+            user = User.query.filter_by(email=email.data.lower()).first()
             if user:
                 raise ValidationError('Email is already taken!')
 
