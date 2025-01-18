@@ -7,6 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+// import { Link } from "react-router-dom";
+import Client from "./Client";
+import Artisan from "./Artisan";
 
 
 const Login = () => {
@@ -16,18 +19,23 @@ const Login = () => {
     remember: false,
   });
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // if user is already logged in, redirect to their dashboard
   useEffect(() => {
     if (sessionStorage.getItem('access_token')) {
       const username = sessionStorage.getItem('username');
       if (sessionStorage.getItem('role') === 'Artisan') {
         navigate(`/artisan/${username}`);
+        // window.location.href = `/artisan/${username}`;
       }
       else {
         navigate(`/client/${username}`);
+        // window.location.href = `/client/${username}`;
       }
+    } else {
+      setLoading(false);
     }
   }, [navigate]);
 
@@ -78,6 +86,7 @@ const Login = () => {
       }
       // Handle successful login here
       console.log('Login successful', formData);
+      return; 
     } catch (err) {
       console.log(err)
       if (err.response && err.response.status === 400) {
@@ -89,6 +98,10 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return;
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -167,6 +180,7 @@ const Login = () => {
               <a href="/register" className="text-blue-600 hover:text-blue-800">
                 Sign up
               </a>
+              {/* <Link to="/register">Sign up</Link> */}
             </p>
           </form>
         </CardContent>

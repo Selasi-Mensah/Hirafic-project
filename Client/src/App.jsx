@@ -26,7 +26,7 @@ function App() {
           <Route path="/artisan" element={<Artisan />} />
           <Route path="/artisan/:username" element={<Artisan />} />
           <Route path="/client" element={<Client />} />
-          <Route path="/client/username" element={<Client />} />
+          <Route path="/client/:username" element={<Client />} />
           <Route exact path="/home" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/about" element={<About />} />

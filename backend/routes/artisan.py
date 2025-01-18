@@ -6,14 +6,15 @@ import os
 import uuid
 from PIL import Image
 from flask import Blueprint
+from werkzeug.datastructures import MultiDict
 from extensions import db
 from models.user import User
 from models.artisan import Artisan
+from models.client import Client
 from forms.artisan import ArtisanProfileForm
 from flask import (flash, request, current_app, jsonify)
 # from flask_login import current_user, login_required
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from werkzeug.exceptions import UnprocessableEntity
 
 
 # create artisans blueprint
@@ -47,7 +48,7 @@ def update_user_object(form: ArtisanProfileForm, current_user: User):
         picture_file = save_picture(form.picture.data)
         current_user.image_file = picture_file
     current_user.username = form.username.data
-    current_user.email = form.email.data
+    current_user.email = form.email.data.lower()
     current_user.phone_number = form.phone_number.data
     current_user.location = form.location.data
 
@@ -57,7 +58,7 @@ def update_artisan_object(form: ArtisanProfileForm, current_user: User):
     if not current_user.artisan:
         current_user.artisan = Artisan(user=current_user)
     current_user.artisan.name = form.username.data
-    current_user.artisan.email = form.email.data
+    current_user.artisan.email = form.email.data.lower()
     current_user.artisan.phone_number = form.phone_number.data
     current_user.artisan.location = form.location.data
     current_user.artisan.specialization = form.specialization.data
@@ -78,6 +79,17 @@ def artisan_profile(username: str = "") -> str:
     POST /artisan/<username>
     Return:
         - Success: JSON with artisan object
+            - JSON body:
+                - name
+                - email
+                - phone_number
+                - location
+                - longitude
+                - latitude
+                - specialization
+                - skills
+                - image_file
+                - bookings
         - Error:
             - 403 if user is not authenticated
             - 403 if user is not an artisan
@@ -99,18 +111,16 @@ def artisan_profile(username: str = "") -> str:
     if current_user.role != 'Artisan':
         return jsonify({"error": "User is not an artisan"}), 403
 
-    # set up  artisan profile form
-    form = ArtisanProfileForm()
+    # Set up Artisan profile form and disable CSRF
+    form = ArtisanProfileForm(meta={'csrf': False})
 
     # handle GET request
     if request.method == "GET":
         # return the artisan object
-        artisan_data = current_user.artisan.to_dict()
-        artisan_data['image_file'] = current_user.image_file
-        return jsonify(artisan_data), 200
+        return jsonify(current_user.artisan.to_dict()), 200
 
     # handle POST request after validating the form
-    if form.validate_on_submit():
+    elif form.validate_on_submit():
         try:
             # update the user and artisan profile
             update_user_object(form, current_user)
@@ -119,8 +129,9 @@ def artisan_profile(username: str = "") -> str:
             db.session.commit()
             # flash a success message
             flash('Your profile has been updated!', 'success')
-            # return the updated artisan object
+            # return the artisan object
             return jsonify(current_user.artisan.to_dict()), 200
+
         except Exception as e:
             # If an error occurs, rollback the session
             db.session.rollback()
@@ -130,7 +141,39 @@ def artisan_profile(username: str = "") -> str:
 
     else:
         # return error if form validation failed
-        return jsonify({"error": "Invalid form data"}), 400
+        return jsonify({
+            "message": "Invalid form data",
+            "error": form.errors
+        }), 400
+
+
+@artisans_Bp.route('/all_artisans', methods=['GET', 'OPTIONS'],
+                   strict_slashes=False)
+@jwt_required()
+def get_artisans():
+    """ route to get all artisans
+    GET /bookings
+        Return:
+        - Success: JSON with list of all artisans
+        - Error:
+            - 403 if user is not authenticated
+            - 403 if user is not an client
+    """
+    # check OPTIONS method
+    if request.method == 'OPTIONS':
+        return jsonify({"message": "Preflight request"}), 200
+    # check if user is authenticated
+    user_id = get_jwt_identity()
+    current_user = User.query.filter_by(id=user_id).first()
+    if not current_user:
+        return jsonify({"error": "User not authenticated"}), 403
+    # check if user is an artisan
+    if current_user.role != 'Client':
+        return jsonify({"error": "User is not a client"}), 403
+    # get all artisans
+    artisans = Artisan.query.all()
+    # return the list of artisans
+    return jsonify([artisan.to_dict() for artisan in artisans])
 
 
 @artisans_Bp.route('/location', methods=['GET', 'OPTIONS'],

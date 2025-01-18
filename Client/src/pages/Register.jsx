@@ -24,6 +24,19 @@ const Registration = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // if user is already logged in, redirect to their dashboard
+  useEffect(() => {
+    if (sessionStorage.getItem('access_token')) {
+      const username = sessionStorage.getItem('username');
+      if (sessionStorage.getItem('role') === 'Artisan') {
+        navigate(`/artisan/${username}`);
+      }
+      else {
+        navigate(`/client/${username}`);
+      }
+    }
+  }, [navigate]);
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -176,7 +189,7 @@ const Registration = () => {
                 type="location"
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="Enter your Location"
+                placeholder="country, city, state, postal code"
                 required
               />
             </div>

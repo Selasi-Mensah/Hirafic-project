@@ -4,19 +4,19 @@ Contains User Class
 """
 from models.base import db, Base
 from sqlalchemy import Enum
-from extensions import login_manager
-from flask_login import UserMixin
+# from extensions import login_manager
+# from flask_login import UserMixin
 from models.artisan import Artisan
 from typing import Dict, Any
 
 
-@login_manager.user_loader
-def load_user(user_id: int) -> 'User':
-    return User.query.get(int(user_id))
-    # return db.session.get(User, int(user_id))
+# @login_manager.user_loader
+# def load_user(user_id: int) -> 'User':
+#     return User.query.get(int(user_id))
+#     # return db.session.get(User, int(user_id))
 
 
-class User(Base, UserMixin):
+class User(Base):
     """ Representation of user table """
     __tablename__ = 'users'
 
@@ -50,7 +50,6 @@ class User(Base, UserMixin):
             'email': self.email,
             'phone_number': self.phone_number,
             'role': self.role,
-            'location': self.location
-            # 'bookings': [b.to_dict() for b in self.bookings]
-            # if self.bookings else None
+            'location': self.location,
+            'image_file': self.image_file
         }

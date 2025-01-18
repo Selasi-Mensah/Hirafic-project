@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from __init__ import db, bcrypt
+from __init__ import db
 from models.client import Client
 from models.user import User
 from models.artisan import Artisan
@@ -31,6 +31,10 @@ def book_artisan():
     if not current_user:
         return jsonify({"error": "User not authenticated"}), 403
 
+    # check if user is a client
+    if current_user.role != 'Client':
+        return jsonify({"error": "User is not a client"}), 403
+
     # in postman body must be raw json
     data = request.get_json()
     client_email = data.get('client_email')
@@ -38,8 +42,8 @@ def book_artisan():
     details = data.get('details', '')
 
     # Validating client and artisan existence
-    client = Client.query.filter_by(email=client_email).first()
-    artisan = Artisan.query.filter_by(email=artisan_email).first()
+    client = Client.query.filter_by(email=client_email.lower()).first()
+    artisan = Artisan.query.filter_by(email=artisan_email.lower()).first()
 
     if not client or not artisan:
         return jsonify({"error": "Client or Artisan not found"}), 404
@@ -108,5 +112,7 @@ def bookings():
         bookings = current_user.artisan.bookings
     else:
         bookings = current_user.client.bookings
-    # return JSON list of bookings
+    # return JSON list of bookings or message if no bookings found
+    if not bookings:
+        return jsonify({"message": "No bookings found"}), 404
     return jsonify([booking.to_dict() for booking in bookings]), 200
