@@ -7,6 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+// import { Link } from "react-router-dom";
+import Client from "./Client";
+import Artisan from "./Artisan";
 
 
 const Login = () => {
@@ -25,9 +28,11 @@ const Login = () => {
       const username = sessionStorage.getItem('username');
       if (sessionStorage.getItem('role') === 'Artisan') {
         navigate(`/artisan/${username}`);
+        // window.location.href = `/artisan/${username}`;
       }
       else {
         navigate(`/client/${username}`);
+        // window.location.href = `/client/${username}`;
       }
     } else {
       setLoading(false);
@@ -81,6 +86,7 @@ const Login = () => {
       }
       // Handle successful login here
       console.log('Login successful', formData);
+      return; 
     } catch (err) {
       console.log(err)
       if (err.response && err.response.status === 400) {
@@ -94,7 +100,7 @@ const Login = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return;
   }
 
   return (
@@ -174,6 +180,7 @@ const Login = () => {
               <a href="/register" className="text-blue-600 hover:text-blue-800">
                 Sign up
               </a>
+              {/* <Link to="/register">Sign up</Link> */}
             </p>
           </form>
         </CardContent>

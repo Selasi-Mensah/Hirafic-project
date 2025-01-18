@@ -248,7 +248,7 @@ def logout() -> str:
 
 
 
-@users_Bp.route("/delete_account", methods=['GET', 'POST', 'OPTIONS'],
+@users_Bp.route("/delete_account", methods=['DELETE', 'OPTIONS'],
                 strict_slashes=False)
 @jwt_required()
 def delete_account() -> str:
@@ -269,10 +269,21 @@ def delete_account() -> str:
     if not user:
         return jsonify({"error": "User not authenticated"}), 400
 
+    # check if user has bookings
+    bookings = Booking.query.filter_by(user_id=user.id).all()
+
+    if bookings:
+        return jsonify({"error": "Cannot delete account with existing bookings"}), 400
+    
     # delete user account
+    # later we can add a confirmation step
     try:
         db.session.delete(user)
         db.session.commit()
+        # logout user
+        jti = get_jwt()["jti"]
+        redis_client.set(jti, "", ex=Config.JWT_ACCESS_TOKEN_EXPIRES)
+        # frontend should handle the redirection and token deletion
         return jsonify({"message": "Account deleted"}), 200
     except Exception as e:
         return jsonify({"error": "Unable to delete account"}), 500

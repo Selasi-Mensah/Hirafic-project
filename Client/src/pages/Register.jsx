@@ -189,7 +189,7 @@ const Registration = () => {
                 type="location"
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="Enter your Location"
+                placeholder="country, city, state, postal code"
                 required
               />
             </div>

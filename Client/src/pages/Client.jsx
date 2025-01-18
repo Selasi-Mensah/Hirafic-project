@@ -5,6 +5,8 @@ import Profile from "../assets/Profile.png";
 import pic from "../assets/me.jpeg";
 import prof from "../assets/Edit-Icon.png";
 import { Link } from "react-router-dom";
+
+
 const Client = () => {
   return (
     <div className="client">
