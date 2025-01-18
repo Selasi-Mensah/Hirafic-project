@@ -10,13 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import axios from 'axios';
 
 const ClientDashboardDark = () => {
-  const [projects, setProjects] = useState([]);
+  const [bookings, setbookings] = useState([]);
   const [artisans, setArtisans] = useState([]);
+  const [profile, setProfile] = useState();
   const token = sessionStorage.getItem('access_token');
+  const name = sessionStorage.getItem('username');
 
-  // Fetch projects (bookings) from backend
+  // Fetch bookings (bookings) from backend
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchbookings = async () => {
       try {
         const response = await axios.get('http://127.0.0.1:5000/bookings', {
           headers: {
@@ -24,13 +26,13 @@ const ClientDashboardDark = () => {
           },
         });
         console.log(response.data);
-        setProjects(response.data);
+        setbookings(response.data);
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error('Error fetching bookings:', error);
       }
     };
 
-    fetchProjects();
+    fetchbookings();
   }, [token]);
 
   // Fetch nearby artisans from backend
@@ -52,49 +54,99 @@ const ClientDashboardDark = () => {
     fetchArtisans();
   }, [token]);
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/client', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response.data);
+        setProfile(response.data);
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+
+    fetchProfile();
+  }, [token]);
+
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold mb-4 md:mb-0 text-gray-100">Welcome, Alex</h1>
+          <h1 className="text-3xl font-bold mb-4 md:mb-0 text-gray-100">Welcome, {name} </h1>
           <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
             <Plus className="h-4 w-4" />
-            Post New Project
+            Post New booking
           </Button>
         </div>
 
-        <Tabs defaultValue="projects" className="space-y-6">
+        <Tabs defaultValue="profile" className="space-y-6">
           <TabsList className="bg-gray-900">
-            <TabsTrigger value="projects" className="data-[state=active]:bg-gray-800">My Projects</TabsTrigger>
-            <TabsTrigger value="find" className="data-[state=active]:bg-gray-800">Find Artisans</TabsTrigger>
+            <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">Profile</TabsTrigger>
+            <TabsTrigger value="bookings" className="data-[state=active]:bg-gray-800">Bookings</TabsTrigger>
+            <TabsTrigger value="find" className="data-[state=active]:bg-gray-800">Find Artisan</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="projects">
+          <TabsContent value="profile">
+          <div className="bg-gray-900 text-gray-100 p-6 rounded-lg shadow-md max-w-sm mx-auto">
+            <div className="space-y-4">
+              <div className="border-b border-gray-700 pb-2">
+                <p className="text-sm text-gray-400">Name</p>
+                <p className="text-lg">{profile?.name || "Anonymous User"}</p>
+              </div>
+              <div className="border-b border-gray-700 pb-2">
+                <p className="text-sm text-gray-400">Email</p>
+                <p className="text-lg">{profile?.email || "No email provided"}</p>
+              </div>
+              <div className="border-b border-gray-700 pb-2">
+                <p className="text-sm text-gray-400">Phone Number</p>
+                <p className="text-lg">{profile?.phone_number || "No phone number provided"}</p>
+              </div>
+              <div className="border-b border-gray-700 pb-2">
+                <p className="text-sm text-gray-400">Location</p>
+                <p className="text-lg">{profile?.location || "No location provided"}</p>
+              </div>
+              <div className="pb-2">
+                <p className="text-sm text-gray-400">Profile Picture</p>
+                <img
+                  src={profile?.image_file || "/default-profile.png"}
+                  alt="Profile"
+                  className="w-full h-auto rounded-lg"
+                />
+              </div>
+            </div>
+          </div>
+          </TabsContent> 
+
+          <TabsContent value="bookings">
             <div className="grid gap-6">
-              {projects.length > 0 ? (
-                projects.map((project) => (
-                  <Card key={project.id} className="bg-gray-900 border-gray-800">
+              {bookings.length > 0 ? (
+                bookings.map((booking) => (
+                  <Card key={booking.id} className="bg-gray-900 border-gray-800">
                     <CardContent className="p-6">
                       <div className="flex flex-col md:flex-row justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-start justify-between mb-4">
                             <div>
-                              <h3 className="text-xl font-semibold mb-1 text-gray-100">{project.title}</h3>
-                              <p className="text-gray-400">Artisan: {project.artisan} ({project.artisanProfession})</p>
+                              <h3 className="text-xl font-semibold mb-1 text-gray-100">{booking.artisan_name}</h3>
+                              <p className="text-gray-400">Artisan: {booking.details}</p>
                             </div>
                             <Badge 
-                              variant={project.status === 'Completed' ? 'secondary' : 'default'}
+                              variant={booking.status === 'Completed' ? 'secondary' : 'default'}
                               className="bg-blue-600"
                             >
-                              {project.status}
+                              {booking.status}
                             </Badge>
                           </div>
                           <div className="flex flex-wrap gap-4">
                             <div className="flex items-center gap-2">
                               <Calendar className="h-4 w-4 text-gray-400" />
                               <span className="text-sm text-gray-400">
-                                {new Date(project.startDate).toLocaleDateString()} - 
-                                {new Date(project.endDate).toLocaleDateString()}
+                                {new Date(booking.request_date).toLocaleDateString()} - 
+                                {new Date(booking.completion_date).toLocaleDateString()}
                               </span>
                             </div>
                           </div>
@@ -110,7 +162,7 @@ const ClientDashboardDark = () => {
                   </Card>
                 ))
               ) : (
-                <p>No projects found.</p>
+                <p>No bookings found.</p>
               )}
             </div>
           </TabsContent>
