@@ -247,7 +247,6 @@ def logout() -> str:
     return jsonify({"message": "User logged out"}), 200
 
 
-
 @users_Bp.route("/delete_account", methods=['DELETE', 'OPTIONS'],
                 strict_slashes=False)
 @jwt_required()
@@ -273,8 +272,10 @@ def delete_account() -> str:
     bookings = Booking.query.filter_by(user_id=user.id).all()
 
     if bookings:
-        return jsonify({"error": "Cannot delete account with existing bookings"}), 400
-    
+        return jsonify(
+            {"error": "Cannot delete account with existing bookings"}
+            ), 400
+
     # delete user account
     # later we can add a confirmation step
     try:

@@ -131,7 +131,7 @@ def artisan_profile(username: str = "") -> str:
             flash('Your profile has been updated!', 'success')
             # return the artisan object
             return jsonify(current_user.artisan.to_dict()), 200
-        
+
         except Exception as e:
             # If an error occurs, rollback the session
             db.session.rollback()
@@ -145,6 +145,35 @@ def artisan_profile(username: str = "") -> str:
             "message": "Invalid form data",
             "error": form.errors
         }), 400
+
+
+@artisans_Bp.route('/all_artisans', methods=['GET', 'OPTIONS'],
+                   strict_slashes=False)
+@jwt_required()
+def get_artisans():
+    """ route to get all artisans
+    GET /bookings
+        Return:
+        - Success: JSON with list of all artisans
+        - Error:
+            - 403 if user is not authenticated
+            - 403 if user is not an client
+    """
+    # check OPTIONS method
+    if request.method == 'OPTIONS':
+        return jsonify({"message": "Preflight request"}), 200
+    # check if user is authenticated
+    user_id = get_jwt_identity()
+    current_user = User.query.filter_by(id=user_id).first()
+    if not current_user:
+        return jsonify({"error": "User not authenticated"}), 403
+    # check if user is an artisan
+    if current_user.role != 'Client':
+        return jsonify({"error": "User is not a client"}), 403
+    # get all artisans
+    artisans = Artisan.query.all()
+    # return the list of artisans
+    return jsonify([artisan.to_dict() for artisan in artisans])
 
 
 @artisans_Bp.route('/location', methods=['GET', 'OPTIONS'],

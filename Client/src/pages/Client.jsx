@@ -1,46 +1,206 @@
-import Back from "../assets/Group 42.png";
-// import Notifications from "../assets/Not.png";
-import Bookings from "../assets/Book.png";
-import Profile from "../assets/Profile.png";
-import pic from "../assets/me.jpeg";
-import prof from "../assets/Edit-Icon.png";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, Star, MapPin, MessageSquare, Calendar, Plus, Moon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import axios from 'axios';
 
+const ClientDashboardDark = () => {
+  const [projects, setProjects] = useState([]);
+  const [artisans, setArtisans] = useState([]);
+  const token = sessionStorage.getItem('access_token');
 
-const Client = () => {
+  // Fetch projects (bookings) from backend
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/bookings', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response.data);
+        setProjects(response.data);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+    fetchProjects();
+  }, [token]);
+
+  // Fetch nearby artisans from backend
+  useEffect(() => {
+    const fetchArtisans = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:5000/all_artisans', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response.data);
+        setArtisans(response.data);
+      } catch (error) {
+        console.error('Error fetching artisans:', error);
+      }
+    };
+
+    fetchArtisans();
+  }, [token]);
+
   return (
-    <div className="client">
-      <div className="header">
-        <Link to="/">
-          <img src={Back} alt="" />
-        </Link>
-        <span className="h1">Profile</span>
-        <img className="img" src={prof} alt="" />
-      </div>
-      <div className="info">
-        <div className="head">
-          <img src={pic} />
-          <div className="name">
-            <span id="head">Paul Levites</span>
-          </div>
+    <div className="min-h-screen bg-gray-950 text-gray-100 py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold mb-4 md:mb-0 text-gray-100">Welcome, Alex</h1>
+          <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
+            <Plus className="h-4 w-4" />
+            Post New Project
+          </Button>
         </div>
-        <div className="information">
-          <div className="links">
-            <div className="Link">
-              <img src={Profile} alt="" />
-              <Link to="/profile">Personal Information</Link>
+
+        <Tabs defaultValue="projects" className="space-y-6">
+          <TabsList className="bg-gray-900">
+            <TabsTrigger value="projects" className="data-[state=active]:bg-gray-800">My Projects</TabsTrigger>
+            <TabsTrigger value="find" className="data-[state=active]:bg-gray-800">Find Artisans</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="projects">
+            <div className="grid gap-6">
+              {projects.length > 0 ? (
+                projects.map((project) => (
+                  <Card key={project.id} className="bg-gray-900 border-gray-800">
+                    <CardContent className="p-6">
+                      <div className="flex flex-col md:flex-row justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <h3 className="text-xl font-semibold mb-1 text-gray-100">{project.title}</h3>
+                              <p className="text-gray-400">Artisan: {project.artisan} ({project.artisanProfession})</p>
+                            </div>
+                            <Badge 
+                              variant={project.status === 'Completed' ? 'secondary' : 'default'}
+                              className="bg-blue-600"
+                            >
+                              {project.status}
+                            </Badge>
+                          </div>
+                          <div className="flex flex-wrap gap-4">
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4 text-gray-400" />
+                              <span className="text-sm text-gray-400">
+                                {new Date(project.startDate).toLocaleDateString()} - 
+                                {new Date(project.endDate).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="outline" className="border-gray-700 hover:bg-gray-800">View Details</Button>
+                          <Button variant="outline" className="border-gray-700 hover:bg-gray-800">
+                            <MessageSquare className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <p>No projects found.</p>
+              )}
             </div>
-          </div>
-          <div className="links">
-            <div className="Link">
-              <img src={Bookings} alt="" />
-              <Link to="/search">Search Artisans</Link>
+          </TabsContent>
+
+          <TabsContent value="find">
+            <Card className="mb-6 bg-gray-900 border-gray-800">
+              <CardContent className="p-6">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input 
+                        placeholder="Search artisans..." 
+                        className="pl-9 bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-500"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <Select>
+                      <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
+                        <SelectValue placeholder="Profession" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-700">
+                        <SelectItem value="carpenter">Carpenter</SelectItem>
+                        <SelectItem value="plumber">Plumber</SelectItem>
+                        <SelectItem value="electrician">Electrician</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button variant="outline" className="gap-2 border-gray-700 hover:bg-gray-800">
+                      <Filter className="h-4 w-4" />
+                      Filters
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {artisans.length > 0 ? (
+                artisans.map((artisan) => (
+                  <Card key={artisan.id} className="bg-gray-900 border-gray-800">
+                    <CardContent className="p-6">
+                      <div className="flex gap-4">
+                        <Avatar className="h-16 w-16">
+                          <AvatarImage src={artisan.image} alt={artisan.name} />
+                          <AvatarFallback className="bg-gray-800">{artisan.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-semibold text-gray-100">{artisan.name}</h3>
+                              <p className="text-sm text-gray-400">{artisan.profession}</p>
+                            </div>
+                            <Badge variant="outline" className="border-gray-700">{artisan.hourlyRate}/hr</Badge>
+                          </div>
+                          <div className="flex flex-wrap gap-4 mt-2">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4 text-gray-400" />
+                              <span className="text-sm text-gray-400">{artisan.location}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Star className="h-4 w-4 text-yellow-500" />
+                              <span className="text-sm text-gray-400">{artisan.rating} ({artisan.reviews} reviews)</span>
+                            </div>
+                          </div>
+                          <div className="flex justify-between items-center mt-4">
+                            <span className="text-sm text-gray-400">{artisan.availability}</span>
+                            <div className="flex gap-2">
+                              <Button variant="outline" size="sm" className="border-gray-700 hover:bg-gray-800">
+                                View Profile
+                              </Button>
+                              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                                Contact
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <p>No artisans found.</p>
+              )}
             </div>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
 };
 
-export default Client;
+export default ClientDashboardDark;
