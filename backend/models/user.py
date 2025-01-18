@@ -50,7 +50,6 @@ class User(Base):
             'email': self.email,
             'phone_number': self.phone_number,
             'role': self.role,
-            'location': self.location
-            # 'bookings': [b.to_dict() for b in self.bookings]
-            # if self.bookings else None
+            'location': self.location,
+            'image_file': self.image_file
         }

@@ -50,7 +50,7 @@ def update_user_object(form: ClientProfileForm, current_user: User):
         picture_file = save_picture(form.picture.data)
         current_user.image_file = picture_file
     current_user.username = form.username.data
-    current_user.email = form.email.data
+    current_user.email = form.email.data.lower()
     current_user.phone_number = form.phone_number.data
     current_user.location = form.location.data
 
@@ -60,7 +60,7 @@ def update_client_object(form: ClientProfileForm, current_user: User):
     if not current_user.client:
         current_user.client = Client(user=current_user)
     current_user.client.name = form.username.data
-    current_user.client.email = form.email.data
+    current_user.client.email = form.email.data.lower()
     current_user.client.phone_number = form.phone_number.data
     current_user.client.location = form.location.data
 
@@ -135,6 +135,7 @@ def client_profile(username: str = "") -> str:
             flash('Your profile has been updated!', 'success')
             # return the updated client object
             return jsonify(current_user.client.to_dict()), 200
+
         except Exception as e:
             # If an error occurs, rollback the session
             db.session.rollback()

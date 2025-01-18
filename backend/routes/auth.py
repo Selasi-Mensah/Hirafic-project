@@ -7,6 +7,7 @@ from extensions import db, bcrypt, redis_client
 from models.user import User
 from models.artisan import Artisan
 from models.client import Client
+from models.booking import Booking
 from forms.auth import RegistrationForm, LoginForm
 from flask import flash, request
 # from flask_login import login_user, current_user, logout_user, current_user
@@ -91,6 +92,7 @@ def register() -> str:
                 location=form.location.data,
                 role=form.role.data
                 )
+            print(user)
             # add user to DB
             db.session.add(user)
             db.session.commit()
@@ -104,7 +106,7 @@ def register() -> str:
                     email=user.email,
                     location=user.location,
                     password=user.password,
-                    phone_number=user.phone_number
+                    phone_number=user.phone_number,
                     )
                 # add client to DB
                 db.session.add(client)
@@ -245,6 +247,37 @@ def logout() -> str:
     return jsonify({"message": "User logged out"}), 200
 
 
+
+@users_Bp.route("/delete_account", methods=['GET', 'POST', 'OPTIONS'],
+                strict_slashes=False)
+@jwt_required()
+def delete_account() -> str:
+    """
+    GET /delete_account
+    POST /delete_account
+    Return:
+        - Success: JSON with message
+        - Error: 400 if user is not authenticated
+    """
+    # check OPTIONS method
+    if request.method == 'OPTIONS':
+        return jsonify({"message": "Preflight request"}), 200
+
+    # Double check if user is authenticated
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"error": "User not authenticated"}), 400
+
+    # delete user account
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": "Account deleted"}), 200
+    except Exception as e:
+        return jsonify({"error": "Unable to delete account"}), 500
+
+
 # Ignore this route please, it's for testing only
 @users_Bp.route("/test")
 def test():
@@ -276,11 +309,21 @@ def test():
     output = Artisan.query.all()
     print(f"artisans: {output}")
 
-    client = Client.query.filter_by(email="Duaa11@gmail.com").first()
-    print(f"Client: {client}")
-    if client:
-        decrypted_password = bcrypt.check_password_hash(client.password, "duaaduaa")
-        print(f"Decrypted password: {decrypted_password}")
+    # delete all users
+    # Must use ORM deletion to trigger cascade delete
+    # User.query.delete() won't trigger cascade delete
+    # users = User.query.all()
+    # for user in users:
+    #     db.session.delete(user)
+
+    # db.session.commit()
+
+    # delete all clients without cascade delete
+    # Artisan.query.delete()
+    # Client.query.delete()
+    # User.query.delete()
+    # Booking.query.delete()
+    # db.session.commit()
 
     # test
     return "Test"

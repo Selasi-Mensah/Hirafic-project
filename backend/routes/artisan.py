@@ -10,6 +10,7 @@ from werkzeug.datastructures import MultiDict
 from extensions import db
 from models.user import User
 from models.artisan import Artisan
+from models.client import Client
 from forms.artisan import ArtisanProfileForm
 from flask import (flash, request, current_app, jsonify)
 # from flask_login import current_user, login_required
@@ -47,7 +48,7 @@ def update_user_object(form: ArtisanProfileForm, current_user: User):
         picture_file = save_picture(form.picture.data)
         current_user.image_file = picture_file
     current_user.username = form.username.data
-    current_user.email = form.email.data
+    current_user.email = form.email.data.lower()
     current_user.phone_number = form.phone_number.data
     current_user.location = form.location.data
 
@@ -57,7 +58,7 @@ def update_artisan_object(form: ArtisanProfileForm, current_user: User):
     if not current_user.artisan:
         current_user.artisan = Artisan(user=current_user)
     current_user.artisan.name = form.username.data
-    current_user.artisan.email = form.email.data
+    current_user.artisan.email = form.email.data.lower()
     current_user.artisan.phone_number = form.phone_number.data
     current_user.artisan.location = form.location.data
     current_user.artisan.specialization = form.specialization.data
@@ -116,7 +117,7 @@ def artisan_profile(username: str = "") -> str:
     # handle GET request
     if request.method == "GET":
         # return the artisan object
-        return jsonify(current_user.artisan.to_dict())
+        return jsonify(current_user.artisan.to_dict()), 200
 
     # handle POST request after validating the form
     elif form.validate_on_submit():
@@ -128,8 +129,9 @@ def artisan_profile(username: str = "") -> str:
             db.session.commit()
             # flash a success message
             flash('Your profile has been updated!', 'success')
-            # return the updated artisan object
+            # return the artisan object
             return jsonify(current_user.artisan.to_dict()), 200
+        
         except Exception as e:
             # If an error occurs, rollback the session
             db.session.rollback()
