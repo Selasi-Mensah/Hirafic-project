@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-
 const Registration = () => {
   const [formData, setFormData] = useState({
     username: '',
@@ -24,7 +23,6 @@ const Registration = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // if user is already logged in, redirect to their dashboard
   useEffect(() => {
     if (sessionStorage.getItem('access_token')) {
       const username = sessionStorage.getItem('username');
@@ -93,10 +91,7 @@ const Registration = () => {
 
     setLoading(true);
     try {
-      // console.log("Form Data Submitted:", formData);
-      // Calling backend API to register
       await axios.post('http://127.0.0.1:5000/register', formData)
-      // Handle successful registration here
       console.log('Registration successful');
       navigate('/login');
     } catch (err) {
@@ -117,26 +112,25 @@ const Registration = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 py-8">
-      <Card className="w-full max-w-lg mx-4">
+    <div className="flex items-center justify-center min-h-screen bg-gray-900 py-8">
+      <Card className="w-full max-w-lg mx-4 bg-gray-800 border-gray-700">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
-          <CardDescription className="text-center">
+          <CardTitle className="text-2xl font-bold text-center text-white">Create Account</CardTitle>
+          <CardDescription className="text-center text-gray-400">
             Join our community today
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <Alert variant="destructive">
+              <Alert variant="destructive" className="border-red-800 bg-red-900/50">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
-            
             <div className="space-y-2">
-              <label htmlFor="username" className="block text-sm font-medium">
+              <label htmlFor="username" className="block text-sm font-medium text-gray-200">
                 Full Name
               </label>
               <Input
@@ -145,12 +139,13 @@ const Registration = () => {
                 value={formData.username}
                 onChange={handleChange}
                 placeholder="Enter your user name"
+                className="bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:border-blue-500"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-200">
                 Email Address
               </label>
               <Input
@@ -160,12 +155,13 @@ const Registration = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your email"
+                className="bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:border-blue-500"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="phone" className="block text-sm font-medium">
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-200">
                 Phone Number
               </label>
               <Input
@@ -175,12 +171,13 @@ const Registration = () => {
                 value={formData.phone_number}
                 onChange={handleChange}
                 placeholder="Enter your phone number"
+                className="bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:border-blue-500"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="Location" className="block text-sm font-medium">
+              <label htmlFor="Location" className="block text-sm font-medium text-gray-200">
                 Location Address
               </label>
               <Input
@@ -190,27 +187,28 @@ const Registration = () => {
                 value={formData.location}
                 onChange={handleChange}
                 placeholder="country, city, state, postal code"
+                className="bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:border-blue-500"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="role" className="block text-sm font-medium">
+              <label htmlFor="role" className="block text-sm font-medium text-gray-200">
                 Role
               </label>
-              <Select value={formData.role} onValueChange={handleSelectChange} placeholder="Select role">
-                <SelectTrigger>
+              <Select value={formData.role} onValueChange={handleSelectChange}>
+                <SelectTrigger className="bg-gray-700 border-gray-600 text-gray-200">
                   <SelectValue placeholder="Select role" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Artisan">Artisan</SelectItem>
-                  <SelectItem value="Client">Client</SelectItem>
+                <SelectContent className="bg-gray-800 border-gray-700">
+                  <SelectItem value="Artisan" className="text-gray-200 hover:bg-gray-700">Artisan</SelectItem>
+                  <SelectItem value="Client" className="text-gray-200 hover:bg-gray-700">Client</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="password" className="block text-sm font-medium">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-200">
                 Password
               </label>
               <Input
@@ -220,12 +218,13 @@ const Registration = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Create a password"
+                className="bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:border-blue-500"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="confirmPassword" className="block text-sm font-medium">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-200">
                 Confirm Password
               </label>
               <Input
@@ -235,21 +234,22 @@ const Registration = () => {
                 value={formData.confirm_password}
                 onChange={handleChange}
                 placeholder="Confirm your password"
+                className="bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:border-blue-500"
                 required
               />
             </div>
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-blue-600 hover:bg-blue-700"
               disabled={loading}
             >
               {loading ? 'Creating Account...' : 'Create Account'}
             </Button>
 
-            <p className="text-center text-sm">
+            <p className="text-center text-sm text-gray-400">
               Already have an account?{' '}
-              <a href="/login" className="text-blue-600 hover:text-blue-800">
+              <a href="/login" className="text-blue-400 hover:text-blue-300">
                 Sign in
               </a>
             </p>
@@ -259,6 +259,5 @@ const Registration = () => {
     </div>
   );
 };
-
 
 export default Registration;
