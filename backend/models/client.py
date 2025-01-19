@@ -40,6 +40,7 @@ class Client(Base):
             client_bookings = [b.to_dict() for b in self.bookings]
 
         return {
+            'id': self.id,
             'name': self.name,
             'email': self.email,
             'phone_number': self.phone_number,

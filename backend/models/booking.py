@@ -34,6 +34,7 @@ class Booking(Base):
 
     def to_dict(self) -> Dict[str, Any]:
         return {
+            'id': self.id,
             'artisan_name': db.session.get(Artisan, self.artisan_id).name,
             'client_name': db.session.get(Client, self.client_id).name,
             'details': self.details,

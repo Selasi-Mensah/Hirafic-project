@@ -51,5 +51,5 @@ class User(Base):
             'phone_number': self.phone_number,
             'role': self.role,
             'location': self.location,
-            'image_file': self.image_file
+            'image_file': f'/{self.image_file}'
         }

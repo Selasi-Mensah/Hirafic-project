@@ -48,6 +48,7 @@ class Artisan(Base):
             artisan_bookings = [b.to_dict() for b in self.bookings]
 
         return {
+            'id': self.id,
             'name': self.name,
             'email': self.email,
             'phone_number': self.phone_number,
@@ -56,7 +57,7 @@ class Artisan(Base):
             'longitude': self.longitude,
             'specialization': self.specialization,
             'skills': self.skills,
-            'image_file': self.user_artisan.image_file
+            'image_file': f'/{self.user_artisan.image_file}'
             if self.user_artisan else None,
             'bookings': artisan_bookings
         }
