@@ -1,38 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
-// Import shadcn/ui components
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+// import { Link } from "react-router-dom";
+import Client from "./Client";
+import Artisan from "./Artisan";
 
-/**
- * LoginForm Component
- * A dark-themed login form component with email and password fields,
- * error handling, and loading states.
- * 
- * Features:
- * - Email and password validation
- * - Loading state during form submission
- * - Error message display
- * - Remember me checkbox
- * - Forgot password link
- * - Sign up link for new users
- */
-const LoginForm = () => {
-  // State management for form data, error messages, and loading state
+
+const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    remember: false,
   });
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  /**
-   * Handles input field changes
-   * Updates form data and clears any existing error messages
-   * @param {Event} e - The input change event
-   */
+  // if user is already logged in, redirect to their dashboard
+  useEffect(() => {
+    if (sessionStorage.getItem('access_token')) {
+      const username = sessionStorage.getItem('username');
+      if (sessionStorage.getItem('role') === 'Artisan') {
+        navigate(`/artisan/${username}`);
+        // window.location.href = `/artisan/${username}`;
+      }
+      else {
+        navigate(`/client/${username}`);
+        // window.location.href = `/client/${username}`;
+      }
+    } else {
+      setLoading(false);
+    }
+  }, [navigate]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -42,17 +47,19 @@ const LoginForm = () => {
     setError(''); // Clear error when user starts typing
   };
 
-  /**
-   * Handles form submission
-   * Validates inputs and simulates an API call
-   * @param {Event} e - The form submission event
-   */
+  const handleCheckboxChange = (e) => {
+    setFormData({
+      ...formData,
+      remember: e.target.checked,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    // Basic form validation
+    // Basic validation
     if (!formData.email || !formData.password) {
       setError('Please fill in all fields');
       setLoading(false);
@@ -60,17 +67,40 @@ const LoginForm = () => {
     }
 
     try {
-      // Simulate API call with 1 second delay
-      // Replace this with your actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Calling backend API to login
+      console.log(formData);
+      const response = await axios.post('http://127.0.0.1:5000/login', formData);
+      // console.log(response.data['access_token']);
+      sessionStorage.setItem('access_token', response.data.access_token);
+      sessionStorage.setItem('username', response.data.user.username);
+      sessionStorage.setItem('role', response.data.user.role);
+      const username = response.data.user.username;
+      console.log(response.data.user.username);
+      if (response.data.user.role === 'Artisan') {
+        navigate(`/artisan/${username}`);
+      } else if (response.data.user.role === 'Client') {
+        navigate(`/client/${username}`);
+      } else {
+        navigate('/')
+      }
+      // Handle successful login here
       console.log('Login successful', formData);
-      
+      return; 
     } catch (err) {
-      setError('Invalid email or password');
+      console.log(err)
+      if (err.response && err.response.status === 400) {
+          setError('Invalid email or password'); 
+      } else {
+        setError('Unexpected error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return;
+  }
 
   return (
     // Main container with dark theme background
@@ -161,4 +191,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default Login;

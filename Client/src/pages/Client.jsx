@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const ClientDashboardDark = () => {
+const Client = () => {
   const [bookings, setBookings] = useState([]);
   const [artisans, setArtisans] = useState([]);
   const [profile, setProfile] = useState(null);
@@ -33,6 +33,7 @@ const ClientDashboardDark = () => {
       
       const response = await fetch(`http://127.0.0.1:5000${endpoint}`, {
         headers: {
+          method: 'GET',
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         }
@@ -73,32 +74,33 @@ const ClientDashboardDark = () => {
   );
 
   const ProfileSection = () => (
-    <div className="bg-gray-900 text-gray-100 p-6 rounded-lg shadow-md max-w-sm mx-auto">
+    <div className="bg-gray-900 text-gray-100 p-6 rounded-lg shadow-md max-w-md mx-auto">
       {loading.profile ? <LoadingState /> : error.profile ? <ErrorState message={error.profile} /> : (
-        <div className="space-y-4">
-          {[
-            { label: 'Name', value: profile?.name },
-            { label: 'Email', value: profile?.email },
-            { label: 'Phone Number', value: profile?.phone_number },
-            { label: 'Location', value: profile?.location }
-          ].map(({ label, value }) => (
-            <div key={label} className="border-b border-gray-700 pb-2">
-              <p className="text-sm text-gray-400">{label}</p>
-              <p className="text-lg">{value || `No ${label.toLowerCase()} provided`}</p>
-            </div>
-          ))}
-          <div className="pb-2">
-            <p className="text-sm text-gray-400">Profile Picture</p>
+        <div className="text-center">
+          <div className="pb-4">
             <img
-              src={profile?.image_file || "/default-profile.png"}
+              src={profile?.image_file ? `http://localhost:5000/static/profile_pics/${profile.image_file}` : "http://localhost:5000/static/profile_pics/default.jpg"}
               alt="Profile"
-              className="w-full h-auto rounded-lg mt-2"
+              className="w-32 h-32 rounded-full mx-auto"
             />
           </div>
-          <div className="flex justify-center">
-            <Button className="bg-blue-600 hover:bg-blue-700">
-              Update Profile
-            </Button>
+          <div className="space-y-3">
+            {[
+              { label: 'Name', value: profile?.name },
+              { label: 'Email', value: profile?.email },
+              { label: 'Phone', value: profile?.phone_number },
+              { label: 'Location', value: profile?.location }
+            ].map(({ label, value }) => (
+              <div key={label} className="pb-2">
+                <p className="text-xs text-gray-400">{label}</p>
+                <p className="text-sm">{value || `No ${label.toLowerCase()} provided`}</p>
+              </div>
+            ))}
+            <div className="flex justify-center mt-4">
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                Update Profile
+              </Button>
+            </div>
           </div>
         </div>
       )}
@@ -148,7 +150,7 @@ const ClientDashboardDark = () => {
       <CardContent className="p-6">
         <div className="flex gap-4">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={artisan.image} alt={artisan.name} />
+            <AvatarImage src={artisan.image_file} alt={artisan.name} />
             <AvatarFallback className="bg-gray-800">
               {artisan.name.split(' ').map(n => n[0]).join('')}
             </AvatarFallback>
@@ -209,7 +211,7 @@ const ClientDashboardDark = () => {
             <TabsTrigger value="bookings" className="data-[state=active]:bg-gray-800">
               Bookings
             </TabsTrigger>
-            <TabsTrigger value="find" className="data-[state=active]:bg-gray-800">
+            <TabsTrigger value="artisans" className="data-[state=active]:bg-gray-800">
               Find Artisan
             </TabsTrigger>
           </TabsList>
@@ -234,7 +236,7 @@ const ClientDashboardDark = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="find">
+          <TabsContent value="artisans">
             <Card className="mb-6 bg-gray-900 border-gray-800">
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row gap-4">
@@ -244,7 +246,7 @@ const ClientDashboardDark = () => {
                         <SelectValue placeholder="Profession" />
                       </SelectTrigger>
                       <SelectContent className="bg-gray-800 border-gray-700">
-                        <SelectItem value="">All Professions</SelectItem>
+                        <SelectItem value="all">All Professions</SelectItem>
                         <SelectItem value="carpenter">Carpenter</SelectItem>
                         <SelectItem value="plumber">Plumber</SelectItem>
                         <SelectItem value="electrician">Electrician</SelectItem>
@@ -275,4 +277,4 @@ const ClientDashboardDark = () => {
   );
 };
 
-export default ClientDashboardDark;
+export default Client;
