@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import axios from 'axios';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const BookModal = ({ artisan, isOpen, onClose }) => {
-  const [details, setMessage] = useState('');
+  const [details, setDetails] = useState('');
+  const [completionDate, setCompletionDate] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -14,17 +17,18 @@ const BookModal = ({ artisan, isOpen, onClose }) => {
     setError(null);
 
     try {
-      const response = await axios.post('http://127.0.0.1:5000/book', {
+      const response = await axios.post('http://127.0.0.1:5000/book_artisan', {
         artisan_email: artisan.email,
         client_email: sessionStorage.getItem('email'),
-        details,
+        completion_date: completionDate,
+        details: details,
       }, {
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem('access_token')}`,
           'Content-Type': 'application/json',
         },
       });
-      alert('Message sent successfully');
+      alert('Booking request sent successfully');
       onClose();
     } catch (err) {
       setError(err.message);
@@ -35,34 +39,56 @@ const BookModal = ({ artisan, isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="bg-gray-900 border border-gray-700 shadow-lg rounded-lg">
         <DialogHeader>
-          <DialogTitle>Book {artisan.username}</DialogTitle>
-          <DialogDescription>
-            Write booking details for {artisan.username} artisan.
+          <DialogTitle className="text-lg font-bold text-white">Book {artisan.name}</DialogTitle>
+          <DialogDescription className="text-sm text-gray-400">
+            Send a booking request to {artisan.username}.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <textarea
-              className="w-full p-2 bg-gray-800 text-gray-100 rounded"
+              className="w-full p-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
               rows="5"
-              placeholder="Booking details"
+              placeholder="Your booking details here..."
               value={details}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => setDetails(e.target.value)}
               required
             />
-            {error && <p className="text-red-400">{error}</p>}
-            <div className="flex justify-end">
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={loading}>
-                {loading ? 'Sending...' : 'Book Now'}
-              </Button>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Expected Completion Date</label>
+              <DatePicker
+                selected={completionDate}
+                onChange={(date) => setCompletionDate(date)}
+                className="w-full p-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
+                dateFormat="yyyy/MM/dd"
+                placeholderText="Select a date"
+                required
+              />
             </div>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button
+              type="submit"
+              className={`px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-500 ${
+                loading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              disabled={loading}
+            >
+              {loading ? 'Sending...' : 'Book Now'}
+            </Button>
+            <DialogClose asChild>
+              <Button
+                variant="outline"
+                className="px-4 py-2 bg-gray-800 text-gray-300 border border-gray-700 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring focus:ring-gray-500"
+              >
+                Close
+              </Button>
+            </DialogClose>
           </div>
         </form>
-        <DialogClose asChild>
-          <Button variant="outline" className="mt-4">Close</Button>
-        </DialogClose>
       </DialogContent>
     </Dialog>
   );

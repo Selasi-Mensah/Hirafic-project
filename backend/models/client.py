@@ -41,7 +41,7 @@ class Client(Base):
 
         return {
             'id': self.id,
-            'name': self.name,
+            'username': self.name,
             'email': self.email,
             'phone_number': self.phone_number,
             'location': self.location,

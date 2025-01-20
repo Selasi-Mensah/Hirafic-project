@@ -117,7 +117,7 @@ def client_profile(username: str = "") -> str:
 
     # Set up client profile form and disable CSRF
     form = ClientProfileForm(meta={'csrf': False})
-
+    print(form.data)
     # handle GET request
     if request.method == "GET":
         # return the client object

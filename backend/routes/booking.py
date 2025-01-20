@@ -36,17 +36,31 @@ def book_artisan():
         return jsonify({"error": "User is not a client"}), 403
 
     # in postman body must be raw json
-    data = request.get_json()
-    client_email = data.get('client_email')
-    artisan_email = data.get('artisan_email')
-    details = data.get('details', '')
+    try:
+        data = request.get_json()
+        client_email = data.get('client_email').lower()
+        artisan_email = data.get('artisan_email').lower()
+        details = data.get('details', '')
+        print(details)
+        completion_date = data.get('completion_date', '')
+        
+        # Validating client and artisan existence
+        client = Client.query.filter_by(email=client_email).first()
+        artisan = Artisan.query.filter_by(email=artisan_email).first()
+        # Convert completion date to datetime object
+        completion_date = datetime.strptime(
+            completion_date, '%Y-%m-%dT%H:%M:%S.%fZ')
 
-    # Validating client and artisan existence
-    client = Client.query.filter_by(email=client_email.lower()).first()
-    artisan = Artisan.query.filter_by(email=artisan_email.lower()).first()
+        # Check if completion date is in the past
+        if completion_date < datetime.now():
+            return jsonify(
+                {"error": "Completion date cannot be in the past"}), 400
 
-    if not client or not artisan:
-        return jsonify({"error": "Client or Artisan not found"}), 404
+        # Check if client and artisan exist
+        if not client or not artisan:
+            return jsonify({"error": "Client or Artisan not found"}), 404
+    except Exception as e:
+        return jsonify({"error": f"Invalid request: {str(e)}"}), 400
 
     # Creat booking
     try:
@@ -55,7 +69,7 @@ def book_artisan():
             artisan_id=artisan.id,
             status="Pending",
             request_date=datetime.now(),
-            completion_date=datetime.now(),
+            completion_date=completion_date,
             details=details,
             created_at=datetime.now(),
         )

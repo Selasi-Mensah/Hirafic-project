@@ -57,7 +57,7 @@ const ArtisanCard = ({ artisan }) => {
                     View Profile
                   </Button>
                   <Button size="sm" className="bg-blue-600 hover:bg-blue-700" onClick={handleOpenModal}>
-                    Contact
+                    Book Artisan
                   </Button>
                 </div>
               </div>

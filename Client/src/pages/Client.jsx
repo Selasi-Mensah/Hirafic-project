@@ -24,7 +24,10 @@ const Client = () => {
     profile: null
   });
   const [selectedProfession, setSelectedProfession] = useState('');
-
+  const [file, setFile] = useState(null);
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
   const token = sessionStorage.getItem('access_token');
   const name = sessionStorage.getItem('username');
 
@@ -68,10 +71,17 @@ const Client = () => {
     setError(prev => ({ ...prev, profile: null }));
 
     try {
-      const response = await axios.post('http://127.0.0.1:5000/client', profile, {
+      const formData = new FormData();
+      formData.append('username', profile.username);
+      formData.append('email', profile.email);
+      formData.append('phone_number', profile.phone_number);
+      formData.append('location', profile.location);
+      formData.append('picture', file);
+
+      const response = await axios.post('http://127.0.0.1:5000/client', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          'Content-Type': 'multipart/form-data',
         },
       });
       setProfile(response.data);
@@ -117,6 +127,7 @@ const Client = () => {
               error={error}
               handleSubmit={handleSubmit}
               handleChange={handleChange}
+              handleFileChange={handleFileChange}
               editable={true}
             />
           </TabsContent>
