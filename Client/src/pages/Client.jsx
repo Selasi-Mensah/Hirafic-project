@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Star, MapPin, MessageSquare, Calendar, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import axios from 'axios';
+import LoadingState from '@/components/LoadingState';
+import ErrorState from '@/components/ErrorState';
+import ProfileSection from '@/components/ProfileSection';
+import BookingCard from '@/components/BookingCard';
+import ArtisanCard from '@/components/ArtisanCard';
+import { Card, CardContent } from '@/components/ui/card';
 
 const Client = () => {
   const [bookings, setBookings] = useState([]);
@@ -33,7 +35,6 @@ const Client = () => {
       
       const response = await fetch(`http://127.0.0.1:5000${endpoint}`, {
         headers: {
-          method: 'GET',
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         }
@@ -61,138 +62,31 @@ const Client = () => {
     fetchData('/client', setProfile, 'profile', 'profile');
   }, []);
 
-  const LoadingState = () => (
-    <div className="flex justify-center items-center p-8">
-      <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-    </div>
-  );
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(prev => ({ ...prev, profile: true }));
+    setError(prev => ({ ...prev, profile: null }));
 
-  const ErrorState = ({ message }) => (
-    <div className="text-red-400 p-4 text-center bg-red-900/20 rounded-lg">
-      {message}
-    </div>
-  );
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/client', profile, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      setProfile(response.data);
+      alert('Profile updated successfully');
+    } catch (err) {
+      setError(prev => ({ ...prev, profile: err.message }));
+    } finally {
+      setLoading(prev => ({ ...prev, profile: false }));
+    }
+  };
 
-  const ProfileSection = () => (
-    <div className="bg-gray-900 text-gray-100 p-6 rounded-lg shadow-md max-w-md mx-auto">
-      {loading.profile ? <LoadingState /> : error.profile ? <ErrorState message={error.profile} /> : (
-        <div className="text-center">
-          <div className="pb-4">
-            <img
-              src={profile?.image_file ? `http://localhost:5000/static/profile_pics/${profile.image_file}` : "http://localhost:5000/static/profile_pics/default.jpg"}
-              alt="Profile"
-              className="w-32 h-32 rounded-full mx-auto"
-            />
-          </div>
-          <div className="space-y-3">
-            {[
-              { label: 'Name', value: profile?.name },
-              { label: 'Email', value: profile?.email },
-              { label: 'Phone', value: profile?.phone_number },
-              { label: 'Location', value: profile?.location }
-            ].map(({ label, value }) => (
-              <div key={label} className="pb-2">
-                <p className="text-xs text-gray-400">{label}</p>
-                <p className="text-sm">{value || `No ${label.toLowerCase()} provided`}</p>
-              </div>
-            ))}
-            <div className="flex justify-center mt-4">
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                Update Profile
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
-  const BookingCard = ({ booking }) => (
-    <Card className="bg-gray-900 border-gray-800">
-      <CardContent className="p-6">
-        <div className="flex flex-col md:flex-row justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <h3 className="text-xl font-semibold mb-1 text-gray-100">{booking.artisan_name}</h3>
-                <p className="text-gray-400">{booking.details}</p>
-              </div>
-              <Badge 
-                variant={booking.status === 'Completed' ? 'secondary' : 'default'}
-                className="bg-blue-600"
-              >
-                {booking.status}
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-gray-400" />
-              <span className="text-sm text-gray-400">
-                {new Date(booking.request_date).toLocaleDateString()} - 
-                {new Date(booking.completion_date).toLocaleDateString()}
-              </span>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="border-gray-700 hover:bg-gray-800">
-              View Details
-            </Button>
-            <Button variant="outline" className="border-gray-700 hover:bg-gray-800">
-              <MessageSquare className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
-  const ArtisanCard = ({ artisan }) => (
-    <Card className="bg-gray-900 border-gray-800">
-      <CardContent className="p-6">
-        <div className="flex gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={artisan.image_file} alt={artisan.name} />
-            <AvatarFallback className="bg-gray-800">
-              {artisan.name.split(' ').map(n => n[0]).join('')}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-semibold text-gray-100">{artisan.name}</h3>
-                <p className="text-sm text-gray-400">{artisan.profession}</p>
-              </div>
-              <Badge variant="outline" className="border-gray-700">
-                {artisan.hourlyRate}/hr
-              </Badge>
-            </div>
-            <div className="flex flex-wrap gap-4 mt-2">
-              <div className="flex items-center gap-1">
-                <MapPin className="h-4 w-4 text-gray-400" />
-                <span className="text-sm text-gray-400">{artisan.location}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 text-yellow-500" />
-                <span className="text-sm text-gray-400">
-                  {artisan.rating} ({artisan.reviews} reviews)
-                </span>
-              </div>
-            </div>
-            <div className="flex justify-between items-center mt-4">
-              <span className="text-sm text-gray-400">{artisan.availability}</span>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="border-gray-700 hover:bg-gray-800">
-                  View Profile
-                </Button>
-                <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                  Contact
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile(prev => ({ ...prev, [name]: value }));
+  };
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 py-8">
@@ -217,7 +111,14 @@ const Client = () => {
           </TabsList>
 
           <TabsContent value="profile">
-            <ProfileSection />
+            <ProfileSection
+              profile={profile}
+              loading={loading}
+              error={error}
+              handleSubmit={handleSubmit}
+              handleChange={handleChange}
+              editable={true}
+            />
           </TabsContent>
 
           <TabsContent value="bookings">
