@@ -7,11 +7,11 @@ import Artisan from "./pages/Artisan";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import About from "./pages/About";
-import Logout from './pages/Logout';
+import Logout from "./pages/Logout";
 import "./app.scss";
 import Search from "./components/Search";
+import Map from "./pages/Map";
 // import Profile from "./components/Profile";
-
 
 function App() {
   return (
@@ -32,12 +32,12 @@ function App() {
           <Route path="/about" element={<About />} />
           <Route path="/search" element={<Search />} />
           {/* <Route path="/profile" element={<Profile />} /> */}
+          <Route path="/map/:mapId" element={<Map />} />
           <Route path="/logout" element={<Logout />} />
         </Routes>
       </Router>
     </>
   );
 }
-
 
 export default App;
