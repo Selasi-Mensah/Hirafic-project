@@ -6,6 +6,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const BookModal = ({ artisan, isOpen, onClose }) => {
+  const [title, setTitle] = useState('');
   const [details, setDetails] = useState('');
   const [completionDate, setCompletionDate] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -20,8 +21,9 @@ const BookModal = ({ artisan, isOpen, onClose }) => {
       const response = await axios.post('http://127.0.0.1:5000/book_artisan', {
         artisan_email: artisan.email,
         client_email: sessionStorage.getItem('email'),
+        title,
         completion_date: completionDate,
-        details: details,
+        details,
       }, {
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem('access_token')}`,
@@ -41,13 +43,26 @@ const BookModal = ({ artisan, isOpen, onClose }) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-gray-900 border border-gray-700 shadow-lg rounded-lg">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold text-white">Book {artisan.name}</DialogTitle>
+          <DialogTitle className="text-lg font-bold text-white">Book {artisan.username}</DialogTitle>
           <DialogDescription className="text-sm text-gray-400">
-            Send a booking request to {artisan.username}.
+            Send a booking request to artisan
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
+            {/* Title Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Title</label>
+              <input
+                type="text"
+                className="w-full p-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
+                placeholder="Enter a title for your request..."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+            </div>
+            {/* Details Textarea */}
             <textarea
               className="w-full p-3 bg-gray-800 text-gray-100 border border-gray-700 rounded-lg focus:outline-none focus:ring focus:ring-blue-500"
               rows="5"
@@ -56,6 +71,7 @@ const BookModal = ({ artisan, isOpen, onClose }) => {
               onChange={(e) => setDetails(e.target.value)}
               required
             />
+            {/* Completion Date Picker */}
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-1">Expected Completion Date</label>
               <DatePicker
@@ -67,9 +83,11 @@ const BookModal = ({ artisan, isOpen, onClose }) => {
                 required
               />
             </div>
+            {/* Error Message */}
             {error && <p className="text-red-500 text-sm">{error}</p>}
           </div>
           <div className="flex justify-end space-x-2">
+            {/* Submit Button */}
             <Button
               type="submit"
               className={`px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-500 ${
@@ -79,6 +97,7 @@ const BookModal = ({ artisan, isOpen, onClose }) => {
             >
               {loading ? 'Sending...' : 'Book Now'}
             </Button>
+            {/* Close Button */}
             <DialogClose asChild>
               <Button
                 variant="outline"

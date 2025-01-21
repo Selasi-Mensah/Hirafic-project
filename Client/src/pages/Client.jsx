@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import axios from 'axios';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ProfileSection from '@/components/ProfileSection';
 import LoadingState from '@/components/LoadingState';
 import ErrorState from '@/components/ErrorState';
-import ProfileSection from '@/components/ProfileSection';
 import BookingCard from '@/components/BookingCard';
 import ArtisanCard from '@/components/ArtisanCard';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
+import { Filter } from 'lucide-react';
 
 const Client = () => {
   const [bookings, setBookings] = useState([]);
   const [artisans, setArtisans] = useState([]);
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState({
+    username: '',
+    email: '',
+    phone_number: '',
+    location: '',
+    image_file: ''
+  });
   const [loading, setLoading] = useState({
     bookings: true,
     artisans: true,
@@ -23,11 +30,8 @@ const Client = () => {
     artisans: null,
     profile: null
   });
-  const [selectedProfession, setSelectedProfession] = useState('');
+  const [selectedProfession, setSelectedProfession] = useState('all');
   const [file, setFile] = useState(null);
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
   const token = sessionStorage.getItem('access_token');
   const name = sessionStorage.getItem('username');
 
@@ -65,18 +69,34 @@ const Client = () => {
     fetchData('/client', setProfile, 'profile', 'profile');
   }, []);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile((prevProfile) => ({
+      ...prevProfile,
+      [name]: value,
+    }));
+  };
+  
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(prev => ({ ...prev, profile: true }));
-    setError(prev => ({ ...prev, profile: null }));
+    setLoading({ profile: true });
+    setError({ profile: null });
+
+    const formData = new FormData();
+    formData.append('username', profile.username);
+    formData.append('email', profile.email);
+    formData.append('phone_number', profile.phone_number);
+    formData.append('location', profile.location);
+    if (file) {
+      formData.append('picture', file);
+    }
+    console.log(formData);
 
     try {
-      const formData = new FormData();
-      formData.append('username', profile.username);
-      formData.append('email', profile.email);
-      formData.append('phone_number', profile.phone_number);
-      formData.append('location', profile.location);
-      formData.append('picture', file);
 
       const response = await axios.post('http://127.0.0.1:5000/client', formData, {
         headers: {
@@ -87,16 +107,15 @@ const Client = () => {
       setProfile(response.data);
       alert('Profile updated successfully');
     } catch (err) {
-      setError(prev => ({ ...prev, profile: err.message }));
+      setError({ profile: err.message });
     } finally {
-      setLoading(prev => ({ ...prev, profile: false }));
+      setLoading({ profile: false });
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
-  };
+  const filteredArtisans = selectedProfession === 'all'
+    ? artisans
+    : artisans.filter(artisan => artisan.profession === selectedProfession);
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 py-8">
@@ -107,8 +126,8 @@ const Client = () => {
           </h1>
         </div>
 
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="bg-gray-900">
+        <Tabs defaultValue="bookings" className="space-y-3">
+          <TabsList className="bg-gray-900 te">
             <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">
               Profile
             </TabsTrigger>
@@ -149,24 +168,25 @@ const Client = () => {
           </TabsContent>
 
           <TabsContent value="artisans">
-            <Card className="mb-6 bg-gray-900 border-gray-800">
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex gap-4">
-                    <Select value={selectedProfession} onValueChange={setSelectedProfession}>
-                      <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
-                        <SelectValue placeholder="Profession" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700">
-                        <SelectItem value="all">All Professions</SelectItem>
-                        <SelectItem value="carpenter">Carpenter</SelectItem>
-                        <SelectItem value="plumber">Plumber</SelectItem>
-                        <SelectItem value="electrician">Electrician</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </CardContent>
+            <Card className="mb-6 bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                <CardContent className="p-4">
+                    <div className="flex flex-col md:flex-row gap-4 items-left">
+                        <div className="flex items-center gap-2">
+                            <Select value={selectedProfession} onValueChange={setSelectedProfession}>
+                            <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-gray-100">
+                                <Filter className="h-4 w-4 text-gray-200" />
+                                <SelectValue placeholder="Select a Profession" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-gray-800 border-gray-700 text-gray-100">
+                                <SelectItem value="all">All Professions</SelectItem>
+                                <SelectItem value="carpenter">Carpenter</SelectItem>
+                                <SelectItem value="plumber">Plumber</SelectItem>
+                                <SelectItem value="electrician">Electrician</SelectItem>
+                            </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                </CardContent>
             </Card>
 
             <div className="grid md:grid-cols-2 gap-6">
@@ -174,8 +194,8 @@ const Client = () => {
                 <LoadingState />
               ) : error.artisans ? (
                 <ErrorState message={error.artisans} />
-              ) : artisans.length > 0 ? (
-                artisans.map(artisan => (
+              ) : filteredArtisans.length > 0 ? (
+                filteredArtisans.map(artisan => (
                   <ArtisanCard key={artisan.id} artisan={artisan} />
                 ))
               ) : (

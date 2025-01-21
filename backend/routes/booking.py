@@ -16,7 +16,7 @@ from datetime import datetime
 booking_bp = Blueprint('booking', __name__)
 
 
-@booking_bp.route('/book_artisan', methods=['POST', 'OPTIONS'],
+@booking_bp.route('/book_artisan', methods=['POST', 'PUT', 'OPTIONS'],
                   strict_slashes=False)
 @jwt_required()
 def book_artisan():
@@ -31,17 +31,32 @@ def book_artisan():
     if not current_user:
         return jsonify({"error": "User not authenticated"}), 403
 
-    # check if user is a client
+    # check if user is not a client
     if current_user.role != 'Client':
         return jsonify({"error": "User is not a client"}), 403
 
+    # handle PUT request
+    if request.method == 'PUT':
+        try:
+            data = request.get_json()
+            booking_id = data.get('booking_id')
+            booking = Booking.query.filter_by(id=booking_id).first()
+            if not booking:
+                return jsonify({"error": "Booking not found"}), 404
+            booking.status = data.get('status')
+            db.session.commit()
+            return jsonify({"message": "Booking updated successfully"}), 200
+        except Exception as e:
+            return jsonify({"error": f"Invalid request: {str(e)}"}), 400
+    
     # in postman body must be raw json
+    # handle POST request
     try:
         data = request.get_json()
         client_email = data.get('client_email').lower()
         artisan_email = data.get('artisan_email').lower()
+        title = data.get('title', '')
         details = data.get('details', '')
-        print(details)
         completion_date = data.get('completion_date', '')
         
         # Validating client and artisan existence
@@ -67,6 +82,7 @@ def book_artisan():
         booking = Booking(
             client_id=client.id,
             artisan_id=artisan.id,
+            title=title,
             status="Pending",
             request_date=datetime.now(),
             completion_date=completion_date,
@@ -83,8 +99,8 @@ def book_artisan():
     body = f"""
     Hello {artisan.name},
 
-    You have received a new booking from {client.name}.
-    You can contact the client at {client.phone_number},
+    You have received a new booking with title {booking.title}.
+    You can contact the client {client.name} at {client.phone_number},
     or at this email address {client.email}.
 
     Booking Details:

@@ -46,6 +46,7 @@ class User(Base):
     def to_dict(self) -> Dict[str, Any]:
         """ return dictionary for the object """
         return {
+            'id': self.id,
             'username': self.username,
             'email': self.email,
             'phone_number': self.phone_number,

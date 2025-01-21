@@ -1,9 +1,11 @@
 import React from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import LoadingState from '@/components/LoadingState';
 import ErrorState from '@/components/ErrorState';
 
-const ProfileSection = ({ profile, loading, error, handleSubmit, handleChange, editable, handleFileChange }) => {
+const ProfileSection = ({ profile, loading, error, handleSubmit, handleChange, editable, handleFileChange}) => {
+
   return (
     <div className="bg-gray-900 text-gray-100 p-6 rounded-lg shadow-md max-w-md mx-auto">
       {loading.profile ? <LoadingState /> : error.profile ? <ErrorState message={error.profile} /> : (
@@ -11,7 +13,7 @@ const ProfileSection = ({ profile, loading, error, handleSubmit, handleChange, e
           
           <div className="text-center">
             <img
-              src={profile?.image_file ? `http://localhost:5000/static/profile_pics/${profile.image_file}` : "http://localhost:5000/static/profile_pics/default.jpg"}
+              src={profile?.image_file ? `http://localhost:5000/static/profile_pics/${profile.image_file}` : "http://localhost:5000/static/profile_pics/default.jpeg"}
               alt="Profile"
               className="w-32 h-32 rounded-full mx-auto"
             />

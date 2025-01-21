@@ -20,9 +20,10 @@ class Booking(Base):
     artisan_id = db.Column(
         db.Integer, db.ForeignKey('artisans.id'),
         nullable=False)
+    title = db.Column(db.String(50), nullable=False, default='service')
     status = db.Column(
         Enum('Pending', 'Accepted', 'Rejected', 'Completed', name='status'),
-        nullable=False)
+        nullable=False, default='Pending')
     request_date = db.Column(
         db.DateTime(timezone=True),
         server_default=db.func.now())
@@ -37,6 +38,7 @@ class Booking(Base):
             'id': self.id,
             'artisan_name': db.session.get(Artisan, self.artisan_id).name,
             'client_name': db.session.get(Client, self.client_id).name,
+            'title': self.title,
             'details': self.details,
             'status': self.status,
             'request_date': self.request_date,
