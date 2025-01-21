@@ -31,24 +31,26 @@ def book_artisan():
     if not current_user:
         return jsonify({"error": "User not authenticated"}), 403
 
-    # check if user is not a client
-    if current_user.role != 'Client':
-        return jsonify({"error": "User is not a client"}), 403
-
     # handle PUT request
     if request.method == 'PUT':
+        if current_user.role != 'Artisan':
+            return jsonify({"error": "User is not an artisan"}), 403
         try:
             data = request.get_json()
             booking_id = data.get('booking_id')
             booking = Booking.query.filter_by(id=booking_id).first()
             if not booking:
                 return jsonify({"error": "Booking not found"}), 404
-            booking.status = data.get('status')
+            booking.status = data.get('action')
             db.session.commit()
             return jsonify({"message": "Booking updated successfully"}), 200
         except Exception as e:
             return jsonify({"error": f"Invalid request: {str(e)}"}), 400
-    
+
+    # check if user is not a client
+    if current_user.role != 'Client':
+        return jsonify({"error": "User is not a client"}), 403
+
     # in postman body must be raw json
     # handle POST request
     try:
@@ -58,7 +60,7 @@ def book_artisan():
         title = data.get('title', '')
         details = data.get('details', '')
         completion_date = data.get('completion_date', '')
-        
+
         # Validating client and artisan existence
         client = Client.query.filter_by(email=client_email).first()
         artisan = Artisan.query.filter_by(email=artisan_email).first()

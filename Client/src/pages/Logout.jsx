@@ -26,16 +26,15 @@ const Logout = () => {
         });
 
         console.log('Logout successful:', response.data);
-        sessionStorage.removeItem('access_token');
-        navigate('/login',  { replace: true });
       } catch (err) {
         console.error('Logout failed:', err);
         if (err.response && err.response.status === 401) {
           console.log('token expired, redirecting to login');
-          sessionStorage.removeItem('access_token');
-          navigate('/login',  { replace: true });
         }
       } finally {
+        sessionStorage.removeItem('access_token');
+        sessionStorage.clear();
+        navigate('/login',  { replace: true });
         setLoading(false);
       }
     };

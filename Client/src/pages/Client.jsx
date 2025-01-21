@@ -34,6 +34,7 @@ const Client = () => {
   const [file, setFile] = useState(null);
   const token = sessionStorage.getItem('access_token');
   const name = sessionStorage.getItem('username');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const fetchData = async (endpoint, setter, loadingKey, errorKey) => {
     try {
@@ -95,9 +96,7 @@ const Client = () => {
       formData.append('picture', file);
     }
     console.log(formData);
-
     try {
-
       const response = await axios.post('http://127.0.0.1:5000/client', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -115,95 +114,150 @@ const Client = () => {
 
   const filteredArtisans = selectedProfession === 'all'
     ? artisans
-    : artisans.filter(artisan => artisan.profession === selectedProfession);
+    : artisans.filter(artisan => artisan.specialization === selectedProfession);
+
+  const handleLogout = () => {
+    window.location.href = '/logout';
+  };
+
+  const handleAbout = () => {
+    window.location.href = '/About';
+  };
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 py-8">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold mb-4 md:mb-0 text-gray-100">
-            Welcome, {name}
-          </h1>
-        </div>
+        {/* Sidebar */}
+        {isSidebarOpen && (
+          <aside className="bg-gray-900 w-40 min-h-screen px-6 py-8 transition-all duration-300 fixed top-0 left-0 z-20">
+            <h2 className="text-l text-center font-bold text-white mb-8">Navigation</h2>
+            <ul className="space-y-4">
+              <li>
+                <button
+                  onClick={handleAbout}
+                  className="w-full items-center gap-4 bg-gray-800 hover:bg-gray-700 text-white py-1 px-1 rounded-md transition-all duration-300"
+                >
+                  <span className="material-icons">About</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="w-full items-center gap-4 bg-red-600 hover:bg-red-700 text-white py-1 px-1 rounded-md transition-all duration-300"
+                >
+                  <span className="material-icons">Logout</span>
+                </button>
+              </li>
+            </ul>
+          </aside>
+        )}
 
-        <Tabs defaultValue="bookings" className="space-y-3">
-          <TabsList className="bg-gray-900 te">
-            <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">
-              Profile
-            </TabsTrigger>
-            <TabsTrigger value="bookings" className="data-[state=active]:bg-gray-800">
-              Bookings
-            </TabsTrigger>
-            <TabsTrigger value="artisans" className="data-[state=active]:bg-gray-800">
-              Find Artisan
-            </TabsTrigger>
-          </TabsList>
+        {/* Header */}
+        <main className="items-center justify-center px-8 py-8">
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2 rounded-md absolute top-4 left-4 z-10"
+          >
+            {isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'}
+          </button>
 
-          <TabsContent value="profile">
-            <ProfileSection
-              profile={profile}
-              loading={loading}
-              error={error}
-              handleSubmit={handleSubmit}
-              handleChange={handleChange}
-              handleFileChange={handleFileChange}
-              editable={true}
-            />
-          </TabsContent>
+          <div className="text-center justify-between items-center mb-8">
+            {/* Welcome Message */}
+            <h1 className="text-3xl font-bold mb-4 md:mb-0 text-gray-100">
+              Welcome, {name}
+            </h1>
+            <p className="text-gray-400 text-lg mb-8">
+              This is your home page. Use the navigation menu to explore.
+            </p>
+          </div>
 
-          <TabsContent value="bookings">
-            <div className="grid gap-6">
-              {loading.bookings ? (
-                <LoadingState />
-              ) : error.bookings ? (
-                <ErrorState message={error.bookings} />
-              ) : bookings.length > 0 ? (
-                bookings.map(booking => (
-                  <BookingCard key={booking.id} booking={booking} />
-                ))
-              ) : (
-                <p className="text-center text-gray-400">No bookings found.</p>
-              )}
+          <Tabs defaultValue="bookings" className="space-y-3">
+            <div className="text-center">
+              <TabsList className="bg-gray-900 te">
+                <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">
+                  Profile
+                </TabsTrigger>
+                <TabsTrigger value="bookings" className="data-[state=active]:bg-gray-800">
+                  Bookings
+                </TabsTrigger>
+                <TabsTrigger value="artisans" className="data-[state=active]:bg-gray-800">
+                  Find Artisan
+                </TabsTrigger>
+              </TabsList>
             </div>
-          </TabsContent>
 
-          <TabsContent value="artisans">
-            <Card className="mb-6 bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                <CardContent className="p-4">
-                    <div className="flex flex-col md:flex-row gap-4 items-left">
-                        <div className="flex items-center gap-2">
-                            <Select value={selectedProfession} onValueChange={setSelectedProfession}>
-                            <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-gray-100">
-                                <Filter className="h-4 w-4 text-gray-200" />
-                                <SelectValue placeholder="Select a Profession" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-gray-800 border-gray-700 text-gray-100">
-                                <SelectItem value="all">All Professions</SelectItem>
-                                <SelectItem value="carpenter">Carpenter</SelectItem>
-                                <SelectItem value="plumber">Plumber</SelectItem>
-                                <SelectItem value="electrician">Electrician</SelectItem>
-                            </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+            <TabsContent value="profile">
+              <ProfileSection
+                profile={profile}
+                loading={loading}
+                error={error}
+                handleSubmit={handleSubmit}
+                handleChange={handleChange}
+                handleFileChange={handleFileChange}
+                editable={true}
+              />
+            </TabsContent>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              {loading.artisans ? (
-                <LoadingState />
-              ) : error.artisans ? (
-                <ErrorState message={error.artisans} />
-              ) : filteredArtisans.length > 0 ? (
-                filteredArtisans.map(artisan => (
-                  <ArtisanCard key={artisan.id} artisan={artisan} />
-                ))
-              ) : (
-                <p className="text-center text-gray-400 col-span-2">No artisans found.</p>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="bookings">
+              <div className="items-center justify-center gap-6 max-w-lg mx-auto">
+                {loading.bookings ? (
+                  <LoadingState />
+                ) : error.bookings ? (
+                  <ErrorState message={error.bookings} />
+                ) : bookings.length > 0 ? (
+                  bookings.map(booking => (
+                    <BookingCard key={booking.id} booking={booking} />
+                  ))
+                ) : (
+                  <p className="text-center text-gray-400">No bookings found.</p>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="artisans">
+              <Card className="mb-6 bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-lg mx-auto ">
+                  <CardContent className="p-4">
+                      <div className="gap-4 items-center justify-between ">
+                          <div className="items-center gap-2">
+                              <Select value={selectedProfession} onValueChange={setSelectedProfession}>
+                              <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-gray-100">
+                                  <Filter className="h-4 w-4 text-gray-200" />
+                                  <SelectValue placeholder="Select a Profession" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-gray-800 border-gray-700 text-gray-100">
+                                  <SelectItem value="all">All Professions</SelectItem>
+                                  <SelectItem value="Engineering">Engineering</SelectItem>
+                                  <SelectItem value="Nursing">Nursing</SelectItem>
+                                  <SelectItem value="Cleaner">Cleaner</SelectItem>
+                                  <SelectItem value="Technician">Technician</SelectItem>
+                                  <SelectItem value="Mechanic">Mechanic</SelectItem>
+                                  <SelectItem value="Painter">Painter</SelectItem>
+                                  <SelectItem value="Carpenter">Carpenter</SelectItem>
+                                  <SelectItem value="Plumber">Plumber</SelectItem>
+                                  <SelectItem value="Electrician">Electrician</SelectItem>
+                              </SelectContent>
+                              </Select>
+                          </div>
+                      </div>
+                  </CardContent>
+              </Card>
+
+              <div className=" gap-6 items-center justify-center min-w-screen max-w-lg mx-auto">
+                {loading.artisans ? (
+                  <LoadingState />
+                ) : error.artisans ? (
+                  <ErrorState message={error.artisans} />
+                ) : filteredArtisans.length > 0 ? (
+                  filteredArtisans.map(artisan => (
+                    <ArtisanCard key={artisan.id} artisan={artisan} />
+                  ))
+                ) : (
+                  <p className="text-center text-gray-400 col-span-2">No artisans found.</p>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </main>
       </div>
     </div>
   );

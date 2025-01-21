@@ -113,7 +113,7 @@ def artisan_profile(username: str = "") -> str:
 
     # Set up Artisan profile form and disable CSRF
     form = ArtisanProfileForm(meta={'csrf': False})
-
+    print(form.data)
     # handle GET request
     if request.method == "GET":
         # return the artisan object

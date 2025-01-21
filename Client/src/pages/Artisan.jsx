@@ -5,10 +5,6 @@ import ProfileSection from '@/components/ProfileSection';
 import LoadingState from '@/components/LoadingState';
 import ErrorState from '@/components/ErrorState';
 import BookingCard from '@/components/BookingCard';
-import ArtisanCard from '@/components/ArtisanCard';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent } from '@/components/ui/card';
-import { Filter } from 'lucide-react';
 
 const Artisan = () => {
   const [bookings, setBookings] = useState([]);
@@ -17,6 +13,8 @@ const Artisan = () => {
     email: '',
     phone_number: '',
     location: '',
+    specialization: '',
+    skills: '',
     image_file: ''
   });
   const [loading, setLoading] = useState({
@@ -30,6 +28,8 @@ const Artisan = () => {
     profile: null
   });
 
+  const [file, setFile] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const token = sessionStorage.getItem('access_token');
   const name = sessionStorage.getItem('username');
 
@@ -61,6 +61,11 @@ const Artisan = () => {
     }
   };
 
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+    console.log(e.target.files[0]);
+  };
+
   useEffect(() => {
     fetchData('/bookings', setBookings, 'bookings', 'bookings');
     fetchData('/artisan', setProfile, 'profile', 'profile');
@@ -74,7 +79,8 @@ const Artisan = () => {
     }));
   };
 
-  const handleSubmit = async (e, selectedFile) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading({ profile: true });
     setError({ profile: null });
@@ -86,12 +92,12 @@ const Artisan = () => {
     formData.append('location', profile.location);
     formData.append('skills', profile.skills);
     formData.append('specialization', profile.specialization);
-    if (selectedFile) {
-      formData.append('profile_image', selectedFile);
+    if (file) {
+      formData.append('picture', file);
     }
     
     try {
-      const response = await axios.post('http://127.0.0.1:5000/profile', formData, {
+      const response = await axios.post('http://127.0.0.1:5000/artisan', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -106,52 +112,102 @@ const Artisan = () => {
     }
   };
 
+  const handleLogout = () => {
+    window.location.href = '/logout';
+  };
+
+  const handleAbout = () => {
+    window.location.href = '/About';
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 py-8">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold mb-4 md:mb-0 text-gray-100">
-            Welcome, {name}
-          </h1>
-        </div>
+        {/* Sidebar */}
+        {isSidebarOpen && (
+          <aside className="bg-gray-900 w-40 min-h-screen px-6 py-8 transition-all duration-300 fixed top-0 left-0 z-20">
+            <h2 className="text-l text-center font-bold text-white mb-8">Navigation</h2>
+            <ul className="space-y-4">
+              <li>
+                <button
+                  onClick={handleAbout}
+                  className="w-full items-center gap-4 bg-gray-800 hover:bg-gray-700 text-white py-1 px-1 rounded-md transition-all duration-300"
+                >
+                  <span className="material-icons">About</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="w-full items-center gap-4 bg-red-600 hover:bg-red-700 text-white py-1 px-1 rounded-md transition-all duration-300"
+                >
+                  <span className="material-icons">Logout</span>
+                </button>
+              </li>
+            </ul>
+          </aside>
+        )}
 
-        <Tabs defaultValue="bookings" className="space-y-3">
-          <TabsList className="bg-gray-900 te">
-            <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">
-              Profile
-            </TabsTrigger>
-            <TabsTrigger value="bookings" className="data-[state=active]:bg-gray-800">
-              Bookings
-            </TabsTrigger>
-          </TabsList>
+        {/* Header */}
+        <main className="items-center justify-center px-8 py-8">
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2 rounded-md absolute top-4 left-4 z-10"
+          >
+            {isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'}
+          </button>
 
-          <TabsContent value="profile">
-            <ProfileSection
-              profile={profile}
-              loading={loading}
-              error={error}
-              handleSubmit={handleSubmit}
-              handleChange={handleChange}
-              editable={true}
-            />
-          </TabsContent>
+          <div className="text-center justify-between items-center mb-8">
+            {/* Welcome Message */}
+            <h1 className="text-3xl font-bold mb-4 md:mb-0 text-gray-100">
+              Welcome, {name}
+            </h1>
+            <p className="text-gray-400 text-lg mb-8">
+              This is your home page. Use the navigation menu to explore.
+            </p>
+          </div>
 
-          <TabsContent value="bookings">
-            <div className="grid gap-6">
-              {loading.bookings ? (
-                <LoadingState />
-              ) : error.bookings ? (
-                <ErrorState message={error.bookings} />
-              ) : bookings.length > 0 ? (
-                bookings.map(booking => (
-                  <BookingCard key={booking.id} booking={booking} />
-                ))
-              ) : (
-                <p className="text-center text-gray-400">No bookings found.</p>
-              )}
+          <Tabs defaultValue="bookings" className="space-y-3">
+            <div className='text-center'>
+              <TabsList className="bg-gray-900 te">
+                <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">
+                  Profile
+                </TabsTrigger>
+                <TabsTrigger value="bookings" className="data-[state=active]:bg-gray-800">
+                  Bookings
+                </TabsTrigger>
+              </TabsList>
             </div>
-          </TabsContent>
-        </Tabs>
+
+            <TabsContent value="profile">
+              <ProfileSection
+                profile={profile}
+                loading={loading}
+                error={error}
+                handleSubmit={handleSubmit}
+                handleChange={handleChange}
+                handleFileChange={handleFileChange}
+                editable={true}
+              />
+            </TabsContent>
+
+            <TabsContent value="bookings">
+              <div className="grid gap-6">
+                {loading.bookings ? (
+                  <LoadingState />
+                ) : error.bookings ? (
+                  <ErrorState message={error.bookings} />
+                ) : bookings.length > 0 ? (
+                  bookings.map(booking => (
+                    <BookingCard key={booking.id} booking={booking} />
+                  ))
+                ) : (
+                  <p className="text-center text-gray-400">No bookings found.</p>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </main>
       </div>
     </div>
   );

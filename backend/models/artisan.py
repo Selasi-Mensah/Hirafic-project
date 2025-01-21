@@ -25,7 +25,10 @@ class Artisan(Base):
     longitude = db.Column(db.Float, nullable=True)
     # Removed nullable=False in Specialization and skills
     specialization = db.Column(
-        Enum('Engineering', 'Nursing', 'None', name='specialization'),
+        Enum('Engineering', 'Nursing', "Plumber",
+             "Electrician", "Carpenter", "Painter",
+             "Mechanic", "Technician", "Cleaner",
+             'None', name='specialization'),
         default='None'
         )
     skills = db.Column(db.Text, default='None')

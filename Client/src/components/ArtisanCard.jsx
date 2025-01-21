@@ -18,9 +18,9 @@ const ArtisanCard = ({ artisan }) => {
 
   return (
     <>
-      <Card className="bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-        <CardContent className="p-4 relative">
-          <div className="flex items-start gap-4">
+      <Card className=" bg-gray-900 border-gray-800 rounded-lg</div> shadow-md hover:shadow-lg transition-shadow ">
+        <CardContent className="p-4 relative ">
+          <div className="flex items-start gap-4 ">
             {/* Avatar Section */}
             <Avatar className="h-14 w-14">
               <AvatarImage
@@ -56,7 +56,7 @@ const ArtisanCard = ({ artisan }) => {
               {/* Additional Information */}
               <div className="mt-2">
                 <p className="text-sm text-gray-400">
-                  <span className="font-medium text-gray-300">Specialization:</span>{' '}
+                  <span className="font-medium text-gray-300">Profession:</span>{' '}
                   {artisan.specialization}
                 </p>
                 <div className="flex items-center gap-1 mt-1">
@@ -101,7 +101,7 @@ const ArtisanCard = ({ artisan }) => {
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4">
-            {artisan.skills === null || artisan.skills.trim().length === 0 ? (
+            {artisan.skills || artisan.skills.trim().length !== 0 ? (
               <p className="text-sm text-gray-300 leading-relaxed">
                 {artisan.skills}
               </p>

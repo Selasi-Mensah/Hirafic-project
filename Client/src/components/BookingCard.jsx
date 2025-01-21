@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { use } from 'react';
 
 const BookingCard = ({ booking }) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -13,14 +14,17 @@ const BookingCard = ({ booking }) => {
     setIsDetailsOpen(!isDetailsOpen);
   };
 
-  const handleBookingAction = async (action) => {
+  const handleBookingStatus = async (action) => {
     try {
-      const response = await fetch('/book_artisan', {
+      const response = await fetch('http://127.0.0.1:5000/book_artisan', {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${sessionStorage.getItem('access_token')}`,
           'Content-Type': 'application/json' },
-        body: JSON.stringify({ bookingId: booking.id, action }),
+        body: JSON.stringify({
+          booking_id: booking.id,
+          action: action
+        }),
       });
       if (!response.ok) {
         throw new Error('Failed to update booking status.');
@@ -50,13 +54,13 @@ const BookingCard = ({ booking }) => {
   return (
     <>
       {/* Booking Card */}
-      <Card className="bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow w-full sm:w-80">
+      <Card className="bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow shadow-md max-w-md mx-auto">
         <CardContent className="pl-4 pr-6 py-4">
-          <div className="flex flex-col md:flex-row justify-between gap-4">
+          <div className="flex flex-col justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h4 className="text-xl font-semibold mb-1 text-gray-100">{booking.title}</h4>
+                  <h4 className="text-lg font-semibold mb-1 text-gray-100">{booking.title}</h4>
                 </div>
                 <Badge className={`${getStatusBadgeColor(booking.status)} px-2 py-1 rounded`}>
                   {booking.status}
@@ -121,12 +125,63 @@ const BookingCard = ({ booking }) => {
               </p>
             </div>
           </div>
-          <div className="flex justify-end mt-6">
-            <DialogClose asChild>
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                Close
-              </Button>
-            </DialogClose>
+          <div>
+            {/* Buttons for "Pending" status */}
+            {userRole === 'Artisan' && booking.status === 'Pending' && (
+              <div className="flex justify-between mt-6">
+                {/* Accept and Reject buttons on the left */}
+                <div
+                onClick={() => handleBookingStatus('Accepted')} 
+                className="flex gap-4">
+                  <DialogClose asChild>
+                    <Button
+                      onClick={() => handleBookingStatus('Accepted')}
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                      Accept
+                    </Button>
+                  </DialogClose>
+                  <DialogClose asChild>
+                    <Button
+                      onClick={() => handleBookingStatus('Rejected')}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">
+                      Reject
+                    </Button>
+                  </DialogClose>
+                </div>
+                {/* Close button on the right */}
+                <DialogClose asChild>
+                  <Button className="bg-gray-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                    Close
+                  </Button>
+                </DialogClose>
+              </div>
+            )}
+
+            {/* Buttons for "Accepted" status */}
+            {userRole === 'Artisan' && booking.status === 'Accepted' && (
+              <div className="flex justify-between mt-6">
+                {/* Complete and Close buttons on the right */}
+                <DialogClose asChild>
+                  <Button
+                    onClick={() => handleBookingStatus('Completed')}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                    Complete
+                  </Button>
+                </DialogClose>
+                <DialogClose asChild>
+                  <Button className="bg-gray-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                    Close
+                  </Button>
+                </DialogClose>
+              </div>
+            )}
+            {userRole === 'Client' && (
+              <DialogClose asChild>
+                <Button className="bg-gray-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg mt-4">
+                  Close
+                </Button>
+              </DialogClose>
+            )}
           </div>
         </DialogContent>
       </Dialog>
