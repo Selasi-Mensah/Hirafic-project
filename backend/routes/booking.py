@@ -16,7 +16,7 @@ from datetime import datetime
 booking_bp = Blueprint('booking', __name__)
 
 
-@booking_bp.route('/book_artisan', methods=['POST', 'OPTIONS'],
+@booking_bp.route('/book_artisan', methods=['POST', 'PUT', 'OPTIONS'],
                   strict_slashes=False)
 @jwt_required()
 def book_artisan():
@@ -31,31 +31,63 @@ def book_artisan():
     if not current_user:
         return jsonify({"error": "User not authenticated"}), 403
 
-    # check if user is a client
+    # handle PUT request
+    if request.method == 'PUT':
+        if current_user.role != 'Artisan':
+            return jsonify({"error": "User is not an artisan"}), 403
+        try:
+            data = request.get_json()
+            booking_id = data.get('booking_id')
+            booking = Booking.query.filter_by(id=booking_id).first()
+            if not booking:
+                return jsonify({"error": "Booking not found"}), 404
+            booking.status = data.get('action')
+            db.session.commit()
+            return jsonify({"message": "Booking updated successfully"}), 200
+        except Exception as e:
+            return jsonify({"error": f"Invalid request: {str(e)}"}), 400
+
+    # check if user is not a client
     if current_user.role != 'Client':
         return jsonify({"error": "User is not a client"}), 403
 
     # in postman body must be raw json
-    data = request.get_json()
-    client_email = data.get('client_email')
-    artisan_email = data.get('artisan_email')
-    details = data.get('details', '')
+    # handle POST request
+    try:
+        data = request.get_json()
+        client_email = data.get('client_email').lower()
+        artisan_email = data.get('artisan_email').lower()
+        title = data.get('title', '')
+        details = data.get('details', '')
+        completion_date = data.get('completion_date', '')
 
-    # Validating client and artisan existence
-    client = Client.query.filter_by(email=client_email.lower()).first()
-    artisan = Artisan.query.filter_by(email=artisan_email.lower()).first()
+        # Validating client and artisan existence
+        client = Client.query.filter_by(email=client_email).first()
+        artisan = Artisan.query.filter_by(email=artisan_email).first()
+        # Convert completion date to datetime object
+        completion_date = datetime.strptime(
+            completion_date, '%Y-%m-%dT%H:%M:%S.%fZ')
 
-    if not client or not artisan:
-        return jsonify({"error": "Client or Artisan not found"}), 404
+        # Check if completion date is in the past
+        if completion_date < datetime.now():
+            return jsonify(
+                {"error": "Completion date cannot be in the past"}), 400
+
+        # Check if client and artisan exist
+        if not client or not artisan:
+            return jsonify({"error": "Client or Artisan not found"}), 404
+    except Exception as e:
+        return jsonify({"error": f"Invalid request: {str(e)}"}), 400
 
     # Creat booking
     try:
         booking = Booking(
             client_id=client.id,
             artisan_id=artisan.id,
+            title=title,
             status="Pending",
             request_date=datetime.now(),
-            completion_date=datetime.now(),
+            completion_date=completion_date,
             details=details,
             created_at=datetime.now(),
         )
@@ -69,8 +101,8 @@ def book_artisan():
     body = f"""
     Hello {artisan.name},
 
-    You have received a new booking from {client.name}.
-    You can contact the client at {client.phone_number},
+    You have received a new booking with title {booking.title}.
+    You can contact the client {client.name} at {client.phone_number},
     or at this email address {client.email}.
 
     Booking Details:

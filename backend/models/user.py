@@ -46,10 +46,11 @@ class User(Base):
     def to_dict(self) -> Dict[str, Any]:
         """ return dictionary for the object """
         return {
+            'id': self.id,
             'username': self.username,
             'email': self.email,
             'phone_number': self.phone_number,
             'role': self.role,
             'location': self.location,
-            'image_file': self.image_file
+            'image_file': f'/{self.image_file}'
         }

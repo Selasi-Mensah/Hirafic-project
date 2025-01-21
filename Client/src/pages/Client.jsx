@@ -1,258 +1,266 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Star, MapPin, MessageSquare, Calendar, Plus, Moon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import axios from 'axios';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ProfileSection from '@/components/ProfileSection';
+import LoadingState from '@/components/LoadingState';
+import ErrorState from '@/components/ErrorState';
+import BookingCard from '@/components/BookingCard';
+import ArtisanCard from '@/components/ArtisanCard';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
+import { Filter } from 'lucide-react';
 
-const ClientDashboardDark = () => {
-  const [bookings, setbookings] = useState([]);
+const Client = () => {
+  const [bookings, setBookings] = useState([]);
   const [artisans, setArtisans] = useState([]);
-  const [profile, setProfile] = useState();
+  const [profile, setProfile] = useState({
+    username: '',
+    email: '',
+    phone_number: '',
+    location: '',
+    image_file: ''
+  });
+  const [loading, setLoading] = useState({
+    bookings: true,
+    artisans: true,
+    profile: true
+  });
+  const [error, setError] = useState({
+    bookings: null,
+    artisans: null,
+    profile: null
+  });
+  const [selectedProfession, setSelectedProfession] = useState('all');
+  const [file, setFile] = useState(null);
   const token = sessionStorage.getItem('access_token');
   const name = sessionStorage.getItem('username');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // Fetch bookings (bookings) from backend
-  useEffect(() => {
-    const fetchbookings = async () => {
-      try {
-        const response = await axios.get('http://127.0.0.1:5000/bookings', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log(response.data);
-        setbookings(response.data);
-      } catch (error) {
-        console.error('Error fetching bookings:', error);
+  const fetchData = async (endpoint, setter, loadingKey, errorKey) => {
+    try {
+      setLoading(prev => ({ ...prev, [loadingKey]: true }));
+      setError(prev => ({ ...prev, [errorKey]: null }));
+      
+      const response = await fetch(`http://127.0.0.1:5000${endpoint}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
 
-    fetchbookings();
-  }, [token]);
-
-  // Fetch nearby artisans from backend
-  useEffect(() => {
-    const fetchArtisans = async () => {
-      try {
-        const response = await axios.get('http://127.0.0.1:5000/all_artisans', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log(response.data);
-        setArtisans(response.data);
-      } catch (error) {
-        console.error('Error fetching artisans:', error);
-      }
-    };
-
-    fetchArtisans();
-  }, [token]);
+      const data = await response.json();
+      setter(data);
+    } catch (err) {
+      setError(prev => ({ 
+        ...prev, 
+        [errorKey]: err.message || 'An error occurred'
+      }));
+    } finally {
+      setLoading(prev => ({ ...prev, [loadingKey]: false }));
+    }
+  };
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await axios.get('http://127.0.0.1:5000/client', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log(response.data);
-        setProfile(response.data);
-      } catch (error) {
-        console.error('Error fetching profile:', error);
-      }
-    };
+    fetchData('/bookings', setBookings, 'bookings', 'bookings');
+    fetchData('/all_artisans', setArtisans, 'artisans', 'artisans');
+    fetchData('/client', setProfile, 'profile', 'profile');
+  }, []);
 
-    fetchProfile();
-  }, [token]);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile((prevProfile) => ({
+      ...prevProfile,
+      [name]: value,
+    }));
+  };
+  
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading({ profile: true });
+    setError({ profile: null });
+
+    const formData = new FormData();
+    formData.append('username', profile.username);
+    formData.append('email', profile.email);
+    formData.append('phone_number', profile.phone_number);
+    formData.append('location', profile.location);
+    if (file) {
+      formData.append('picture', file);
+    }
+    console.log(formData);
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/client', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setProfile(response.data);
+      alert('Profile updated successfully');
+    } catch (err) {
+      setError({ profile: err.message });
+    } finally {
+      setLoading({ profile: false });
+    }
+  };
+
+  const filteredArtisans = selectedProfession === 'all'
+    ? artisans
+    : artisans.filter(artisan => artisan.specialization === selectedProfession);
+
+  const handleLogout = () => {
+    window.location.href = '/logout';
+  };
+
+  const handleAbout = () => {
+    window.location.href = '/About';
+  };
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 py-8">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold mb-4 md:mb-0 text-gray-100">Welcome, {name} </h1>
-          <Button className="gap-2 bg-blue-600 hover:bg-blue-700">
-            <Plus className="h-4 w-4" />
-            Post New booking
-          </Button>
-        </div>
+        {/* Sidebar */}
+        {isSidebarOpen && (
+          <aside className="bg-gray-900 w-40 min-h-screen px-6 py-8 transition-all duration-300 fixed top-0 left-0 z-20">
+            <h2 className="text-l text-center font-bold text-white mb-8">Navigation</h2>
+            <ul className="space-y-4">
+              <li>
+                <button
+                  onClick={handleAbout}
+                  className="w-full items-center gap-4 bg-gray-800 hover:bg-gray-700 text-white py-1 px-1 rounded-md transition-all duration-300"
+                >
+                  <span className="material-icons">About</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="w-full items-center gap-4 bg-red-600 hover:bg-red-700 text-white py-1 px-1 rounded-md transition-all duration-300"
+                >
+                  <span className="material-icons">Logout</span>
+                </button>
+              </li>
+            </ul>
+          </aside>
+        )}
 
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="bg-gray-900">
-            <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">Profile</TabsTrigger>
-            <TabsTrigger value="bookings" className="data-[state=active]:bg-gray-800">Bookings</TabsTrigger>
-            <TabsTrigger value="find" className="data-[state=active]:bg-gray-800">Find Artisan</TabsTrigger>
-          </TabsList>
+        {/* Header */}
+        <main className="items-center justify-center px-8 py-8">
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2 rounded-md absolute top-4 left-4 z-10"
+          >
+            {isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'}
+          </button>
 
-          <TabsContent value="profile">
-          <div className="bg-gray-900 text-gray-100 p-6 rounded-lg shadow-md max-w-sm mx-auto">
-            <div className="space-y-4">
-              <div className="border-b border-gray-700 pb-2">
-                <p className="text-sm text-gray-400">Name</p>
-                <p className="text-lg">{profile?.name || "Anonymous User"}</p>
-              </div>
-              <div className="border-b border-gray-700 pb-2">
-                <p className="text-sm text-gray-400">Email</p>
-                <p className="text-lg">{profile?.email || "No email provided"}</p>
-              </div>
-              <div className="border-b border-gray-700 pb-2">
-                <p className="text-sm text-gray-400">Phone Number</p>
-                <p className="text-lg">{profile?.phone_number || "No phone number provided"}</p>
-              </div>
-              <div className="border-b border-gray-700 pb-2">
-                <p className="text-sm text-gray-400">Location</p>
-                <p className="text-lg">{profile?.location || "No location provided"}</p>
-              </div>
-              <div className="pb-2">
-                <p className="text-sm text-gray-400">Profile Picture</p>
-                <img
-                  src={profile?.image_file || "/default-profile.png"}
-                  alt="Profile"
-                  className="w-full h-auto rounded-lg"
-                />
-              </div>
-            </div>
+          <div className="text-center justify-between items-center mb-8">
+            {/* Welcome Message */}
+            <h1 className="text-3xl font-bold mb-4 md:mb-0 text-gray-100">
+              Welcome, {name}
+            </h1>
+            <p className="text-gray-400 text-lg mb-8">
+              This is your home page. Use the navigation menu to explore.
+            </p>
           </div>
-          </TabsContent> 
 
-          <TabsContent value="bookings">
-            <div className="grid gap-6">
-              {bookings.length > 0 ? (
-                bookings.map((booking) => (
-                  <Card key={booking.id} className="bg-gray-900 border-gray-800">
-                    <CardContent className="p-6">
-                      <div className="flex flex-col md:flex-row justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
-                              <h3 className="text-xl font-semibold mb-1 text-gray-100">{booking.artisan_name}</h3>
-                              <p className="text-gray-400">Artisan: {booking.details}</p>
-                            </div>
-                            <Badge 
-                              variant={booking.status === 'Completed' ? 'secondary' : 'default'}
-                              className="bg-blue-600"
-                            >
-                              {booking.status}
-                            </Badge>
-                          </div>
-                          <div className="flex flex-wrap gap-4">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4 text-gray-400" />
-                              <span className="text-sm text-gray-400">
-                                {new Date(booking.request_date).toLocaleDateString()} - 
-                                {new Date(booking.completion_date).toLocaleDateString()}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" className="border-gray-700 hover:bg-gray-800">View Details</Button>
-                          <Button variant="outline" className="border-gray-700 hover:bg-gray-800">
-                            <MessageSquare className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <p>No bookings found.</p>
-              )}
+          <Tabs defaultValue="bookings" className="space-y-3">
+            <div className="text-center">
+              <TabsList className="bg-gray-900 te">
+                <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">
+                  Profile
+                </TabsTrigger>
+                <TabsTrigger value="bookings" className="data-[state=active]:bg-gray-800">
+                  Bookings
+                </TabsTrigger>
+                <TabsTrigger value="artisans" className="data-[state=active]:bg-gray-800">
+                  Find Artisan
+                </TabsTrigger>
+              </TabsList>
             </div>
-          </TabsContent>
 
-          <TabsContent value="find">
-            <Card className="mb-6 bg-gray-900 border-gray-800">
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input 
-                        placeholder="Search artisans..." 
-                        className="pl-9 bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-500"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <Select>
-                      <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700">
-                        <SelectValue placeholder="Profession" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700">
-                        <SelectItem value="carpenter">Carpenter</SelectItem>
-                        <SelectItem value="plumber">Plumber</SelectItem>
-                        <SelectItem value="electrician">Electrician</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Button variant="outline" className="gap-2 border-gray-700 hover:bg-gray-800">
-                      <Filter className="h-4 w-4" />
-                      Filters
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <TabsContent value="profile">
+              <ProfileSection
+                profile={profile}
+                loading={loading}
+                error={error}
+                handleSubmit={handleSubmit}
+                handleChange={handleChange}
+                handleFileChange={handleFileChange}
+                editable={true}
+              />
+            </TabsContent>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              {artisans.length > 0 ? (
-                artisans.map((artisan) => (
-                  <Card key={artisan.id} className="bg-gray-900 border-gray-800">
-                    <CardContent className="p-6">
-                      <div className="flex gap-4">
-                        <Avatar className="h-16 w-16">
-                          <AvatarImage src={artisan.image} alt={artisan.name} />
-                          <AvatarFallback className="bg-gray-800">{artisan.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="font-semibold text-gray-100">{artisan.name}</h3>
-                              <p className="text-sm text-gray-400">{artisan.profession}</p>
-                            </div>
-                            <Badge variant="outline" className="border-gray-700">{artisan.hourlyRate}/hr</Badge>
+            <TabsContent value="bookings">
+              <div className="items-center justify-center gap-6 max-w-lg mx-auto">
+                {loading.bookings ? (
+                  <LoadingState />
+                ) : error.bookings ? (
+                  <ErrorState message={error.bookings} />
+                ) : bookings.length > 0 ? (
+                  bookings.map(booking => (
+                    <BookingCard key={booking.id} booking={booking} />
+                  ))
+                ) : (
+                  <p className="text-center text-gray-400">No bookings found.</p>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="artisans">
+              <Card className="mb-6 bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-lg mx-auto ">
+                  <CardContent className="p-4">
+                      <div className="gap-4 items-center justify-between ">
+                          <div className="items-center gap-2">
+                              <Select value={selectedProfession} onValueChange={setSelectedProfession}>
+                              <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-gray-100">
+                                  <Filter className="h-4 w-4 text-gray-200" />
+                                  <SelectValue placeholder="Select a Profession" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-gray-800 border-gray-700 text-gray-100">
+                                  <SelectItem value="all">All Professions</SelectItem>
+                                  <SelectItem value="Engineering">Engineering</SelectItem>
+                                  <SelectItem value="Nursing">Nursing</SelectItem>
+                                  <SelectItem value="Cleaner">Cleaner</SelectItem>
+                                  <SelectItem value="Technician">Technician</SelectItem>
+                                  <SelectItem value="Mechanic">Mechanic</SelectItem>
+                                  <SelectItem value="Painter">Painter</SelectItem>
+                                  <SelectItem value="Carpenter">Carpenter</SelectItem>
+                                  <SelectItem value="Plumber">Plumber</SelectItem>
+                                  <SelectItem value="Electrician">Electrician</SelectItem>
+                              </SelectContent>
+                              </Select>
                           </div>
-                          <div className="flex flex-wrap gap-4 mt-2">
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-4 w-4 text-gray-400" />
-                              <span className="text-sm text-gray-400">{artisan.location}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Star className="h-4 w-4 text-yellow-500" />
-                              <span className="text-sm text-gray-400">{artisan.rating} ({artisan.reviews} reviews)</span>
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center mt-4">
-                            <span className="text-sm text-gray-400">{artisan.availability}</span>
-                            <div className="flex gap-2">
-                              <Button variant="outline" size="sm" className="border-gray-700 hover:bg-gray-800">
-                                View Profile
-                              </Button>
-                              <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                                Contact
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <p>No artisans found.</p>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
+                  </CardContent>
+              </Card>
+
+              <div className=" gap-6 items-center justify-center min-w-screen max-w-lg mx-auto">
+                {loading.artisans ? (
+                  <LoadingState />
+                ) : error.artisans ? (
+                  <ErrorState message={error.artisans} />
+                ) : filteredArtisans.length > 0 ? (
+                  filteredArtisans.map(artisan => (
+                    <ArtisanCard key={artisan.id} artisan={artisan} />
+                  ))
+                ) : (
+                  <p className="text-center text-gray-400 col-span-2">No artisans found.</p>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </main>
       </div>
     </div>
   );
 };
 
-export default ClientDashboardDark;
+export default Client;

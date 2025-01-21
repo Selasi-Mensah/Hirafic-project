@@ -25,7 +25,10 @@ class Artisan(Base):
     longitude = db.Column(db.Float, nullable=True)
     # Removed nullable=False in Specialization and skills
     specialization = db.Column(
-        Enum('Engineering', 'Nursing', 'None', name='specialization'),
+        Enum('Engineering', 'Nursing', "Plumber",
+             "Electrician", "Carpenter", "Painter",
+             "Mechanic", "Technician", "Cleaner",
+             'None', name='specialization'),
         default='None'
         )
     skills = db.Column(db.Text, default='None')
@@ -48,7 +51,8 @@ class Artisan(Base):
             artisan_bookings = [b.to_dict() for b in self.bookings]
 
         return {
-            'name': self.name,
+            'id': self.id,
+            'username': self.name,
             'email': self.email,
             'phone_number': self.phone_number,
             'location': self.location,
@@ -56,7 +60,7 @@ class Artisan(Base):
             'longitude': self.longitude,
             'specialization': self.specialization,
             'skills': self.skills,
-            'image_file': self.user_artisan.image_file
+            'image_file': f'/{self.user_artisan.image_file}'
             if self.user_artisan else None,
             'bookings': artisan_bookings
         }
