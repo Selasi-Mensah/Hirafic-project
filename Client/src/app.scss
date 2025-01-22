@@ -83,7 +83,10 @@
     }
   }
 }
-
+.leaflet-container {
+  height: 100vh;
+  width: 100wh;
+}
 .client {
   background: #161622;
   height: 100vh;
@@ -135,7 +138,7 @@
         #head {
           font-weight: 500;
           position: relative;
-          top: .5rem;
+          top: 0.5rem;
         }
       }
     }
