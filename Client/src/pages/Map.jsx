@@ -49,6 +49,14 @@ const Map = () => {
 
   return (
     <div style={{ backgroundColor: "beige", margin: ".5rem", padding: "1rem" }}>
+      <Button
+          variant="contained"
+          size="small"
+          style={{ marginTop: "0.5rem" }}
+          onClick={() => window.location.href = "/client"}
+        >
+        Go to Artisans List
+      </Button>
       {/* Search Section */}
       <Typography variant="h4" style={{ textAlign: "center", marginBottom: "1rem" }}>
         Search Artisan
