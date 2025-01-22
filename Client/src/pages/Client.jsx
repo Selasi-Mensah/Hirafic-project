@@ -268,6 +268,15 @@ const Client = () => {
                         className="w-full md:w-[160px] md:h-[40px] bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-200 text-sm px-2 rounded-md"
                       />
                     </div>
+
+                    <div className="flex flex-col w-full md:w-auto items-center">
+                      <button
+                        onClick={() => window.location.href = '/map'}
+                        className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-all duration-300"
+                      >
+                        View on Map
+                      </button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
