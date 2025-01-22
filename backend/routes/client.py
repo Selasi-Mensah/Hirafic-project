@@ -118,7 +118,6 @@ def client_profile(username: str = "") -> str:
 
     # Set up client profile form and disable CSRF
     form = ClientProfileForm(meta={'csrf': False})
-    print(form.data)
     # handle GET request
     if request.method == "GET":
         # return the client object
@@ -218,30 +217,29 @@ def nearby_artisan(username: str = "") -> List:
     if current_user.role != 'Client':
         return jsonify({"error": "User is not a client"}), 403
 
-    # get the distance from the request body
+    # get the distance from the request body in km
     if request.method == 'POST':
         try:
             data = request.get_json(silent=True)
             distance = data.get('distance', 5) if data else 5
-            distance = int(distance) * 1000
+            distance = int(distance)
             if distance < 0:
                 return jsonify({"error": "Invalid distance"}), 400
         except Exception as e:
             # return error if unable to get distance
             return jsonify({"error": "An error occurred during search"}), 400
     else:
-        distance = 5000
+        distance = 5
 
     try:
         # distance must be in km from the request 1km = 1000m
-        # defautl distance is 5km = 5000m
+        # defautl distance is 5km
         # make sure to geocode the client location
         current_user.client.geocode_location()
         # get the location tuple (longitude, latitude) of the client
         current_location = (current_user.client.latitude,
                             current_user.client.longitude)
-
-        # search for nearby artisans within 5km
+        # search for nearby artisans within distance
         artisans = search_nearby_artisans(current_location, distance)
         # return JSON list of nearby artisans with name, longitude and latitude
         return jsonify([artisan.to_dict() for artisan in artisans]), 200

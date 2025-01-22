@@ -14,7 +14,7 @@ const Map = () => {
   const [artisans, setArtisans] = useState([]);
   const token = sessionStorage.getItem("access_token");
   const [loading, setLoading] = useState(false);
-  const [distance, setDistance] = useState(0);
+  const [distance, setDistance] = useState();
   const [selectedArtisan, setSelectedArtisan] = useState(null);
 
   const fetchArtisans = async () => {
@@ -67,13 +67,13 @@ const Map = () => {
           marginBottom: "1rem",
         }}
       >
-        <Typography variant="h6">Distance: {distance} km</Typography>
+        <Typography variant="h6">Distance: {distance ? `${distance} km` : ""}</Typography>
         <Slider
           value={distance}
           min={1}
           max={100}
           step={1}
-          onChange={(e, newValue) => setDistance(newValue)}
+          onChangeCommitted={(e, newValue) => setDistance(newValue)}
           style={{ width: "75%" }}
         />
       </div>
@@ -81,7 +81,7 @@ const Map = () => {
         <Button
           style={{ flex: 1 }}
           variant="outlined"
-          onClick={() => setDistance(0)}
+          onClick={() => setDistance()}
         >
           <RestartAltIcon />
           Reset

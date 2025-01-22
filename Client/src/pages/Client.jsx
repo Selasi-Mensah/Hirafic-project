@@ -118,6 +118,7 @@ const Client = () => {
         },
       });
       setProfile(response.data);
+
       alert('Profile updated successfully');
     } catch (err) {
       setError({ profile: err.message });
