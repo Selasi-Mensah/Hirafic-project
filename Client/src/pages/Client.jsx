@@ -35,40 +35,54 @@ const Client = () => {
   const token = sessionStorage.getItem('access_token');
   const name = sessionStorage.getItem('username');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [distance, setDistance] = useState('');
 
-  const fetchData = async (endpoint, setter, loadingKey, errorKey) => {
+  const fetchData = async (endpoint, setter, loadingKey, errorKey, options = {}) => {
     try {
       setLoading(prev => ({ ...prev, [loadingKey]: true }));
       setError(prev => ({ ...prev, [errorKey]: null }));
       
       const response = await fetch(`http://127.0.0.1:5000${endpoint}`, {
+        method: options.method || 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
-        }
+        },
+        ...(options.body && { body: JSON.stringify(options.body) }),
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const data = await response.json();
       setter(data);
     } catch (err) {
       setError(prev => ({ 
         ...prev, 
-        [errorKey]: err.message || 'An error occurred'
+        [errorKey]: err.message || 'An error occurred',
       }));
     } finally {
       setLoading(prev => ({ ...prev, [loadingKey]: false }));
     }
   };
-
+  
   useEffect(() => {
+    // Fetch bookings and client profile (static endpoints)
     fetchData('/bookings', setBookings, 'bookings', 'bookings');
-    fetchData('/all_artisans', setArtisans, 'artisans', 'artisans');
     fetchData('/client', setProfile, 'profile', 'profile');
-  }, []);
+  
+    // Dynamic endpoint for artisans
+    const endpoint = distance 
+      ? `/nearby_artisans` 
+      : `/all_artisans`;
+  
+    const options = distance 
+      ? { method: 'POST', body: { distance } } 
+      : {};
+  
+    fetchData(endpoint, setArtisans, 'artisans', 'artisans', options);
+  }, [distance]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -213,34 +227,51 @@ const Client = () => {
                 )}
               </div>
             </TabsContent>
-
             <TabsContent value="artisans">
-              <Card className="mb-6 bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-lg mx-auto ">
-                  <CardContent className="p-4">
-                      <div className="gap-4 items-center justify-between ">
-                          <div className="items-center gap-2">
-                              <Select value={selectedProfession} onValueChange={setSelectedProfession}>
-                              <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-gray-100">
-                                  <Filter className="h-4 w-4 text-gray-200" />
-                                  <SelectValue placeholder="Select a Profession" />
-                              </SelectTrigger>
-                              <SelectContent className="bg-gray-800 border-gray-700 text-gray-100">
-                                  <SelectItem value="all">All Professions</SelectItem>
-                                  <SelectItem value="Engineering">Engineering</SelectItem>
-                                  <SelectItem value="Nursing">Nursing</SelectItem>
-                                  <SelectItem value="Cleaner">Cleaner</SelectItem>
-                                  <SelectItem value="Technician">Technician</SelectItem>
-                                  <SelectItem value="Mechanic">Mechanic</SelectItem>
-                                  <SelectItem value="Painter">Painter</SelectItem>
-                                  <SelectItem value="Carpenter">Carpenter</SelectItem>
-                                  <SelectItem value="Plumber">Plumber</SelectItem>
-                                  <SelectItem value="Electrician">Electrician</SelectItem>
-                              </SelectContent>
-                              </Select>
-                          </div>
-                      </div>
-                  </CardContent>
+              <Card className="mb-4 bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-2xl mx-auto p-4">
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col md:flex-row items-center gap-6">
+                    {/* Profession Selector */}
+                    <div className="flex flex-col w-full md:w-auto items-center">
+                      <Select value={selectedProfession} onValueChange={setSelectedProfession}>
+                        <SelectTrigger
+                          className="w-full md:w-[200px] bg-gray-800 border-gray-700 text-gray-100 flex items-center "
+                          id="profession"
+                        >
+                          <Filter className="h-4 w-4 text-gray-200 mr-2" />
+                          <SelectValue placeholder="Select a Profession" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-700 text-gray-100">
+                          <SelectItem value="all">All Professions</SelectItem>
+                          <SelectItem value="Engineering">Engineering</SelectItem>
+                          <SelectItem value="Nursing">Nursing</SelectItem>
+                          <SelectItem value="Cleaner">Cleaner</SelectItem>
+                          <SelectItem value="Technician">Technician</SelectItem>
+                          <SelectItem value="Mechanic">Mechanic</SelectItem>
+                          <SelectItem value="Painter">Painter</SelectItem>
+                          <SelectItem value="Carpenter">Carpenter</SelectItem>
+                          <SelectItem value="Plumber">Plumber</SelectItem>
+                          <SelectItem value="Electrician">Electrician</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Distance Input */}
+                    <div className="flex flex-col w-full md:w-auto items-center">
+                      <input
+                        type="number"
+                        id="distance"
+                        name="distance"
+                        value={distance}
+                        onChange={(e) => setDistance(e.target.value)}
+                        placeholder="Search distance (km)"
+                        className="w-full md:w-[160px] md:h-[40px] bg-gray-800 border-gray-700 text-gray-100 placeholder:text-gray-200 text-sm px-2 rounded-md"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
               </Card>
+
 
               <div className=" gap-6 items-center justify-center min-w-screen max-w-lg mx-auto">
                 {loading.artisans ? (

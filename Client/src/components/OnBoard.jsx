@@ -1,13 +1,30 @@
 import "./component.scss";
 // import ScreenOne from "./ScreenOne";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
-const onboard = () => {
+const OnBoard = () => {
   const navigate = useNavigate();
 
-  setTimeout(() => {
-    navigate("/OnBoard");
-  }, 5000);
+  useEffect(() => {
+    // if user is already logged in, redirect to their dashboard
+    if (sessionStorage.getItem('access_token')) {
+      const username = sessionStorage.getItem('username');
+      if (sessionStorage.getItem('role') === 'Artisan') {
+        navigate(`/artisan/${username}`);
+        // window.location.href = `/artisan/${username}`;
+      }
+      else {
+        navigate(`/client/${username}`);
+        // window.location.href = `/client/${username}`;
+      }
+    } else {
+      setTimeout(() => {
+        navigate("/OnBoard");
+      }, 5000);
+    }
+  }, [navigate]);
+
   return (
     <div className="Board">
       <span>HIRAFIC</span>
@@ -15,4 +32,4 @@ const onboard = () => {
   );
 };
 
-export default onboard;
+export default OnBoard;
