@@ -185,7 +185,7 @@ const Client = () => {
             </p>
           </div>
 
-          <Tabs defaultValue="bookings" className="space-y-3">
+          <Tabs defaultValue={document.referrer.includes('/map') ? 'artisans' : 'bookings'} className="space-y-3">
             <div className="text-center">
               <TabsList className="bg-gray-900 te">
                 <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">
