@@ -272,9 +272,13 @@ def delete_account() -> str:
     bookings = Booking.query.filter_by(user_id=user.id).all()
 
     if bookings:
-        return jsonify(
-            {"error": "Cannot delete account with existing bookings"}
-            ), 400
+        for booking in bookings:
+            # check all user's bookings
+            if booking.status != "Completed":
+                # return error if user has bookings not completed
+                return jsonify(
+                    {"error": "Cannot delete account with existing bookings"}
+                ), 400
 
     # delete user account
     # later we can add a confirmation step

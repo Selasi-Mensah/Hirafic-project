@@ -45,8 +45,9 @@ def save_picture(form_picture: any) -> str:
 def update_user_object(form: ArtisanProfileForm, current_user: User):
     """ Update the user object details """
     if form.picture.data:
-        picture_file = save_picture(form.picture.data)
-        current_user.image_file = picture_file
+        if current_user.image_file != form.picture.data:
+            picture_file = save_picture(form.picture.data)
+            current_user.image_file = picture_file
     current_user.username = form.username.data
     current_user.email = form.email.data.lower()
     current_user.phone_number = form.phone_number.data
@@ -113,7 +114,6 @@ def artisan_profile(username: str = "") -> str:
 
     # Set up Artisan profile form and disable CSRF
     form = ArtisanProfileForm(meta={'csrf': False})
-    print(form.data)
     # handle GET request
     if request.method == "GET":
         # return the artisan object
@@ -173,7 +173,7 @@ def get_artisans():
     # get all artisans
     artisans = Artisan.query.all()
     # return the list of artisans
-    return jsonify([artisan.to_dict() for artisan in artisans])
+    return jsonify([artisan.to_dict() for artisan in artisans]), 200
 
 
 @artisans_Bp.route('/location', methods=['GET', 'OPTIONS'],

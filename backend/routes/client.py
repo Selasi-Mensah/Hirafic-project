@@ -47,8 +47,9 @@ def save_picture(form_picture: Any) -> str:
 def update_user_object(form: ClientProfileForm, current_user: User):
     """ Update the user object details """
     if form.picture.data:
-        picture_file = save_picture(form.picture.data)
-        current_user.image_file = picture_file
+        if current_user.image_file != form.picture.data:
+            picture_file = save_picture(form.picture.data)
+            current_user.image_file = picture_file
     current_user.username = form.username.data
     current_user.email = form.email.data.lower()
     current_user.phone_number = form.phone_number.data
@@ -176,11 +177,11 @@ def search_nearby_artisans(
 
 
 @clients_Bp.route(
-        "/client/<username>/nearby_artisan",
-        methods=['GET', 'OPTIONS'], strict_slashes=False)
+        "/client/<username>/nearby_artisans",
+        methods=['GET', 'POST', 'OPTIONS'], strict_slashes=False)
 @clients_Bp.route(
-        "/nearby_artisan",
-        methods=['GET', 'OPTIONS'], strict_slashes=False)
+        "/nearby_artisans",
+        methods=['GET', 'POST', 'OPTIONS'], strict_slashes=False)
 @jwt_required()
 def nearby_artisan(username: str = "") -> List:
     """ route to search nearby artisan
@@ -213,16 +214,27 @@ def nearby_artisan(username: str = "") -> List:
             or (username != current_user.username and username != ""):
         return jsonify({"error": "User not authenticated"}), 403
 
-    # check if the user is a client
+    # check if the user is nor a client
     if current_user.role != 'Client':
         return jsonify({"error": "User is not a client"}), 403
 
     # get the distance from the request body
-    data = request.get_json(silent=True)
-    distance = data.get('distance', 5000) if data else 5000
+    if request.method == 'POST':
+        try:
+            data = request.get_json(silent=True)
+            distance = data.get('distance', 5) if data else 5
+            distance = int(distance) * 1000
+            if distance < 0:
+                return jsonify({"error": "Invalid distance"}), 400
+        except Exception as e:
+            # return error if unable to get distance
+            return jsonify({"error": "An error occurred during search"}), 400
+    else:
+        distance = 5000
 
     try:
-        # distance = 5000
+        # distance must be in km from the request 1km = 1000m
+        # defautl distance is 5km = 5000m
         # make sure to geocode the client location
         current_user.client.geocode_location()
         # get the location tuple (longitude, latitude) of the client
@@ -232,17 +244,7 @@ def nearby_artisan(username: str = "") -> List:
         # search for nearby artisans within 5km
         artisans = search_nearby_artisans(current_location, distance)
         # return JSON list of nearby artisans with name, longitude and latitude
-        return jsonify([{
-            'name': artisan.name,
-            'email': artisan.email,
-            'phone_number': artisan.phone_number,
-            'image_file': artisan.user_artisan.image_file,
-            'skills': artisan.skills,
-            'specialization': artisan.specialization,
-            'location': artisan.location,
-            'longitude': artisan.longitude,
-            'latitude': artisan.latitude
-        } for artisan in artisans]), 200
+        return jsonify([artisan.to_dict() for artisan in artisans]), 200
     except Exception as e:
         # return error if unable to complete search
         return jsonify({"error": "An error occurred during search"}), 400
