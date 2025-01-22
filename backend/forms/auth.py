@@ -54,18 +54,18 @@ class RegistrationForm(FlaskForm):
 
     def validate_email(self, email: StringField) -> None:
         """ method to validate password """
-        user = User.query.filter_by(email=email.data).first()
+        user = User.query.filter_by(email=email.data.lower()).first()
         if user:
             raise ValidationError('Email is already taken!')
 
-    def validate_on_submit(self) -> bool:
-        """ Override to manually disable CSRF validation """
-        if not super().validate_on_submit():
-            # check if there are more than the csrf error
-            if len(self.errors) > 1:
-                return False
-            return True
-        return True
+    # def validate_on_submit(self) -> bool:
+    #     """ Override to manually disable CSRF validation """
+    #     if not super().validate_on_submit():
+    #         # check if there are more than the csrf error
+    #         if len(self.errors) > 1:
+    #             return False
+    #         return True
+    #     return True
 
 
 class LoginForm(FlaskForm):
@@ -81,11 +81,11 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
-    def validate_on_submit(self) -> bool:
-        """ Override to manually disable CSRF validation """
-        if not super().validate_on_submit():
-            # check if there are more than the csrf error
-            if len(self.errors) > 1:
-                return False
-            return True
-        return True
+    # def validate_on_submit(self) -> bool:
+    #     """ Override to manually disable CSRF validation """
+    #     if not super().validate_on_submit():
+    #         # check if there are more than the csrf error
+    #         if len(self.errors) > 1:
+    #             return False
+    #         return True
+    #     return True

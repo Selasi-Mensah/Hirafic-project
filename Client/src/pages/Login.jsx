@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -7,6 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+// import { Link } from "react-router-dom";
+import Client from "./Client";
+import Artisan from "./Artisan";
 
 
 const Login = () => {
@@ -16,18 +18,23 @@ const Login = () => {
     remember: false,
   });
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // if user is already logged in, redirect to their dashboard
   useEffect(() => {
     if (sessionStorage.getItem('access_token')) {
       const username = sessionStorage.getItem('username');
       if (sessionStorage.getItem('role') === 'Artisan') {
         navigate(`/artisan/${username}`);
+        // window.location.href = `/artisan/${username}`;
       }
       else {
         navigate(`/client/${username}`);
+        // window.location.href = `/client/${username}`;
       }
+    } else {
+      setLoading(false);
     }
   }, [navigate]);
 
@@ -78,6 +85,7 @@ const Login = () => {
       }
       // Handle successful login here
       console.log('Login successful', formData);
+      return; 
     } catch (err) {
       console.log(err)
       if (err.response && err.response.status === 400) {
@@ -90,26 +98,34 @@ const Login = () => {
     }
   };
 
+  if (loading) {
+    return;
+  }
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Card className="w-full max-w-md">
+    // Main container with dark theme background
+    <div className="flex items-center justify-center min-h-screen bg-gray-900">
+      {/* Login card with dark theme styling */}
+      <Card className="w-full max-w-md bg-gray-800 border-gray-700">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
-          <CardDescription className="text-center">
-            Login to your account
+          <CardTitle className="text-2xl font-bold text-center text-white">Welcome Back</CardTitle>
+          <CardDescription className="text-center text-gray-400">
+            Login to your Hirafic account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Error alert display */}
             {error && (
-              <Alert variant="destructive">
+              <Alert variant="destructive" className="border-red-800 bg-red-900/50">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
             
+            {/* Email input field */}
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-200">
                 Email Address
               </label>
               <Input
@@ -119,13 +135,14 @@ const Login = () => {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your email"
-                className="w-full"
+                className="w-full bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:border-blue-500"
                 required
               />
             </div>
 
+            {/* Password input field */}
             <div className="space-y-2">
-              <label htmlFor="password" className="block text-sm font-medium">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-200">
                 Password
               </label>
               <Input
@@ -135,36 +152,35 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password"
-                className="w-full"
+                className="w-full bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:border-blue-500"
                 required
               />
             </div>
 
+            {/* Remember me checkbox and Forgot password link */}
             <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={formData.remember}
-                  onChange={handleCheckboxChange}
-                  className="rounded border-gray-300" />
+              <label className="flex items-center text-gray-300">
+                <input type="checkbox" className="rounded border-gray-600 bg-gray-700" />
                 <span className="ml-2">Remember me</span>
               </label>
-              <a href="/forgot-password" className="text-blue-600 hover:text-blue-800">
+              <a href="/forgot-password" className="text-blue-400 hover:text-blue-300">
                 Forgot Password?
               </a>
             </div>
 
+            {/* Submit button with loading state */}
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-blue-600 hover:bg-blue-700"
               disabled={loading}
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>
 
-            <p className="text-center text-sm">
+            {/* Sign up link for new users */}
+            <p className="text-center text-sm text-gray-400">
               Don't have an account?{' '}
-              <a href="/register" className="text-blue-600 hover:text-blue-800">
+              <a href="/register" className="text-blue-400 hover:text-blue-300">
                 Sign up
               </a>
             </p>

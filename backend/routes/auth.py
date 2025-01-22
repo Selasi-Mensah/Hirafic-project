@@ -7,6 +7,7 @@ from extensions import db, bcrypt, redis_client
 from models.user import User
 from models.artisan import Artisan
 from models.client import Client
+from models.booking import Booking
 from forms.auth import RegistrationForm, LoginForm
 from flask import flash, request
 # from flask_login import login_user, current_user, logout_user, current_user
@@ -14,6 +15,7 @@ from flask_jwt_extended import (create_access_token, jwt_required,
                                 get_jwt_identity, get_jwt,
                                 verify_jwt_in_request)
 from config import Config
+from werkzeug.datastructures import MultiDict
 
 
 # create users blueprint
@@ -65,8 +67,8 @@ def register() -> str:
         except Exception as e:
             pass
 
-    # set up  registration form
-    form = RegistrationForm()
+    # set up registration form and disable CSRF
+    form = RegistrationForm(meta={'csrf': False})
 
     # handle GET request
     if request.method == "GET":
@@ -84,12 +86,13 @@ def register() -> str:
             # create user object
             user = User(
                 username=form.username.data,
-                email=form.email.data,
+                email=form.email.data.lower(),
                 password=hashed_password,
                 phone_number=form.phone_number.data,
                 location=form.location.data,
                 role=form.role.data
                 )
+            print(user)
             # add user to DB
             db.session.add(user)
             db.session.commit()
@@ -103,7 +106,7 @@ def register() -> str:
                     email=user.email,
                     location=user.location,
                     password=user.password,
-                    phone_number=user.phone_number
+                    phone_number=user.phone_number,
                     )
                 # add client to DB
                 db.session.add(client)
@@ -135,7 +138,10 @@ def register() -> str:
 
     else:
         # return error if form validation failed
-        return jsonify({"error": form.errors}), 400
+        return jsonify({
+            "message": "Invalid form data",
+            "error": form.errors
+        }), 400
 
 
 @users_Bp.route("/login", methods=['GET', 'POST', 'OPTIONS'],
@@ -161,7 +167,7 @@ def login() -> str:
     if request.method == 'OPTIONS':
         return jsonify({"message": "Preflight request"}), 200
 
-    # check if user is already authenticated
+    # Double check if user is already authenticated
     # will be check by frontend too
     if 'Authorization' in request.headers:
         try:
@@ -170,8 +176,12 @@ def login() -> str:
         except Exception as e:
             pass
 
+    # Convert the JSON request data to MultiDict format
+    # form_data = MultiDict(request.json)
     # set up login form
-    form = LoginForm()
+    # form = LoginForm(form_data, meta={'csrf': False})
+    # set up login form and disable CSRF
+    form = LoginForm(meta={'csrf': False})
 
     # handle GET request
     if request.method == "GET":
@@ -181,7 +191,7 @@ def login() -> str:
     # handle POST request after validating the form
     elif form.validate_on_submit():
         # check if user exists and password is correct
-        user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(email=form.email.data.lower()).first()
         if user and\
                 bcrypt.check_password_hash(user.password, form.password.data):
             # login user
@@ -207,7 +217,10 @@ def login() -> str:
 
     else:
         # return error if form validation failed
-        return jsonify({"error": "Invalid form data"}), 400
+        return jsonify({
+            "message": "Invalid form data",
+            "error": form.errors
+        }), 400
 
 
 @users_Bp.route("/logout", methods=['GET', 'OPTIONS'],
@@ -232,6 +245,49 @@ def logout() -> str:
     jti = get_jwt()["jti"]
     redis_client.set(jti, "", ex=Config.JWT_ACCESS_TOKEN_EXPIRES)
     return jsonify({"message": "User logged out"}), 200
+
+
+@users_Bp.route("/delete_account", methods=['DELETE', 'OPTIONS'],
+                strict_slashes=False)
+@jwt_required()
+def delete_account() -> str:
+    """
+    GET /delete_account
+    POST /delete_account
+    Return:
+        - Success: JSON with message
+        - Error: 400 if user is not authenticated
+    """
+    # check OPTIONS method
+    if request.method == 'OPTIONS':
+        return jsonify({"message": "Preflight request"}), 200
+
+    # Double check if user is authenticated
+    user_id = get_jwt_identity()
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"error": "User not authenticated"}), 400
+
+    # check if user has bookings
+    bookings = Booking.query.filter_by(user_id=user.id).all()
+
+    if bookings:
+        return jsonify(
+            {"error": "Cannot delete account with existing bookings"}
+            ), 400
+
+    # delete user account
+    # later we can add a confirmation step
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        # logout user
+        jti = get_jwt()["jti"]
+        redis_client.set(jti, "", ex=Config.JWT_ACCESS_TOKEN_EXPIRES)
+        # frontend should handle the redirection and token deletion
+        return jsonify({"message": "Account deleted"}), 200
+    except Exception as e:
+        return jsonify({"error": "Unable to delete account"}), 500
 
 
 # Ignore this route please, it's for testing only
@@ -265,8 +321,21 @@ def test():
     output = Artisan.query.all()
     print(f"artisans: {output}")
 
-    # client = Client.query.first()
-    # print(client.longitude)
+    # delete all users
+    # Must use ORM deletion to trigger cascade delete
+    # User.query.delete() won't trigger cascade delete
+    # users = User.query.all()
+    # for user in users:
+    #     db.session.delete(user)
+
+    # db.session.commit()
+
+    # delete all clients without cascade delete
+    # Artisan.query.delete()
+    # Client.query.delete()
+    # User.query.delete()
+    # Booking.query.delete()
+    # db.session.commit()
 
     # test
     return "Test"

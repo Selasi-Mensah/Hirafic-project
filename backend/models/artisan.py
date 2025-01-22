@@ -25,7 +25,10 @@ class Artisan(Base):
     longitude = db.Column(db.Float, nullable=True)
     # Removed nullable=False in Specialization and skills
     specialization = db.Column(
-        Enum('Engineering', 'Nursing', 'None', name='specialization'),
+        Enum('Engineering', 'Nursing', "Plumber",
+             "Electrician", "Carpenter", "Painter",
+             "Mechanic", "Technician", "Cleaner",
+             'None', name='specialization'),
         default='None'
         )
     skills = db.Column(db.Text, default='None')
@@ -36,12 +39,20 @@ class Artisan(Base):
 
     def __repr__(self) -> str:
         """ artisan representation method """
-        return (f"Artisan('{self.name}', '{self.specialization}')")
+        return (
+            f"Artisan('{self.name}', '{self.email}, '{self.specialization}')")
 
     def to_dict(self) -> Dict[str, Any]:
         """ return dictionary for the object """
+        if not hasattr(self.bookings, 'client_id') or not self.bookings:
+            # handle empty artisan table and empty bookings
+            artisan_bookings = None
+        else:
+            artisan_bookings = [b.to_dict() for b in self.bookings]
+
         return {
-            'name': self.name,
+            'id': self.id,
+            'username': self.name,
             'email': self.email,
             'phone_number': self.phone_number,
             'location': self.location,
@@ -49,8 +60,9 @@ class Artisan(Base):
             'longitude': self.longitude,
             'specialization': self.specialization,
             'skills': self.skills,
-            # 'bookings': [b.to_dict() for b in self.bookings]
-            # if self.bookings else None
+            'image_file': f'/{self.user_artisan.image_file}'
+            if self.user_artisan else None,
+            'bookings': artisan_bookings
         }
 
     def geocode_location(self) -> bool:

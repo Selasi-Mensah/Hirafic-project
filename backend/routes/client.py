@@ -7,6 +7,7 @@ import uuid
 from typing import Dict, Any, Tuple, List
 from PIL import Image
 from flask import Blueprint, request
+from werkzeug.datastructures import MultiDict
 from extensions import db
 from models.user import User
 from models.client import Client
@@ -49,7 +50,7 @@ def update_user_object(form: ClientProfileForm, current_user: User):
         picture_file = save_picture(form.picture.data)
         current_user.image_file = picture_file
     current_user.username = form.username.data
-    current_user.email = form.email.data
+    current_user.email = form.email.data.lower()
     current_user.phone_number = form.phone_number.data
     current_user.location = form.location.data
 
@@ -59,7 +60,7 @@ def update_client_object(form: ClientProfileForm, current_user: User):
     if not current_user.client:
         current_user.client = Client(user=current_user)
     current_user.client.name = form.username.data
-    current_user.client.email = form.email.data
+    current_user.client.email = form.email.data.lower()
     current_user.client.phone_number = form.phone_number.data
     current_user.client.location = form.location.data
 
@@ -76,8 +77,24 @@ def client_profile(username: str = "") -> str:
     GET /client/<username>
     POST /client
     POST /client/<username>
-        - Success: JSON with client profile
-        - Error:
+        - form fields to submit (POST):
+            - username
+            - email
+            - phone_number
+            - location
+            - picture
+            - submit
+        - Success (GET, POST): return JSON with client profile
+            - JSON body:
+                    - name
+                    - email
+                    - phone_number
+                    - location
+                    - latitude
+                    - longitude
+                    - image_file
+                    - bookings
+        - Error (GET, POST):
             - 403 if user is not authenticated
             - 403 if user is not a client
             - 400 if an error occurred during update
@@ -98,14 +115,13 @@ def client_profile(username: str = "") -> str:
     if current_user.role != 'Client':
         return jsonify({"error": "User is not a client"}), 403
 
-    # set up client profile form
-    form = ClientProfileForm()
-
+    # Set up client profile form and disable CSRF
+    form = ClientProfileForm(meta={'csrf': False})
+    print(form.data)
     # handle GET request
     if request.method == "GET":
-        client_data = current_user.client.to_dict()
-        client_data['image_file'] = current_user.image_file
-        return jsonify(client_data), 200
+        # return the client object
+        return jsonify(current_user.client.to_dict()), 200
 
     # handle POST request after validating the form
     elif form.validate_on_submit():
@@ -119,6 +135,7 @@ def client_profile(username: str = "") -> str:
             flash('Your profile has been updated!', 'success')
             # return the updated client object
             return jsonify(current_user.client.to_dict()), 200
+
         except Exception as e:
             # If an error occurs, rollback the session
             db.session.rollback()
@@ -127,7 +144,10 @@ def client_profile(username: str = "") -> str:
 
     else:
         # return error if form validation failed
-        return jsonify({"error": "Invalid form data"}), 400
+        return jsonify({
+            "message": "Invalid form data",
+            "error": form.errors
+        }), 400
 
 
 def search_nearby_artisans(
@@ -157,12 +177,26 @@ def search_nearby_artisans(
 
 @clients_Bp.route(
         "/client/<username>/nearby_artisan",
-        methods=['GET', 'POST', 'OPTIONS'], strict_slashes=False)
+        methods=['GET', 'OPTIONS'], strict_slashes=False)
+@clients_Bp.route(
+        "/nearby_artisan",
+        methods=['GET', 'OPTIONS'], strict_slashes=False)
 @jwt_required()
 def nearby_artisan(username: str = "") -> List:
     """ route to search nearby artisan
-    GET /client/nearby_artisan
-        - Success: JSON with nearby artisans
+    GET /client/<username>/nearby_artisan
+    GET /nearby_artisan
+        - Success: return JSON with nearby artisans
+            - JSON body:
+                - name
+                - email
+                - phone_number
+                - image_file
+                - skills
+                - specialization
+                - location
+                - longitude
+                - latitude
         - Error:
             - 403 if user is not authenticated
             - 403 if user is not a client
@@ -183,7 +217,12 @@ def nearby_artisan(username: str = "") -> List:
     if current_user.role != 'Client':
         return jsonify({"error": "User is not a client"}), 403
 
+    # get the distance from the request body
+    data = request.get_json(silent=True)
+    distance = data.get('distance', 5000) if data else 5000
+
     try:
+        # distance = 5000
         # make sure to geocode the client location
         current_user.client.geocode_location()
         # get the location tuple (longitude, latitude) of the client
@@ -191,10 +230,16 @@ def nearby_artisan(username: str = "") -> List:
                             current_user.client.longitude)
 
         # search for nearby artisans within 5km
-        artisans = search_nearby_artisans(current_location, 5000)
+        artisans = search_nearby_artisans(current_location, distance)
         # return JSON list of nearby artisans with name, longitude and latitude
         return jsonify([{
             'name': artisan.name,
+            'email': artisan.email,
+            'phone_number': artisan.phone_number,
+            'image_file': artisan.user_artisan.image_file,
+            'skills': artisan.skills,
+            'specialization': artisan.specialization,
+            'location': artisan.location,
             'longitude': artisan.longitude,
             'latitude': artisan.latitude
         } for artisan in artisans]), 200

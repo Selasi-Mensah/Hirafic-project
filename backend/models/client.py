@@ -4,6 +4,7 @@ Contains Client Class
 """
 import requests
 from models.base import db, Base
+from models.user import User
 
 
 class Client(Base):
@@ -32,15 +33,23 @@ class Client(Base):
 
     def to_dict(self):
         """ return dictionary for the object """
+        if not hasattr(self.bookings, 'artisan_id') or not self.bookings:
+            # handle empty artisan table and empty bookings
+            client_bookings = None
+        else:
+            client_bookings = [b.to_dict() for b in self.bookings]
+
         return {
-            'name': self.name,
+            'id': self.id,
+            'username': self.name,
             'email': self.email,
             'phone_number': self.phone_number,
             'location': self.location,
             'latitude': self.latitude,
             'longitude': self.longitude,
-            # 'bookings': [b.to_dict() for b in self.bookings]
-            # if self.bookings else None
+            'image_file': self.user_client.image_file
+            if self.user_client else None,
+            'bookings': client_bookings
         }
 
     def geocode_location(self):
