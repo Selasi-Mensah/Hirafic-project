@@ -18,6 +18,7 @@ const BookModal = ({ artisan, isOpen, onClose }) => {
     setError(null);
 
     try {
+      console.log(sessionStorage.getItem('email'));
       const response = await axios.post('http://127.0.0.1:5000/book_artisan', {
         artisan_email: artisan.email,
         client_email: sessionStorage.getItem('email'),

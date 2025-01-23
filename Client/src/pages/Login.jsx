@@ -74,6 +74,7 @@ const Login = () => {
       sessionStorage.setItem('access_token', response.data.access_token);
       sessionStorage.setItem('username', response.data.user.username);
       sessionStorage.setItem('role', response.data.user.role);
+      sessionStorage.setItem('email', response.data.user.email);
       const username = response.data.user.username;
       console.log(response.data.user.username);
       if (response.data.user.role === 'Artisan') {
