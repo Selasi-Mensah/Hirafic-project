@@ -8,6 +8,11 @@ import BookingCard from '@/components/BookingCard';
 
 const Artisan = () => {
   const [bookings, setBookings] = useState([]);
+  const [pagination, setBookingPage] = useState({
+    bookings: [],
+    total_pages: 0,
+    current_page: 0
+  })
   const [profile, setProfile] = useState({
     username: '',
     email: '',
@@ -32,13 +37,20 @@ const Artisan = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const token = sessionStorage.getItem('access_token');
   const name = sessionStorage.getItem('username');
+  const [page, setPage] = useState(1);
+  const per_page = 5;
 
-  const fetchData = async (endpoint, setter, loadingKey, errorKey) => {
+  const fetchData = async (endpoint, setter, loadingKey, errorKey, options = {}) => {
     try {
       setLoading(prev => ({ ...prev, [loadingKey]: true }));
       setError(prev => ({ ...prev, [errorKey]: null }));
-      
-      const response = await fetch(`http://127.0.0.1:5000${endpoint}`, {
+
+      // Build query parameters if provided
+      const queryParams = options.params
+      ? '?' + new URLSearchParams(options.params).toString()
+      : '';
+
+      const response = await fetch(`http://127.0.0.1:5000${endpoint}${queryParams}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -67,9 +79,24 @@ const Artisan = () => {
   };
 
   useEffect(() => {
-    fetchData('/bookings', setBookings, 'bookings', 'bookings');
+    // Fetch profile details for client
     fetchData('/artisan', setProfile, 'profile', 'profile');
-  }, []);
+    
+    // Fetch paginated bookings for client
+    fetchData('/bookings', (response) => {
+      // Extract and set pagination details
+      setBookingPage((prev) => ({
+        ...prev,
+        bookings: response.bookings,
+        current_page: response.current_page,
+        total_pages: response.total_pages,
+      }));
+      setBookings(response.bookings);
+    }, 'bookings', 'bookings', {
+      params: {page: page, per_page: per_page},
+    });
+
+  }, [page, per_page]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -119,6 +146,8 @@ const Artisan = () => {
   const handleAbout = () => {
     window.location.href = '/About';
   };
+
+  const handlePageChange = (newPage) => setPage(newPage);
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 py-8">
@@ -205,6 +234,27 @@ const Artisan = () => {
                   <p className="text-center text-gray-400">No bookings found.</p>
                 )}
               </div>
+              <div className="flex items-center justify-center mt-4">
+                  {pagination.current_page > 1 && (
+                    <button 
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md mr-2"
+                      onClick={() => handlePageChange(pagination.current_page - 1)}
+                    >
+                      Previous
+                    </button>
+                  )}
+                  <span className="text-gray-400">
+                    Page {pagination.current_page} of {pagination.total_pages}
+                  </span>
+                  {pagination.current_page < pagination.total_pages && (
+                    <button 
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md ml-2"
+                      onClick={() => handlePageChange(pagination.current_page + 1)}
+                    >
+                      Next
+                    </button>
+                  )}
+                </div>
             </TabsContent>
           </Tabs>
         </main>

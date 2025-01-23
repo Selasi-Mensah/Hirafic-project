@@ -147,4 +147,24 @@ def bookings():
     # return JSON list of bookings or message if no bookings found
     if not bookings:
         return jsonify({"message": "No bookings found"}), 404
-    return jsonify([booking.to_dict() for booking in bookings]), 200
+
+    # Get query parameters for pagination
+    page = int(request.args.get('page', 1))
+    per_page = int(request.args.get('per_page', 10))
+
+    # Calculate start and end indices
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    # Paginate the data
+    data = [booking.to_dict() for booking in bookings]
+    sorted_bookings = sorted(
+        data, key=lambda x: x['request_date'], reverse=True)
+    paginated_data = sorted_bookings[start:end]
+    total_pages = (len(data) + per_page - 1) // per_page
+
+    return jsonify({
+        'bookings': paginated_data,
+        'total_pages': total_pages,
+        'current_page': page
+        }), 200

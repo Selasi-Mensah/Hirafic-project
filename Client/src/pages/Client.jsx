@@ -12,6 +12,11 @@ import { Filter } from 'lucide-react';
 
 const Client = () => {
   const [bookings, setBookings] = useState([]);
+  const [pagination, setBookingPage] = useState({
+    bookings: [],
+    total_pages: 0,
+    current_page: 0
+  })
   const [artisans, setArtisans] = useState([]);
   const [profile, setProfile] = useState({
     username: '',
@@ -36,13 +41,20 @@ const Client = () => {
   const name = sessionStorage.getItem('username');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [distance, setDistance] = useState('');
+  const [page, setPage] = useState(1);
+  const per_page = 5;
 
   const fetchData = async (endpoint, setter, loadingKey, errorKey, options = {}) => {
     try {
       setLoading(prev => ({ ...prev, [loadingKey]: true }));
       setError(prev => ({ ...prev, [errorKey]: null }));
-      
-      const response = await fetch(`http://127.0.0.1:5000${endpoint}`, {
+
+      // Build query parameters if provided
+      const queryParams = options.params
+      ? '?' + new URLSearchParams(options.params).toString()
+      : '';
+
+      const response = await fetch(`http://127.0.0.1:5000${endpoint}${queryParams}`, {
         method: options.method || 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -68,21 +80,30 @@ const Client = () => {
   };
   
   useEffect(() => {
-    // Fetch bookings and client profile (static endpoints)
-    fetchData('/bookings', setBookings, 'bookings', 'bookings');
+    // Fetch client profile (static endpoints)
     fetchData('/client', setProfile, 'profile', 'profile');
-  
+
+
+    // Fetch paginated bookings for client
+    fetchData('/bookings', (response) => {
+      // Extract and set pagination details
+      setBookingPage((prev) => ({
+        ...prev,
+        bookings: response.bookings,
+        current_page: response.current_page,
+        total_pages: response.total_pages,
+      }));
+      setBookings(response.bookings);
+    }, 'bookings', 'bookings', {
+      params: {page: page, per_page: per_page},
+    });
+
     // Dynamic endpoint for artisans
-    const endpoint = distance 
-      ? `/nearby_artisans` 
-      : `/all_artisans`;
-  
-    const options = distance 
-      ? { method: 'POST', body: { distance } } 
-      : {};
-  
+    const endpoint = distance ? '/nearby_artisans' : '/all_artisans';
+    const options = distance ? { method: 'POST', body: {distance} } : {};
     fetchData(endpoint, setArtisans, 'artisans', 'artisans', options);
-  }, [distance]);
+   
+  }, [distance, page, per_page]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -137,6 +158,8 @@ const Client = () => {
   const handleAbout = () => {
     window.location.href = '/About';
   };
+
+  const handlePageChange = (newPage) => setPage(newPage);
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 py-8">
@@ -226,6 +249,27 @@ const Client = () => {
                   <p className="text-center text-gray-400">No bookings found.</p>
                 )}
               </div>
+              <div className="flex items-center justify-center mt-4">
+                  {pagination.current_page > 1 && (
+                    <button 
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md mr-2"
+                      onClick={() => handlePageChange(pagination.current_page - 1)}
+                    >
+                      Previous
+                    </button>
+                  )}
+                  <span className="text-gray-400">
+                    Page {pagination.current_page} of {pagination.total_pages}
+                  </span>
+                  {pagination.current_page < pagination.total_pages && (
+                    <button 
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md ml-2"
+                      onClick={() => handlePageChange(pagination.current_page + 1)}
+                    >
+                      Next
+                    </button>
+                  )}
+                </div>
             </TabsContent>
             <TabsContent value="artisans">
               <Card className="mb-4 bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-2xl mx-auto p-4">
