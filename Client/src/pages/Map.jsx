@@ -14,7 +14,7 @@ const Map = () => {
   const [artisans, setArtisans] = useState([]);
   const token = sessionStorage.getItem("access_token");
   const [loading, setLoading] = useState(false);
-  const [distance, setDistance] = useState();
+  const [distance, setDistance] = useState(null);
   const [selectedArtisan, setSelectedArtisan] = useState(null);
 
   const fetchArtisans = async () => {
@@ -89,7 +89,7 @@ const Map = () => {
         <Button
           style={{ flex: 1 }}
           variant="outlined"
-          onClick={() => setDistance()}
+          onClick={() => setDistance(null)}
         >
           <RestartAltIcon />
           Reset

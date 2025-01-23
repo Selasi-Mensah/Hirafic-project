@@ -8,7 +8,7 @@ import BookingCard from '@/components/BookingCard';
 
 const Artisan = () => {
   const [bookings, setBookings] = useState([]);
-  const [pagination, setBookingPage] = useState({
+  const [bookingsPagination, setBookingPage] = useState({
     bookings: [],
     total_pages: 0,
     current_page: 0
@@ -235,21 +235,25 @@ const Artisan = () => {
                 )}
               </div>
               <div className="flex items-center justify-center mt-4">
-                  {pagination.current_page > 1 && (
+                  {bookingsPagination.current_page > 1 && (
                     <button 
                       className="px-4 py-2 bg-blue-600 text-white rounded-md mr-2"
-                      onClick={() => handlePageChange(pagination.current_page - 1)}
+                      onClick={() => handlePageChange(bookingsPagination.current_page - 1)}
                     >
                       Previous
                     </button>
                   )}
                   <span className="text-gray-400">
-                    Page {pagination.current_page} of {pagination.total_pages}
+                    {bookingsPagination.total_pages != 0 ? (
+                      <>Page {bookingsPagination.current_page} of {bookingsPagination.total_pages}</>
+                    ) : (
+                      <>Page 0 of 0</>
+                    )}
                   </span>
-                  {pagination.current_page < pagination.total_pages && (
+                  {bookingsPagination.current_page < bookingsPagination.total_pages && (
                     <button 
                       className="px-4 py-2 bg-blue-600 text-white rounded-md ml-2"
-                      onClick={() => handlePageChange(pagination.current_page + 1)}
+                      onClick={() => handlePageChange(bookingsPagination.current_page + 1)}
                     >
                       Next
                     </button>

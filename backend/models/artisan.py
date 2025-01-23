@@ -44,11 +44,11 @@ class Artisan(Base):
 
     def to_dict(self) -> Dict[str, Any]:
         """ return dictionary for the object """
-        if not hasattr(self.bookings, 'client_id') or not self.bookings:
-            # handle empty artisan table and empty bookings
-            artisan_bookings = None
-        else:
+        try:
             artisan_bookings = [b.to_dict() for b in self.bookings]
+        except Exception as e:
+            # handle empty client table and empty bookings
+            artisan_bookings = []
 
         return {
             'id': self.id,

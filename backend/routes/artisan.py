@@ -172,8 +172,29 @@ def get_artisans():
         return jsonify({"error": "User is not a client"}), 403
     # get all artisans
     artisans = Artisan.query.all()
-    # return the list of artisans
-    return jsonify([artisan.to_dict() for artisan in artisans]), 200
+
+    # check if the request is a GET request
+    if 'page' not in request.args:
+        sorted_artisans = sorted(data, key=lambda x: x['username'])
+        return jsonify([artisan.to_dict() for artisan in sorted_artisans]), 200
+    else:
+        # Get query parameters for pagination
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 10))
+        # Calculate start and end indices
+        start = (page - 1) * per_page
+        end = start + per_page
+        # Paginate the data
+        data = [artisan.to_dict() for artisan in artisans]
+        sorted_artisans = sorted(data, key=lambda x: x['username'])
+        paginated_data = sorted_artisans[start:end]
+        total_pages = (len(data) + per_page - 1) // per_page
+        # return the list of artisans and pagination information
+        return jsonify({
+            'artisans': paginated_data,
+            'total_pages': total_pages,
+            'current_page': page
+        }), 200
 
 
 @artisans_Bp.route('/location', methods=['GET', 'OPTIONS'],

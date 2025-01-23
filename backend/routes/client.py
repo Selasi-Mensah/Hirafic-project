@@ -241,8 +241,30 @@ def nearby_artisan(username: str = "") -> List:
                             current_user.client.longitude)
         # search for nearby artisans within distance
         artisans = search_nearby_artisans(current_location, distance)
-        # return JSON list of nearby artisans with name, longitude and latitude
-        return jsonify([artisan.to_dict() for artisan in artisans]), 200
+
+        # check if the request is a GET request
+        arg = request.args.get('page')
+        if arg is None:
+            sorted_artisans = sorted(data, key=lambda x: x['username'])
+            return jsonify([artisan.to_dict() for artisan in sorted_artisans]), 200
+        else:
+            # Get query parameters for pagination
+            page = int(request.args.get('page', 1))
+            per_page = int(request.args.get('per_page', 10))
+            # Calculate start and end indices
+            start = (page - 1) * per_page
+            end = start + per_page
+            # Paginate the data
+            data = [artisan.to_dict() for artisan in artisans]
+            sorted_artisans = sorted(data, key=lambda x: x['username'])
+            paginated_data = sorted_artisans[start:end]
+            total_pages = (len(data) + per_page - 1) // per_page
+            # return the list of artisans and pagination info
+            return jsonify({
+                'artisans': paginated_data,
+                'total_pages': total_pages,
+                'current_page': page
+            }), 200
     except Exception as e:
         # return error if unable to complete search
         return jsonify({"error": "An error occurred during search"}), 400

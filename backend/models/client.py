@@ -33,11 +33,11 @@ class Client(Base):
 
     def to_dict(self):
         """ return dictionary for the object """
-        if not hasattr(self.bookings, 'artisan_id') or not self.bookings:
-            # handle empty artisan table and empty bookings
-            client_bookings = None
-        else:
+        try:
             client_bookings = [b.to_dict() for b in self.bookings]
+        except Exception as e:
+            # handle empty artisan table and empty bookings
+            client_bookings = []
 
         return {
             'id': self.id,

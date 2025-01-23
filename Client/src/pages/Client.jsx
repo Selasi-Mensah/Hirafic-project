@@ -12,12 +12,17 @@ import { Filter } from 'lucide-react';
 
 const Client = () => {
   const [bookings, setBookings] = useState([]);
-  const [pagination, setBookingPage] = useState({
+  const [bookingsPagination, setBookingPage] = useState({
     bookings: [],
     total_pages: 0,
     current_page: 0
   })
   const [artisans, setArtisans] = useState([]);
+  const [artisansPagination, setArtisanPage] = useState({
+    artisans: [],
+    total_pages: 0,
+    current_page: 0
+  })
   const [profile, setProfile] = useState({
     username: '',
     email: '',
@@ -62,7 +67,6 @@ const Client = () => {
         },
         ...(options.body && { body: JSON.stringify(options.body) }),
       });
-  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -79,11 +83,19 @@ const Client = () => {
     }
   };
   
+  // Handle tab change to refresh data
+  const handleTabChange = (tab) => {
+    if (tab === 'bookings' || tab === 'artisans') {
+      setPage(1);
+    }
+  };
+
   useEffect(() => {
     // Fetch client profile (static endpoints)
     fetchData('/client', setProfile, 'profile', 'profile');
+  }, []);
 
-
+  useEffect(() => {
     // Fetch paginated bookings for client
     fetchData('/bookings', (response) => {
       // Extract and set pagination details
@@ -97,12 +109,26 @@ const Client = () => {
     }, 'bookings', 'bookings', {
       params: {page: page, per_page: per_page},
     });
+  }, [page, per_page]);
 
+  useEffect(() => {
     // Dynamic endpoint for artisans
     const endpoint = distance ? '/nearby_artisans' : '/all_artisans';
-    const options = distance ? { method: 'POST', body: {distance} } : {};
-    fetchData(endpoint, setArtisans, 'artisans', 'artisans', options);
-   
+    const options = distance ? {
+      method: 'POST',
+      body: {distance},
+      params: {page: page, per_page: per_page}
+    } : {params: {page: page, per_page: per_page}};
+    fetchData(endpoint, (response) => {
+      // Extract and set pagination detail
+      setArtisanPage((prev) => ({
+        ...prev,
+        artisans: response.artisans,
+        current_page: response.current_page,
+        total_pages: response.total_pages,
+      }));
+      setArtisans(response.artisans);
+    }, 'artisans', 'artisans', options);
   }, [distance, page, per_page]);
 
   const handleChange = (e) => {
@@ -147,9 +173,11 @@ const Client = () => {
     }
   };
 
-  const filteredArtisans = selectedProfession === 'all'
-    ? artisans
-    : artisans.filter(artisan => artisan.specialization === selectedProfession);
+  const filteredArtisans = artisans 
+  ? selectedProfession === 'all' 
+    ? artisans 
+    : artisans.filter(artisan => artisan.specialization === selectedProfession)
+  : []; 
 
   const handleLogout = () => {
     window.location.href = '/logout';
@@ -208,9 +236,9 @@ const Client = () => {
             </p>
           </div>
 
-          <Tabs defaultValue={document.referrer.includes('/map') ? 'artisans' : 'bookings'} className="space-y-3">
+          <Tabs defaultValue={artisans} className="space-y-3">
             <div className="text-center">
-              <TabsList className="bg-gray-900 te">
+              <TabsList className="bg-gray-900 te" onChange={handleTabChange}>
                 <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">
                   Profile
                 </TabsTrigger>
@@ -250,21 +278,25 @@ const Client = () => {
                 )}
               </div>
               <div className="flex items-center justify-center mt-4">
-                  {pagination.current_page > 1 && (
+                  {bookingsPagination.current_page > 1 && (
                     <button 
                       className="px-4 py-2 bg-blue-600 text-white rounded-md mr-2"
-                      onClick={() => handlePageChange(pagination.current_page - 1)}
+                      onClick={() => handlePageChange(bookingsPagination.current_page - 1)}
                     >
                       Previous
                     </button>
                   )}
                   <span className="text-gray-400">
-                    Page {pagination.current_page} of {pagination.total_pages}
+                    {bookingsPagination.total_pages != 0 ? (
+                      <>Page {bookingsPagination.current_page} of {bookingsPagination.total_pages}</>
+                    ) : (
+                      <>Page 0 of 0</>
+                    )}
                   </span>
-                  {pagination.current_page < pagination.total_pages && (
+                  {bookingsPagination.current_page < bookingsPagination.total_pages && (
                     <button 
                       className="px-4 py-2 bg-blue-600 text-white rounded-md ml-2"
-                      onClick={() => handlePageChange(pagination.current_page + 1)}
+                      onClick={() => handlePageChange(bookingsPagination.current_page + 1)}
                     >
                       Next
                     </button>
@@ -325,7 +357,6 @@ const Client = () => {
                 </CardContent>
               </Card>
 
-
               <div className=" gap-6 items-center justify-center min-w-screen max-w-lg mx-auto">
                 {loading.artisans ? (
                   <LoadingState />
@@ -339,6 +370,31 @@ const Client = () => {
                   <p className="text-center text-gray-400 col-span-2">No artisans found.</p>
                 )}
               </div>
+              <div className="flex items-center justify-center mt-4">
+                  {artisansPagination.current_page > 1 && (
+                    <button 
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md mr-2"
+                      onClick={() => handlePageChange(artisansPagination.current_page - 1)}
+                    >
+                      Previous
+                    </button>
+                  )}
+                  <span className="text-gray-400">
+                    {artisansPagination.total_pages != 0 ? (
+                      <>Page {artisansPagination.current_page} of {artisansPagination.total_pages}</>
+                    ) : (
+                      <>Page 0 of 0</>
+                    )}
+                  </span>
+                  {artisansPagination.current_page < artisansPagination.total_pages && (
+                    <button 
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md ml-2"
+                      onClick={() => handlePageChange(artisansPagination.current_page + 1)}
+                    >
+                      Next
+                    </button>
+                  )}
+                </div>
             </TabsContent>
           </Tabs>
         </main>
