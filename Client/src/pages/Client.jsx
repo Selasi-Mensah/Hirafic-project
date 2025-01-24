@@ -43,11 +43,11 @@ const Client = () => {
   const [selectedProfession, setSelectedProfession] = useState('all');
   const [file, setFile] = useState(null);
   const token = sessionStorage.getItem('access_token');
-  const name = sessionStorage.getItem('username');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [distance, setDistance] = useState('');
   const [page, setPage] = useState(1);
   const per_page = 5;
+  const [activeTab, setActiveTab] = useState('');
 
   const fetchData = async (endpoint, setter, loadingKey, errorKey, options = {}) => {
     try {
@@ -58,7 +58,7 @@ const Client = () => {
       const queryParams = options.params
       ? '?' + new URLSearchParams(options.params).toString()
       : '';
-
+      
       const response = await fetch(`http://127.0.0.1:5000${endpoint}${queryParams}`, {
         method: options.method || 'GET',
         headers: {
@@ -67,13 +67,14 @@ const Client = () => {
         },
         ...(options.body && { body: JSON.stringify(options.body) }),
       });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
       const data = await response.json();
       setter(data);
     } catch (err) {
+      if (response.error && response.error === 401) {
+        sessionStorage.removeItem('access_token');
+        sessionStorage.clear();
+        window.location.href = '/login';
+      }
       setError(prev => ({ 
         ...prev, 
         [errorKey]: err.message || 'An error occurred',
@@ -85,51 +86,56 @@ const Client = () => {
   
   // Handle tab change to refresh data
   const handleTabChange = (tab) => {
-    if (tab === 'bookings' || tab === 'artisans') {
-      setPage(1);
-    }
+      // console.log('Tab changed to:', tab);
+      setActiveTab(tab);
   };
 
   useEffect(() => {
-    // Fetch client profile (static endpoints)
-    fetchData('/client', setProfile, 'profile', 'profile');
-  }, []);
+    if (activeTab === 'profile' || activeTab === '') {
+      // Fetch client profile (static endpoints)
+      fetchData('/client', setProfile, 'profile', 'profile');
+    }
+    }, [activeTab]);
 
   useEffect(() => {
-    // Fetch paginated bookings for client
-    fetchData('/bookings', (response) => {
-      // Extract and set pagination details
-      setBookingPage((prev) => ({
-        ...prev,
-        bookings: response.bookings,
-        current_page: response.current_page,
-        total_pages: response.total_pages,
-      }));
-      setBookings(response.bookings);
-    }, 'bookings', 'bookings', {
-      params: {page: page, per_page: per_page},
-    });
-  }, [page, per_page]);
+    if (activeTab === 'bookings' || activeTab === '') {
+      // Fetch paginated bookings for client
+      fetchData('/bookings', (response) => {
+        // Extract and set pagination details
+        setBookingPage((prev) => ({
+          ...prev,
+          bookings: response.bookings,
+          current_page: response.current_page,
+          total_pages: response.total_pages,
+        }));
+        setBookings(response.bookings);
+      }, 'bookings', 'bookings', {
+        params: {page: page, per_page: per_page},
+      });
+    }
+  }, [activeTab, page, per_page]);
 
   useEffect(() => {
-    // Dynamic endpoint for artisans
-    const endpoint = distance ? '/nearby_artisans' : '/all_artisans';
-    const options = distance ? {
-      method: 'POST',
-      body: {distance},
-      params: {page: page, per_page: per_page}
-    } : {params: {page: page, per_page: per_page}};
-    fetchData(endpoint, (response) => {
-      // Extract and set pagination detail
-      setArtisanPage((prev) => ({
-        ...prev,
-        artisans: response.artisans,
-        current_page: response.current_page,
-        total_pages: response.total_pages,
-      }));
-      setArtisans(response.artisans);
-    }, 'artisans', 'artisans', options);
-  }, [distance, page, per_page]);
+    if (activeTab === 'artisans' || activeTab === '') {
+      // Dynamic endpoint for artisans
+      const endpoint = distance ? '/nearby_artisans' : '/all_artisans';
+      const options = distance ? {
+        method: 'POST',
+        body: {distance},
+        params: {page: page, per_page: per_page}
+      } : {params: {page: page, per_page: per_page}};
+      fetchData(endpoint, (response) => {
+        // Extract and set pagination detail
+        setArtisanPage((prev) => ({
+          ...prev,
+          artisans: response.artisans,
+          current_page: response.current_page,
+          total_pages: response.total_pages,
+        }));
+        setArtisans(response.artisans);
+      }, 'artisans', 'artisans', options);
+    }
+  }, [activeTab, distance, page, per_page]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -167,6 +173,11 @@ const Client = () => {
       setProfile(response.data);
       alert('Profile updated successfully');
     } catch (err) {
+      if (response.error && response.error === 401) {
+        sessionStorage.removeItem('access_token');
+        sessionStorage.clear();
+        window.location.href = '/login';
+      }
       setError({ profile: err.message });
     } finally {
       setLoading({ profile: false });
@@ -236,9 +247,12 @@ const Client = () => {
             </p>
           </div>
 
-          <Tabs defaultValue={artisans} className="space-y-3">
+          <Tabs defaultValue={document.referrer.includes('/map') ? 'artisans' : ''}
+            className="space-y-3"
+            onValueChange={handleTabChange}
+          >
             <div className="text-center">
-              <TabsList className="bg-gray-900 te" onChange={handleTabChange}>
+              <TabsList className="bg-gray-900 te">
                 <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">
                   Profile
                 </TabsTrigger>
@@ -251,7 +265,7 @@ const Client = () => {
               </TabsList>
             </div>
 
-            <TabsContent value="profile">
+            <TabsContent value="profile" key="profile">
               <ProfileSection
                 profile={profile}
                 loading={loading}
@@ -263,7 +277,7 @@ const Client = () => {
               />
             </TabsContent>
 
-            <TabsContent value="bookings">
+            <TabsContent value="bookings" key="bookings">
               <div className="items-center justify-center gap-6 max-w-lg mx-auto">
                 {loading.bookings ? (
                   <LoadingState />
@@ -303,7 +317,7 @@ const Client = () => {
                   )}
                 </div>
             </TabsContent>
-            <TabsContent value="artisans">
+            <TabsContent value="artisans" key="artisans">
               <Card className="mb-4 bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-2xl mx-auto p-4">
                 <CardContent className="space-y-4">
                   <div className="flex flex-col md:flex-row items-center gap-6">

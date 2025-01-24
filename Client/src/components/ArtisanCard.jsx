@@ -3,7 +3,7 @@ import { Star, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Dialog, DialogContent, DialogHeader, DialogTitle,DialogDescription, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog';
 import ContactModal from '@/components/BookModal';
 
 const ArtisanCard = ({ artisan }) => {
@@ -93,15 +93,23 @@ const ArtisanCard = ({ artisan }) => {
 
       {/* More Modal */}
       <Dialog open={isMoreModalOpen} onOpenChange={handleCloseMoreModal}>
-        <DialogContent aria-describedby="skills_details" className="bg-gray-900 border border-gray-800 rounded-lg shadow-lg">
+        <DialogContent 
+ 
+          className="bg-gray-900 border border-gray-800 rounded-lg shadow-lg"
+        >
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-white">Artisan {artisan.username} Skills</DialogTitle>
-            <DialogDescription id="skills_details">
-              Skills for {artisan.specialization === null || artisan.skills.trim().length === 0 ? artisan.specialization : "artisan's"} profession
+            <DialogTitle className="text-lg font-bold text-white">
+              Artisan {artisan.username} Skills
+            </DialogTitle>
+            <DialogDescription className="text-sm text-gray-400">
+              {artisan.specialization && artisan.skills && artisan.skills.trim().length > 0
+                ? `${artisan.specialization} profession`
+                : "No profession listed"}
             </DialogDescription>
           </DialogHeader>
+
           <div className="mt-4">
-            {artisan.skills || artisan.skills.trim().length !== 0 ? (
+            {artisan.skills && artisan.skills.trim().length > 0 ? (
               <p className="text-sm text-gray-300 leading-relaxed">
                 {artisan.skills}
               </p>
@@ -111,6 +119,7 @@ const ArtisanCard = ({ artisan }) => {
               </p>
             )}
           </div>
+
           <div className="flex justify-end mt-6">
             <DialogClose asChild>
               <Button className="bg-gray-800 text-gray-300 hover:bg-gray-700 px-4 py-2 rounded-lg">

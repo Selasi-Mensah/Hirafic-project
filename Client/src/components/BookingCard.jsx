@@ -91,7 +91,7 @@ const BookingCard = ({ booking }) => {
 
       {/* Details Modal */}
       <Dialog open={isDetailsOpen} onOpenChange={toggleDetailsModal}>
-        <DialogContent className="bg-gray-900 border border-gray-800 shadow-lg rounded-lg">
+        <DialogContent className="bg-gray-900 border border-gray-800 shadow-lg rounded-lg" aria-describedby=''>
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-white">Booking Details</DialogTitle>
           </DialogHeader>
@@ -177,7 +177,7 @@ const BookingCard = ({ booking }) => {
             )}
             {userRole === 'Client' && (
               <DialogClose asChild>
-                <Button className="bg-gray-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg mt-4">
+                <Button className="bg-gray-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg mt-">
                   Close
                 </Button>
               </DialogClose>

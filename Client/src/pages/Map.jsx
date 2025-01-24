@@ -37,6 +37,11 @@ const Map = () => {
       const data = await response.json();
       setArtisans(data);
     } catch (error) {
+      if (response.error && response.error === 401) {
+        sessionStorage.removeItem('access_token');
+        sessionStorage.clear();
+        window.location.href = '/login';
+      }
       console.error("Error fetching artisans:", error);
     } finally {
       setLoading(false);
