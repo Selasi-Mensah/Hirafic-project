@@ -57,14 +57,21 @@ const Artisan = () => {
           'Content-Type': 'application/json',
         }
       });
+      if (response.status === 401) {
+        if (sessionStorage.getItem('access_token')) {
+          sessionStorage.removeItem('access_token');
+          sessionStorage.clear();
+          window.location.href = '/login';
+          alert('Session expired. Please login again');
+          return;
+        }
+        else {
+          return < Redirect to='/login' />;
+        }
+      }
       const data = await response.json();
       setter(data);
     } catch (err) {
-      if (response.error && response.error === 401) {
-        sessionStorage.removeItem('access_token');
-        sessionStorage.clear();
-        window.location.href = '/login';
-      }
       setError(prev => ({ 
         ...prev, 
         [errorKey]: err.message || 'An error occurred'
@@ -135,14 +142,21 @@ const Artisan = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
+      if (response.status === 401) {
+        if (sessionStorage.getItem('access_token')) {
+          sessionStorage.removeItem('access_token');
+          sessionStorage.clear();
+          window.location.href = '/login';
+          alert('Session expired. Please login again');
+          return;
+        }
+        else {
+          return;
+        }
+      }
       setProfile(response.data);
       alert('Profile updated successfully');
     } catch (err) {
-      if (response.error && response.error === 401) {
-        sessionStorage.removeItem('access_token');
-        sessionStorage.clear();
-        window.location.href = '/login';
-      }
       setError({ profile: err.message });
     } finally {
       setLoading({ profile: false });
@@ -150,7 +164,9 @@ const Artisan = () => {
   };
 
   const handleLogout = () => {
-    window.location.href = '/logout';
+    sessionStorage.removeItem('access_token');
+    sessionStorage.clear();
+    window.location.href = '/login';
   };
 
   const handleAbout = () => {

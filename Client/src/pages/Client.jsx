@@ -67,14 +67,21 @@ const Client = () => {
         },
         ...(options.body && { body: JSON.stringify(options.body) }),
       });
+      if (response.status === 401) {
+        if (sessionStorage.getItem('access_token')) {
+          sessionStorage.removeItem('access_token');
+          sessionStorage.clear();
+          window.location.href = '/login';
+          alert('Session expired. Please login again');
+          return;
+        }
+        else {
+          return;
+        }
+      }
       const data = await response.json();
       setter(data);
     } catch (err) {
-      if (response.error && response.error === 401) {
-        sessionStorage.removeItem('access_token');
-        sessionStorage.clear();
-        window.location.href = '/login';
-      }
       setError(prev => ({ 
         ...prev, 
         [errorKey]: err.message || 'An error occurred',
@@ -91,14 +98,14 @@ const Client = () => {
   };
 
   useEffect(() => {
-    if (activeTab === 'profile' || activeTab === '') {
+    if (activeTab === 'profile') {
       // Fetch client profile (static endpoints)
       fetchData('/client', setProfile, 'profile', 'profile');
     }
     }, [activeTab]);
 
   useEffect(() => {
-    if (activeTab === 'bookings' || activeTab === '') {
+    if (activeTab === 'bookings') {
       // Fetch paginated bookings for client
       fetchData('/bookings', (response) => {
         // Extract and set pagination details
@@ -170,14 +177,21 @@ const Client = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
+      if (response.status === 401) {
+        if (sessionStorage.getItem('access_token')) {
+          sessionStorage.removeItem('access_token');
+          sessionStorage.clear();
+          window.location.href = '/login';
+          alert('Session expired. Please login again');
+          return;
+        }
+        else {
+          return;
+        }
+      }
       setProfile(response.data);
       alert('Profile updated successfully');
     } catch (err) {
-      if (response.error && response.error === 401) {
-        sessionStorage.removeItem('access_token');
-        sessionStorage.clear();
-        window.location.href = '/login';
-      }
       setError({ profile: err.message });
     } finally {
       setLoading({ profile: false });
@@ -191,7 +205,9 @@ const Client = () => {
   : []; 
 
   const handleLogout = () => {
-    window.location.href = '/logout';
+    sessionStorage.removeItem('access_token');
+    sessionStorage.clear();
+    window.location.href = '/login';
   };
 
   const handleAbout = () => {

@@ -31,9 +31,15 @@ def save_picture(form_picture: Any) -> str:
     _, file_ext = os.path.splitext(form_picture.filename)
     # create a unique file name
     pic_fname = random_hex + file_ext
+    #  Select path depending on the os
+    if os.name == 'nt':
+        # Windows path
+        file_path = 'static\\profile_pics'
+    else:
+        # Unix/Linux/Mac path
+        file_path = 'static/profile_pics'
     # create the path to save the file
-    picture_path = os.path.join(current_app.root_path,
-                                'static/profile_pics', pic_fname)
+    picture_path = os.path.join(current_app.root_path, file_path, pic_fname)
     # resize the image
     output_size = (125, 125)
     open_image = Image.open(form_picture)
@@ -199,7 +205,7 @@ def nearby_artisan(username: str = "") -> List:
                 - latitude
         - Error:
             - 403 if user is not authenticated
-            - 403 if user is not a client
+            - 401 if user is not a client (forbiden)
             - 400 if an error occurred during search
     """
     # check OPTIONS method
@@ -215,7 +221,7 @@ def nearby_artisan(username: str = "") -> List:
 
     # check if the user is nor a client
     if current_user.role != 'Client':
-        return jsonify({"error": "User is not a client"}), 403
+        return jsonify({"error": "User is not a client"}), 401
 
     # get the distance from the request body in km
     if request.method == 'POST':
@@ -241,12 +247,13 @@ def nearby_artisan(username: str = "") -> List:
                             current_user.client.longitude)
         # search for nearby artisans within distance
         artisans = search_nearby_artisans(current_location, distance)
-
+    
         # check if the request is a GET request
         arg = request.args.get('page')
-        if arg is None:
+        if 'page' not in request.args:
+            data = [artisan.to_dict() for artisan in artisans]
             sorted_artisans = sorted(data, key=lambda x: x['username'])
-            return jsonify([artisan.to_dict() for artisan in sorted_artisans]), 200
+            return jsonify(sorted_artisans), 200
         else:
             # Get query parameters for pagination
             page = int(request.args.get('page', 1))

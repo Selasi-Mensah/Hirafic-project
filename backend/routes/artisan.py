@@ -29,9 +29,15 @@ def save_picture(form_picture: any) -> str:
     _, file_ext = os.path.splitext(form_picture.filename)
     # create a unique file name
     pic_fname = random_hex + file_ext
+    #  Select path depending on the os
+    if os.name == 'nt':
+        # Windows path
+        file_path = 'static\\profile_pics'
+    else:
+        # Unix/Linux/Mac path
+        file_path = 'static/profile_pics'
     # create the path to save the file
-    picture_path = os.path.join(current_app.root_path,
-                                'static/profile_pics', pic_fname)
+    picture_path = os.path.join(current_app.root_path, file_path, pic_fname)
     # resize the image
     output_size = (125, 125)
     open_image = Image.open(form_picture)
@@ -175,8 +181,9 @@ def get_artisans():
 
     # check if the request is a GET request
     if 'page' not in request.args:
+        data = [artisan.to_dict() for artisan in artisans]
         sorted_artisans = sorted(data, key=lambda x: x['username'])
-        return jsonify([artisan.to_dict() for artisan in sorted_artisans]), 200
+        return jsonify(sorted_artisans), 200
     else:
         # Get query parameters for pagination
         page = int(request.args.get('page', 1))

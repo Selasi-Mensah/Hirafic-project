@@ -37,10 +37,17 @@ const Map = () => {
       const data = await response.json();
       setArtisans(data);
     } catch (error) {
-      if (response.error && response.error === 401) {
-        sessionStorage.removeItem('access_token');
-        sessionStorage.clear();
-        window.location.href = '/login';
+      if (response.status === 401) {
+        if (sessionStorage.getItem('access_token')) {
+          sessionStorage.removeItem('access_token');
+          sessionStorage.clear();
+          window.location.href = '/login';
+          alert('Session expired. Please login again');
+          return;
+        }
+        else {
+          return;
+        }
       }
       console.error("Error fetching artisans:", error);
     } finally {
@@ -58,7 +65,7 @@ const Map = () => {
           variant="contained"
           size="small"
           style={{ marginTop: "0.5rem" }}
-          onClick={() => window.location.href = "/client"}
+          onClick={() => window.location.href = `/client/${sessionStorage.getItem('username')}`}
         >
         Go to Artisans List
       </Button>

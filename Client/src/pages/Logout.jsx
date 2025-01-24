@@ -17,24 +17,28 @@ const Logout = () => {
 
     const logout = async () => {
       try {
-        console.log(token)
+        // console.log(token)
         hasLoggedOut = true; // Set the flag to true
         const response = await axios.get('http://127.0.0.1:5000/logout', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
+        sessionStorage.removeItem('access_token');
+        sessionStorage.clear();
+        navigate('/login',  { replace: true });
         console.log('Logout successful:', response.data);
       } catch (err) {
+        sessionStorage.removeItem('access_token');
+        sessionStorage.clear();
         console.error('Logout failed:', err);
         if (err.response && err.response.status === 401) {
           console.log('token expired, redirecting to login');
         }
       } finally {
-        sessionStorage.removeItem('access_token');
-        sessionStorage.clear();
-        navigate('/login',  { replace: true });
+        // sessionStorage.removeItem('access_token');
+        // sessionStorage.clear();
+        // navigate('/login',  { replace: true });
         setLoading(false);
       }
     };
