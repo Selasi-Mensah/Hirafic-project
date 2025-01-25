@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ProfileSection from '@/components/ProfileSection';
-import LoadingState from '@/components/LoadingState';
-import ErrorState from '@/components/ErrorState';
-import BookingCard from '@/components/BookingCard';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ProfileSection from "@/components/ProfileSection";
+import LoadingState from "@/components/LoadingState";
+import ErrorState from "@/components/ErrorState";
+import BookingCard from "@/components/BookingCard";
+import CloseIcon from "@mui/icons-material/Close";
+import MenuOpenIcon from "@mui/icons-material/MenuOpen";
 
 const Artisan = () => {
   const [bookings, setBookings] = useState([]);
   const [bookingsPagination, setBookingPage] = useState({
     bookings: [],
     total_pages: 0,
-    current_page: 0
-  })
+    current_page: 0,
+  });
   const [profile, setProfile] = useState({
     username: '',
     email: '',
@@ -26,36 +28,45 @@ const Artisan = () => {
   const [loading, setLoading] = useState({
     bookings: true,
     artisans: true,
-    profile: true
+    profile: true,
   });
   const [error, setError] = useState({
     bookings: null,
     artisans: null,
-    profile: null
+    profile: null,
   });
 
   const [file, setFile] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const token = sessionStorage.getItem('access_token');
-  const name = sessionStorage.getItem('username');
+  const token = sessionStorage.getItem("access_token");
+  const name = sessionStorage.getItem("username");
   const [page, setPage] = useState(1);
   const per_page = 5;
   const [activeTab, setActiveTab] = useState('');
 
-  const fetchData = async (endpoint, setter, loadingKey, errorKey, options = {}) => {
+  const fetchData = async (
+    endpoint,
+    setter,
+    loadingKey,
+    errorKey,
+    options = {}
+  ) => {
     try {
-      setLoading(prev => ({ ...prev, [loadingKey]: true }));
-      setError(prev => ({ ...prev, [errorKey]: null }));
+      setLoading((prev) => ({ ...prev, [loadingKey]: true }));
+      setError((prev) => ({ ...prev, [errorKey]: null }));
 
       // Build query parameters if provided
       const queryParams = options.params
-      ? '?' + new URLSearchParams(options.params).toString()
-      : '';
+        ? "?" + new URLSearchParams(options.params).toString()
+        : "";
 
-      const response = await fetch(`http://127.0.0.1:5000${endpoint}${queryParams}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `http://127.0.0.1:5000${endpoint}${queryParams}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
       });
       if (response.status === 401) {
@@ -73,12 +84,12 @@ const Artisan = () => {
       const data = await response.json();
       setter(data);
     } catch (err) {
-      setError(prev => ({ 
-        ...prev, 
-        [errorKey]: err.message || 'An error occurred'
+      setError((prev) => ({
+        ...prev,
+        [errorKey]: err.message || "An error occurred",
       }));
     } finally {
-      setLoading(prev => ({ ...prev, [loadingKey]: false }));
+      setLoading((prev) => ({ ...prev, [loadingKey]: false }));
     }
   };
 
@@ -119,7 +130,6 @@ const Artisan = () => {
     }));
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading({ profile: true });
@@ -134,9 +144,9 @@ const Artisan = () => {
     formData.append('specialization', profile.specialization);
     formData.append('salary_per_hour', profile.salary_per_hour);
     if (file) {
-      formData.append('picture', file);
+      formData.append("picture", file);
     }
-    
+
     try {
       const response = await axios.post('http://127.0.0.1:5000/artisan', formData, {
         headers: {
@@ -157,7 +167,7 @@ const Artisan = () => {
         }
       }
       setProfile(response.data);
-      alert('Profile updated successfully');
+      alert("Profile updated successfully");
     } catch (err) {
       setError({ profile: err.message });
     } finally {
@@ -172,7 +182,7 @@ const Artisan = () => {
   };
 
   const handleAbout = () => {
-    window.location.href = '/About';
+    window.location.href = "/About";
   };
 
   const handlePageChange = (newPage) => setPage(newPage);
@@ -182,8 +192,10 @@ const Artisan = () => {
       <div className="max-w-7xl mx-auto px-4">
         {/* Sidebar */}
         {isSidebarOpen && (
-          <aside className="bg-gray-900 w-40 min-h-screen px-6 py-8 transition-all duration-300 fixed top-0 left-0 z-20">
-            <h2 className="text-l text-center font-bold text-white mb-8">Navigation</h2>
+          <aside className="bg-gray-900 w-80 min-h-screen px-6 py-20 transition-all duration-300 fixed top-0 left-0 z-20">
+            <h2 className="text-l text-center font-bold text-white mb-8">
+              Navigation
+            </h2>
             <ul className="space-y-4">
               <li>
                 <button
@@ -211,12 +223,28 @@ const Artisan = () => {
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2 rounded-md absolute top-4 left-4 z-10"
           >
-            {isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'}
+            {/* {isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'} */}
+          </button>
+          {/* Open Sidebar Button */}
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md absolute top-4 left-4 z-10 md:hidden"
+          >
+            <MenuOpenIcon />
           </button>
 
-          <div className="text-center justify-between items-center mb-8">
+          {/* Close Sidebar Button */}
+          {isSidebarOpen && (
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md absolute top-4 left-2 z-50 md:hidden"
+            >
+              <CloseIcon />
+            </button>
+          )}
+          <div className="text-center md:ml-80 justify-between items-center mb-8">
             {/* Welcome Message */}
-            <h1 className="text-3xl font-bold mb-4 md:mb-0 text-gray-100">
+            <h1 className="text-3xl mt-8 font-bold mb-4 md:mb-0 text-gray-100">
               Welcome, {name}
             </h1>
             <p className="text-gray-400 text-lg mb-8">
@@ -224,13 +252,19 @@ const Artisan = () => {
             </p>
           </div>
 
-          <Tabs defaultValue="bookings" className="space-y-3" onValueChange={handleTabChange}>
+          <Tabs defaultValue="bookings" className=" md:ml-80 space-y-3" onValueChange={handleTabChange}>
             <div className='text-center'>
               <TabsList className="bg-gray-900 te">
-                <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">
+                <TabsTrigger
+                  value="profile"
+                  className="data-[state=active]:bg-gray-800"
+                >
                   Profile
                 </TabsTrigger>
-                <TabsTrigger value="bookings" className="data-[state=active]:bg-gray-800">
+                <TabsTrigger
+                  value="bookings"
+                  className="data-[state=active]:bg-gray-800"
+                >
                   Bookings
                 </TabsTrigger>
               </TabsList>
@@ -255,38 +289,48 @@ const Artisan = () => {
                 ) : error.bookings ? (
                   <ErrorState message={error.bookings} />
                 ) : bookings.length > 0 ? (
-                  bookings.map(booking => (
+                  bookings.map((booking) => (
                     <BookingCard key={booking.id} booking={booking} />
                   ))
                 ) : (
-                  <p className="text-center text-gray-400">No bookings found.</p>
+                  <p className="text-center text-gray-400">
+                    No bookings found.
+                  </p>
                 )}
               </div>
               <div className="flex items-center justify-center mt-4">
-                  {bookingsPagination.current_page > 1 && (
-                    <button 
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md mr-2"
-                      onClick={() => handlePageChange(bookingsPagination.current_page - 1)}
-                    >
-                      Previous
-                    </button>
+                {bookingsPagination.current_page > 1 && (
+                  <button
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md mr-2"
+                    onClick={() =>
+                      handlePageChange(bookingsPagination.current_page - 1)
+                    }
+                  >
+                    Previous
+                  </button>
+                )}
+                <span className="text-gray-400">
+                  {bookingsPagination.total_pages != 0 ? (
+                    <>
+                      Page {bookingsPagination.current_page} of{" "}
+                      {bookingsPagination.total_pages}
+                    </>
+                  ) : (
+                    <>Page 0 of 0</>
                   )}
-                  <span className="text-gray-400">
-                    {bookingsPagination.total_pages != 0 ? (
-                      <>Page {bookingsPagination.current_page} of {bookingsPagination.total_pages}</>
-                    ) : (
-                      <>Page 0 of 0</>
-                    )}
-                  </span>
-                  {bookingsPagination.current_page < bookingsPagination.total_pages && (
-                    <button 
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md ml-2"
-                      onClick={() => handlePageChange(bookingsPagination.current_page + 1)}
-                    >
-                      Next
-                    </button>
-                  )}
-                </div>
+                </span>
+                {bookingsPagination.current_page <
+                  bookingsPagination.total_pages && (
+                  <button
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md ml-2"
+                    onClick={() =>
+                      handlePageChange(bookingsPagination.current_page + 1)
+                    }
+                  >
+                    Next
+                  </button>
+                )}
+              </div>
             </TabsContent>
           </Tabs>
         </main>
