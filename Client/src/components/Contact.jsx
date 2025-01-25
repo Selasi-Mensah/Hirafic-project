@@ -96,6 +96,13 @@ const Contact = () => {
                 >
                   Submit
                 </button>
+                <button
+                  type="button"
+                  onClick={() => navigate("/about")}
+                  className="inline-block self-start bg-red-500 text-white font-bold rounded-lg px-6 py-2 uppercase text-sm"
+                >
+                  Close
+                </button>
               </form>
             </div>
           </div>

@@ -7,6 +7,7 @@ import ErrorState from "@/components/ErrorState";
 import BookingCard from "@/components/BookingCard";
 import CloseIcon from "@mui/icons-material/Close";
 import MenuOpenIcon from "@mui/icons-material/MenuOpen";
+import Hirafic from "@/assets/Hirafic.jpg";
 
 const Artisan = () => {
   const [bookings, setBookings] = useState([]);
@@ -37,11 +38,11 @@ const Artisan = () => {
   });
 
   const [file, setFile] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const token = sessionStorage.getItem("access_token");
   const name = sessionStorage.getItem("username");
   const [page, setPage] = useState(1);
-  const per_page = 5;
+  const per_page = 3;
   const [activeTab, setActiveTab] = useState('');
 
   const fetchData = async (
@@ -248,28 +249,47 @@ const Artisan = () => {
               <CloseIcon />
             </button>
           )}
-          <div className="text-center items-center">
-            {/* Welcome Message */}
-            <h1 className="text-3xl mt-8 font-bold mb-4 md:mb-0 text-gray-100">
-              Welcome, {sessionStorage.getItem("username")}
-            </h1>
-            <p className="text-gray-400 text-lg mb-8">
-              This is your home page. Use the navigation menu to explore.
-            </p>
-          </div>
+          
+          {activeTab === '' && (
+            <div className="text-center flex flex-col items-center">
+              {/* Welcome Message */}
+              <h2 className="text-3xl font-bold mb-4 text-gray-200">
+                Welcome, {sessionStorage.getItem("username")}
+              </h2>
+              <p className="text-gray-400 text-lg mb-4">
+                Use the navigation menu or select a tab to explore.
+              </p>
+            </div>
+          )}
+          {activeTab === 'profile' && (
+           <div className="text-center flex flex-col items-center ">
+              <h2 className="text-3xl font-bold mb-4 text-gray-200">My Profile</h2>
+              <p className="text-gray-400 text-lg mb-4">
+                Manage your account details and preferences here.
+              </p>
+            </div>
+          )}
+          {activeTab === 'bookings' && (
+            <div className="text-center flex flex-col items-center ">
+              <h2 className="text-3xl font-bold mb-4 text-gray-200">Bookings Details</h2>
+              <p className="text-gray-400 text-lg mb-4">
+                View and manage your bookings here.
+              </p>
+            </div>
+          )}
 
           <Tabs defaultValue="bookings" className="mx-auto" onValueChange={handleTabChange}>
             <div className='text-center'>
-              <TabsList className="flex bg-gray-900 text-gray-100 w-[300px] mx-auto gap-6 mb-4">
+              <TabsList className="flex bg-gray-900 text-gray-100 w-[450px] mx-auto gap-6 mb-4">
                 <TabsTrigger
                   value="profile"
-                  className="data-[state=active]:bg-gray-800"
+                  className=" w-[225px] data-[state=active]:bg-gray-800"
                 >
                   Profile
                 </TabsTrigger>
                 <TabsTrigger
                   value="bookings"
-                  className="data-[state=active]:bg-gray-800"
+                  className=" w-[225px] data-[state=active]:bg-gray-800"
                 >
                   Bookings
                 </TabsTrigger>
@@ -289,7 +309,7 @@ const Artisan = () => {
             </TabsContent>
 
             <TabsContent value="bookings">
-              <div className="grid gap-6">
+              <div className="grid gap-2">
                 {loading.bookings ? (
                   <LoadingState />
                 ) : error.bookings ? (
@@ -340,6 +360,13 @@ const Artisan = () => {
             </TabsContent>
           </Tabs>
         </main>
+        <p className="absolute top-4 right-4 flex items-center justify-center h-[130px] w-[130px] bg-white rounded-full shadow-lg transition-transform hover:scale-105 hover:shadow-xl">
+          <img
+            className="h-[120px] w-[120px] object-cover rounded-full"
+            src={Hirafic}
+            alt="Logo"
+          />
+        </p>
       </div>
     </div>
   );

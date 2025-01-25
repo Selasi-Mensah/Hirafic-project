@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/download.png";
+import Hirafic from "../assets/Hirafic.jpg";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +13,7 @@ const NavBar = () => {
   return (
     <div className="flex justify-between items-center py-2 border-b border-[#161622] px-8 fixed z-50 w-full bg-[#E6E5D2]">
       <p className="text-lg font-bold">
-        <img className="h-[55px] rounded-full" src={logo} />
+        <img className="h-[55px] rounded-full" src={Hirafic} />
       </p>
 
       <div className="hidden lg:flex gap-8 font-medium text-sm">

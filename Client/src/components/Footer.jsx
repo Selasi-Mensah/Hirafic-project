@@ -63,7 +63,7 @@ const Footer = () => {
           <p className="font-semibold text-[18px] leading-[24px] text-blue-500">
             Our Services
           </p>
-          <Link href="/register" className="text-[14px] leading-[20px]">
+          <Link to="/register" className="text-[14px] leading-[20px]">
             Go to Dashboard
           </Link>
           <Link to="/contact" className="text-[14px] leading-[20px]">
