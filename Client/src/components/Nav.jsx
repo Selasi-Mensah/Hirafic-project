@@ -43,7 +43,7 @@ const NavBar = () => {
           className="text-white bg-[#161622] font-medium py-1 px-6 rounded-full hidden md:block"
           onClick={() => setIsOpen(false)}
         >
-          Join Hirafic
+          Go to Dashboard
         </Link>
 
         <button
@@ -85,7 +85,7 @@ const NavBar = () => {
             className="text-xl font-medium py-2"
             onClick={() => setIsOpen(false)}
           >
-            Home
+            About
           </Link>
 
           <a

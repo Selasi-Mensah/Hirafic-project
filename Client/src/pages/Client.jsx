@@ -45,7 +45,7 @@ const Client = () => {
   const [selectedProfession, setSelectedProfession] = useState('all');
   const [file, setFile] = useState(null);
   const token = sessionStorage.getItem('access_token');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [distance, setDistance] = useState('');
   const [page, setPage] = useState(1);
   const [artisansPage, setArtisansPage] = useState(1);
@@ -221,45 +221,56 @@ const Client = () => {
   const handleArtisansPageChange = (newPage) => setArtisansPage(newPage);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 py-8">
-      <div className="max-w-7xl mx-auto px-4">
+    <div className="min-h-screen bg-gray-950 text-gray-100 py-8 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-950 text-gray-100 py-8 flex items-center justify-center">
         {/* Sidebar */}
         {isSidebarOpen && (
-          <aside className="bg-gray-900 w-80 min-h-screen px-6 py-20 transition-all duration-300 fixed top-0 left-0 z-20">
-            <h2 className="text-l text-center font-bold text-white mb-8">{name}</h2>
-            <ul className="space-y-4">
-              <li>
-                <button
-                  onClick={handleAbout}
-                  className="w-full items-center gap-4 bg-gray-800 hover:bg-gray-700 text-white py-1 px-1 rounded-md transition-all duration-300"
-                >
-                  <span className="material-icons">About</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={handleLogout}
-                  className="w-full items-center gap-4 bg-red-600 hover:bg-red-700 text-white py-1 px-1 rounded-md transition-all duration-300"
-                >
-                  <span className="material-icons">Logout</span>
-                </button>
-              </li>
-            </ul>
-          </aside>
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-10 transition-all duration-300">
+            <aside
+              className={`bg-gray-900 w-40 min-h-screen px-4 py-12 transition-all transform ease-in-out z-20 absolute top-0 left-0 shadow-lg rounded-r-2xl ${
+                isSidebarOpen ? 'translate-x-0 ' : '-translate-x-full'
+              }`}
+            >
+              <h2 className="text-xl font-semibold text-center text-white mb-6">Menu</h2>
+              <ul className="space-y-4">
+                <li>
+                  <button
+                    onClick={handleAbout}
+                    className="w-full flex items-center gap-4 bg-gray-800 hover:bg-gray-700 text-white py-2 px-3 rounded-md transition-all duration-300 shadow-sm hover:shadow-md"
+                  >
+                    <span className="material-icons text-sm">About</span>
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-4 bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded-md transition-all duration-300 shadow-sm hover:shadow-md"
+                  >
+                    <span className="material-icons text-sm">Logout</span>
+                  </button>
+                </li>
+              </ul>
+            </aside>
+          </div>
         )}
 
+
+
+
         {/* Header */}
-        <main className="items-center justify-center px-8 py-8">
+        <main className={`${
+          isSidebarOpen ? "ml-64" : "ml-0"
+        } w-full min-h-screen flex-col justify-center items-center transition-all duration-300`}>
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2 rounded-md absolute top-4 left-4 z-10"
+            className="bg-gray-100 text-white hover:bg-gray-700 px-4 py-2 rounded-md absolute top-4 left-4 z-10"
           >
             {/* {isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'} */}
           </button>
                     {/* Open Sidebar Button */}
                     <button
             onClick={() => setIsSidebarOpen(true)}
-            className="bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md absolute top-4 left-4 z-10 md:hidden"
+            className="bg-gray-100 text-white hover:bg-gray-700 p-4 rounded-md absolute top-4 left-4 z-10 md:hidden"
           >
             <MenuOpenIcon />
           </button>
@@ -274,10 +285,10 @@ const Client = () => {
             </button>
           )}
 
-          <div className="text-center md:ml-80 justify-between items-center mb-8">
+          <div className="text-center items-center">
             {/* Welcome Message */}
             <h1 className="text-3xl font-bold mt-8 mb-4 md:mb-0 text-gray-100">
-              Welcome, {name}
+              Welcome, {sessionStorage.getItem('username')}
             </h1>
             <p className="text-gray-400 text-lg mb-8">
               This is your home page. Use the navigation menu to explore.
@@ -285,18 +296,18 @@ const Client = () => {
           </div>
 
           <Tabs defaultValue={document.referrer.includes('/map') ? 'artisans' : 'bookings'}
-            className="md:ml-80 space-y-3"
+            className="mx-auto"
             onValueChange={handleTabChange}
           >
-            <div className="text-center">
-              <TabsList className="bg-gray-900 te">
-                <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">
+            <div className="text-center"> 
+              <TabsList className="flex bg-gray-900 text-gray-100 w-[500px] mx-auto gap-6 mb-4">
+                <TabsTrigger value="profile" className="w-[100px] data-[state=active]:bg-gray-800 ">
                   Profile
                 </TabsTrigger>
-                <TabsTrigger value="bookings" className="data-[state=active]:bg-gray-800">
+                <TabsTrigger value="bookings" className="w-[100px] data-[state=active]:bg-gray-800">
                   Bookings
                 </TabsTrigger>
-                <TabsTrigger value="artisans" className="data-[state=active]:bg-gray-800">
+                <TabsTrigger value="artisans" className="w-[100px] data-[state=active]:bg-gray-800">
                   Find Artisan
                 </TabsTrigger>
               </TabsList>

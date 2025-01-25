@@ -2,14 +2,14 @@
 import Selasi from "../assets/Selasi.jpeg";
 import Paul from "../assets/Paul.jpeg";
 import Oliver from "../assets/Oliver.jpeg";
-// import Duaa from "../assets/Duaa.jpeg";
+import Duaa from "../assets/Duaa.jpg";
 
 const Team = () => {
   const teamMembers = [
     {
       name: "Duaa Obeid",
       role: "Backend Engineer",
-      // image: Duaa,
+      image: Duaa,
       description:
         "Duaa Obeid is a skilled backend engineer, proficient in building scalable systems, optimizing performance, and ensuring robust server-side functionality. ",
     },
