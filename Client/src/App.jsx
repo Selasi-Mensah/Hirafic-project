@@ -11,6 +11,9 @@ import Logout from "./pages/Logout";
 import "./app.scss";
 import Search from "./components/Search";
 import Map from "./pages/Map";
+import NotFound from "./pages/NotFound";
+import Contact from "./components/Contact";
+// import ProtectedRoute from "./components/ProtectedRoute";
 // import Profile from "./components/Profile";
 
 function App() {
@@ -25,6 +28,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/artisan" element={<Artisan />} />
           <Route path="/artisan/:username" element={<Artisan />} />
+
           <Route path="/client" element={<Client />} />
           <Route path="/client/:username" element={<Client />} />
           <Route exact path="/home" element={<Home />} />
@@ -35,6 +39,33 @@ function App() {
           <Route path="/map/:mapId" element={<Map />} />
           <Route path="map" element={<Map />} />
           <Route path="/logout" element={<Logout />} />
+          <Route path="/contact" element={<Contact />} />
+          {/* Not found routing */}
+          <Route path="*" element={<NotFound />} />
+          {/* <Route
+            path="/artisan/:username"
+            element={
+              <ProtectedRoute allowedRoles={["artisan"]}>
+                <Artisan />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/client"
+            element={
+              <ProtectedRoute allowedRoles={["client"]}>
+                <Client />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/client/:username"
+            element={
+              <ProtectedRoute allowedRoles={["client"]}>
+                <Client />
+              </ProtectedRoute>
+            }
+          /> */}
         </Routes>
       </Router>
     </>
