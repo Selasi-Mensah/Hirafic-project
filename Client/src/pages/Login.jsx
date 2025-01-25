@@ -76,7 +76,8 @@ const Login = () => {
       sessionStorage.setItem('role', response.data.user.role);
       sessionStorage.setItem('email', response.data.user.email);
       const username = response.data.user.username;
-      console.log(response.data.user.username);
+      // console.log(response.data.user.username);
+      // Handle successful login based on user role
       if (response.data.user.role === 'Artisan') {
         navigate(`/artisan/${username}`);
       } else if (response.data.user.role === 'Client') {
@@ -84,8 +85,6 @@ const Login = () => {
       } else {
         navigate('/')
       }
-      // Handle successful login here
-      console.log('Login successful', formData);
       return; 
     } catch (err) {
       console.log(err)
@@ -109,7 +108,7 @@ const Login = () => {
       {/* Login card with dark theme styling */}
       <Card className="w-full max-w-md bg-gray-800 border-gray-700">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center text-white">Welcome Back</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center text-white">Welcome</CardTitle>
           <CardDescription className="text-center text-gray-400">
             Login to your Hirafic account
           </CardDescription>

@@ -24,14 +24,18 @@ class Artisan(Base):
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
     # Removed nullable=False in Specialization and skills
-    specialization = db.Column(
-        Enum('Engineering', 'Nursing', "Plumber",
-             "Electrician", "Carpenter", "Painter",
-             "Mechanic", "Technician", "Cleaner",
-             'None', name='specialization'),
-        default='None'
-        )
+    # specialization = db.Column(
+    #     Enum('Engineer', 'Nurse', "Plumber",
+    #          "Electrician", "Carpenter", "Painter",
+    #          "Mechanic", "Technician", "Cleaner",
+    #          'None', name='specialization'),
+    #     default='None'
+    #     )
+    # let specializations be a determined by the frontend
+    specialization = db.Column(db.String(20), nullable=False, default='None')
     skills = db.Column(db.Text, default='None')
+    # add salary per hour attribute
+    salary_per_hour = db.Column(db.Float, nullable=False, default=0.0)
     bookings = db.relationship(
         "Booking", backref="artisan",
         cascade="delete", lazy=True
@@ -60,6 +64,7 @@ class Artisan(Base):
             'longitude': self.longitude,
             'specialization': self.specialization,
             'skills': self.skills,
+            'salary_per_hour': self.salary_per_hour,
             'image_file': f'/{self.user_artisan.image_file}'
             if self.user_artisan else None,
             'bookings': artisan_bookings

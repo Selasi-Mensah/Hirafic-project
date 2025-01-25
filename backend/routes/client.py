@@ -12,11 +12,14 @@ from extensions import db
 from models.user import User
 from models.client import Client
 from models.artisan import Artisan
+from models.booking import Booking
+from models.report import Report
 from forms.client import ClientProfileForm
 from flask import (flash, request, current_app, jsonify)
 from flask_jwt_extended import get_jwt_identity, jwt_required
 # from flask_login import current_user, login_required
 from geopy.distance import geodesic
+from utils.email_service import send_email
 
 
 # create clients blueprint
@@ -31,9 +34,15 @@ def save_picture(form_picture: Any) -> str:
     _, file_ext = os.path.splitext(form_picture.filename)
     # create a unique file name
     pic_fname = random_hex + file_ext
+    #  Select path depending on the os
+    if os.name == 'nt':
+        # Windows path
+        file_path = 'static\\profile_pics'
+    else:
+        # Unix/Linux/Mac path
+        file_path = 'static/profile_pics'
     # create the path to save the file
-    picture_path = os.path.join(current_app.root_path,
-                                'static/profile_pics', pic_fname)
+    picture_path = os.path.join(current_app.root_path, file_path, pic_fname)
     # resize the image
     output_size = (125, 125)
     open_image = Image.open(form_picture)
@@ -199,7 +208,7 @@ def nearby_artisan(username: str = "") -> List:
                 - latitude
         - Error:
             - 403 if user is not authenticated
-            - 403 if user is not a client
+            - 401 if user is not a client (forbiden)
             - 400 if an error occurred during search
     """
     # check OPTIONS method
@@ -215,7 +224,7 @@ def nearby_artisan(username: str = "") -> List:
 
     # check if the user is nor a client
     if current_user.role != 'Client':
-        return jsonify({"error": "User is not a client"}), 403
+        return jsonify({"error": "User is not a client"}), 401
 
     # get the distance from the request body in km
     if request.method == 'POST':
@@ -244,9 +253,10 @@ def nearby_artisan(username: str = "") -> List:
 
         # check if the request is a GET request
         arg = request.args.get('page')
-        if arg is None:
+        if 'page' not in request.args:
+            data = [artisan.to_dict() for artisan in artisans]
             sorted_artisans = sorted(data, key=lambda x: x['username'])
-            return jsonify([artisan.to_dict() for artisan in sorted_artisans]), 200
+            return jsonify(sorted_artisans), 200
         else:
             # Get query parameters for pagination
             page = int(request.args.get('page', 1))
@@ -268,3 +278,87 @@ def nearby_artisan(username: str = "") -> List:
     except Exception as e:
         # return error if unable to complete search
         return jsonify({"error": "An error occurred during search"}), 400
+
+
+@clients_Bp.route(
+        "/report",
+        methods=['POST', 'OPTIONS'], strict_slashes=False)
+@jwt_required()
+def report():
+    """ route to report an artisan
+    GET /report
+        - Success: return JSON with message
+            - JSON body:
+                - message
+        - Error:
+            - 403 if user is not authenticated
+            - 401 if user is not a client (forbiden)
+    """
+    # check OPTIONS method
+    if request.method == 'OPTIONS':
+        return jsonify({"message": "Preflight request"}), 200
+
+    # check if user is authenticated
+    user_id = get_jwt_identity()
+    current_user = User.query.filter_by(id=user_id).first()
+    if not current_user:
+        return jsonify({"error": "User not authenticated"}), 403
+
+    # check if the user is nor a client
+    if current_user.role != 'Client':
+        return jsonify({"error": "User is not a client"}), 401
+    try:
+        data = request.get_json()
+        client_name = data.get('client_name')
+        artisan_name = data.get('artisan_name')
+        issue = data.get('issue', '')
+        booking_id = data.get('booking_id', '')
+
+        # Validating client and artisan existence
+        client = Client.query.filter_by(name=client_name).first()
+        artisan = Artisan.query.filter_by(name=artisan_name).first()
+        # Check if client and artisan exist
+        if not client or not artisan:
+            return jsonify({"error": "Client or Artisan not found"}), 404
+        # Check if the booking exists
+        booking = Booking.query.filter_by(id=booking_id).first()
+        if not booking:
+            return jsonify({"error": "Booking not found"}), 404
+        # Create a report
+        report = Report(
+            client_id=client.id,
+            artisan_id=artisan.id,
+            booking_id=booking.id,
+            issue=issue
+        )
+        db.session.add(report)
+        db.session.commit()
+    except Exception as e:
+        return jsonify({"error": f"Invalid request: {str(e)}"}), 400
+
+    # get the report details from the request body (sent by params)
+    # try:
+    #     artisan_name = request.args.get('artisan_name', "")
+    #     booking_id = request.args.get('booking_id', "")
+    #     issue = request.args.get('issue', "")
+    #     client_name = request.args.get('client_name', "")
+    # except Exception as e:
+    #     # return error if unable to get report data
+    #     return jsonify({"error": "An error occurred during report"}), 400
+
+    # Sending notification email to the artisan
+    subject = f"Report: An issue with {artisan_name} artisan"
+    body = f"""
+    Hello Hirafic Team,
+
+    I am reporting an issue with the artisan {artisan_name},
+    Booking ID: {booking_id}.
+    The issue is as follows: {issue}
+    please take necessary action.
+
+    Best regards,
+    {client_name}
+    """
+    send_email("DuaaRabie11@gmail.com", subject, body)
+
+    return jsonify({"message": "Report sent successfully!"}), 201

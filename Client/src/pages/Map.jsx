@@ -29,11 +29,18 @@ const Map = () => {
         },
         ...(distance && { body: JSON.stringify({ distance }) }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch artisans");
+      if (response.status === 401) {
+        if (sessionStorage.getItem('access_token')) {
+          sessionStorage.removeItem('access_token');
+          sessionStorage.clear();
+          window.location.href = '/login';
+          alert('Session expired. Please login again');
+          return;
+        }
+        else {
+          return;
+        }
       }
-
       const data = await response.json();
       setArtisans(data);
     } catch (error) {
@@ -53,7 +60,7 @@ const Map = () => {
           variant="contained"
           size="small"
           style={{ marginTop: "0.5rem" }}
-          onClick={() => window.location.href = "/client"}
+          onClick={() => window.location.href = `/client/${sessionStorage.getItem('username')}`}
         >
         Go to Artisans List
       </Button>

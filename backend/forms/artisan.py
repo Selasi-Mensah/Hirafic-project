@@ -38,16 +38,22 @@ class ArtisanProfileForm(FlaskForm):
             message="Location must not exceed 60 characters."
             )
         ])
-    specialization = SelectField('Specialization',
-                                 choices=[
-                                     ('Engineering', 'Engineering'),
-                                     ('Nursing', 'Nursing'),
-                                     ('None', 'None')],
-                                 default='None')
+    # Specialization selection in frontend
+    specialization = StringField('Specialization', validators=[DataRequired()])
+    # specialization = SelectField('Specialization',
+    #                              choices=[
+    #                                  ('Engineering', 'Engineering'),
+    #                                  ('Nursing', 'Nursing'),
+    #                                  ('None', 'None')],
+    #                              default='None')
     skills = TextAreaField('Skills', validators=[
         Length(
             max=500,
             message="Skills description must not exceed 500 characters.")])
+
+    salary_per_hour = StringField(
+        'Salary per Hour', validators=[DataRequired()],
+        render_kw={"type": "number", "step": "0.1"})
 
     picture = FileField(
         'Update Profile Picture',

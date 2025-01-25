@@ -28,7 +28,7 @@ class Booking(Base):
         db.DateTime(timezone=True),
         server_default=db.func.now())
     completion_date = db.Column(db.DateTime(timezone=True))
-    details = db.Column(db.String(255), nullable=True)
+    details = db.Column(db.Text, nullable=True)
 
     def __repr__(self) -> str:
         return (f"Booking('{self.id}', '{self.status}')")

@@ -16,13 +16,14 @@ const Artisan = () => {
     current_page: 0,
   });
   const [profile, setProfile] = useState({
-    username: "",
-    email: "",
-    phone_number: "",
-    location: "",
-    specialization: "",
-    skills: "",
-    image_file: "",
+    username: '',
+    email: '',
+    phone_number: '',
+    location: '',
+    specialization: '',
+    skills: '',
+    salary_per_hour: '',
+    image_file: ''
   });
   const [loading, setLoading] = useState({
     bookings: true,
@@ -41,6 +42,7 @@ const Artisan = () => {
   const name = sessionStorage.getItem("username");
   const [page, setPage] = useState(1);
   const per_page = 5;
+  const [activeTab, setActiveTab] = useState('');
 
   const fetchData = async (
     endpoint,
@@ -66,12 +68,19 @@ const Artisan = () => {
             "Content-Type": "application/json",
           },
         }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      });
+      if (response.status === 401) {
+        if (sessionStorage.getItem('access_token')) {
+          sessionStorage.removeItem('access_token');
+          sessionStorage.clear();
+          window.location.href = '/login';
+          alert('Session expired. Please login again');
+          return;
+        }
+        else {
+          return < Redirect to='/login' />;
+        }
       }
-
       const data = await response.json();
       setter(data);
     } catch (err) {
@@ -89,30 +98,29 @@ const Artisan = () => {
     console.log(e.target.files[0]);
   };
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
+
   useEffect(() => {
     // Fetch profile details for client
-    fetchData("/artisan", setProfile, "profile", "profile");
-
+    fetchData('/artisan', setProfile, 'profile', 'profile');
+    
     // Fetch paginated bookings for client
-    fetchData(
-      "/bookings",
-      (response) => {
-        // Extract and set pagination details
-        setBookingPage((prev) => ({
-          ...prev,
-          bookings: response.bookings,
-          current_page: response.current_page,
-          total_pages: response.total_pages,
-        }));
-        setBookings(response.bookings);
-      },
-      "bookings",
-      "bookings",
-      {
-        params: { page: page, per_page: per_page },
-      }
-    );
-  }, [page, per_page]);
+    fetchData('/bookings', (response) => {
+      // Extract and set pagination details
+      setBookingPage((prev) => ({
+        ...prev,
+        bookings: response.bookings,
+        current_page: response.current_page,
+        total_pages: response.total_pages,
+      }));
+      setBookings(response.bookings);
+    }, 'bookings', 'bookings', {
+      params: {activeTab, page: page, per_page: per_page},
+    });
+
+  }, [activeTab, page, per_page]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -128,27 +136,36 @@ const Artisan = () => {
     setError({ profile: null });
 
     const formData = new FormData();
-    formData.append("username", profile.username);
-    formData.append("email", profile.email);
-    formData.append("phone_number", profile.phone_number);
-    formData.append("location", profile.location);
-    formData.append("skills", profile.skills);
-    formData.append("specialization", profile.specialization);
+    formData.append('username', profile.username);
+    formData.append('email', profile.email);
+    formData.append('phone_number', profile.phone_number);
+    formData.append('location', profile.location);
+    formData.append('skills', profile.skills);
+    formData.append('specialization', profile.specialization);
+    formData.append('salary_per_hour', profile.salary_per_hour);
     if (file) {
       formData.append("picture", file);
     }
 
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:5000/artisan",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
+      const response = await axios.post('http://127.0.0.1:5000/artisan', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      if (response.status === 401) {
+        if (sessionStorage.getItem('access_token')) {
+          sessionStorage.removeItem('access_token');
+          sessionStorage.clear();
+          window.location.href = '/login';
+          alert('Session expired. Please login again');
+          return;
         }
-      );
+        else {
+          return;
+        }
+      }
       setProfile(response.data);
       alert("Profile updated successfully");
     } catch (err) {
@@ -159,7 +176,9 @@ const Artisan = () => {
   };
 
   const handleLogout = () => {
-    window.location.href = "/logout";
+    sessionStorage.removeItem('access_token');
+    sessionStorage.clear();
+    window.location.href = '/login';
   };
 
   const handleAbout = () => {
@@ -233,8 +252,8 @@ const Artisan = () => {
             </p>
           </div>
 
-          <Tabs defaultValue="bookings" className=" md:ml-80 space-y-3">
-            <div className="text-center">
+          <Tabs defaultValue="bookings" className=" md:ml-80 space-y-3" onValueChange={handleTabChange}>
+            <div className='text-center'>
               <TabsList className="bg-gray-900 te">
                 <TabsTrigger
                   value="profile"
