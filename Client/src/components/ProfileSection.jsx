@@ -57,11 +57,12 @@ const ProfileSection = ({ profile, loading, error, handleSubmit, handleChange, e
                         <option value="Mechanic">Mechanic</option>
                         <option value="Technician">Technician</option>
                         <option value="Cleaner">Cleaner</option>
-                        <option value="Engineering">Engineering</option>
-                        <option value="Nursing">Nursing</option>
+                        <option value="Engineer">Engineer</option>
+                        <option value="Nurse">Nurse</option>
                       </select>
                     </div>
                     <FormField label="Skills" type="text" name="skills" value={profile?.skills || ''} onChange={handleChange} />
+                    <FormField label="Salary per hour ($)" type="number" step='0.1' name="salary_per_hour" value={profile?.salary_per_hour} onChange={handleChange}/>
                   </>
                 )}
                 <div className="flex justify-center mt-4">
@@ -79,7 +80,8 @@ const ProfileSection = ({ profile, loading, error, handleSubmit, handleChange, e
                 {profile?.role === 'Artisan' && (
                   <>
                     <DisplayField label="Profession or Specialization" value={profile?.specialization || 'No profession selected'} />
-                    <DisplayField label="Skills" value={profile?.skills || 'No skills provided'} />
+                    <DisplayField label="Skills" value={profile?.skills || 'No salary provided'} />
+                    <DisplayField label="salary_per_hour" value={profile?.salary_per_hour || 'No salary provided'}/>
                   </>
                 )}
                 <DisplayField label="Image File" value={profile?.image_file || 'No image file provided'} />
@@ -99,6 +101,7 @@ const FormField = ({ label, type, name, value, onChange }) => (
       type={type}
       name={name}
       value={value || ''}
+      placeholder={`Enter your ${label.toLowerCase()}`}
       onChange={onChange}
       className="w-full p-2 bg-gray-800 text-gray-100 rounded"
     />

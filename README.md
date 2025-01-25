@@ -91,6 +91,7 @@ The Hirafic project was created to bridge the gap between clients and artisans b
 
 ## Project Structure
 
+```bash
 Hirafic-project/
 ├── backend/
 │   ├── __init__.py
@@ -126,7 +127,7 @@ Hirafic-project/
 │   │   │   ├── test_artisan.py
 │   │   │   ├── test_client.py
 │   │   │   └── test_booking.py
-│   │   └── test_routes/
+│   │   ├──test_routes/
 │   │   │   ├── __init__.py
 │   │   │   ├── test_auth.py
 │   │   │   ├── test_artisan.py
@@ -143,29 +144,24 @@ Hirafic-project/
 │   │   │   ├── ui/
 │   │   │   │   ├── Card.jsx
 │   │   │   │   └── ...
-│   │   │   ├── Counter.js
-│   │   │   └── ...
 │   │   ├── pages/
 │   │   │   ├── Login.jsx
 │   │   │   ├── Register.jsx
 │   │   │   ├── Profile.jsx
 │   │   │   └── ...
-│   │   ├── reducers/
-│   │   │   ├── index.js
-│   │   │   ├── counter.js
-│   │   │   └── ...
 │   │   ├── App.js
 │   │   ├── index.js
-│   │   ├── store.js
 │   │   └── ...
 │   ├── package.json
 │   ├── package-lock.json
 │   └── ...
 └── README.md
+```
 
 ## Prerequisites
 
 - Python 3.12
+- pip
 - Node.js (v18.3.1 or higher)
 - npm or yarn
 - Redis server

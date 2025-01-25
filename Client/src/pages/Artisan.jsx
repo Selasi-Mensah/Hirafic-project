@@ -20,6 +20,7 @@ const Artisan = () => {
     location: '',
     specialization: '',
     skills: '',
+    salary_per_hour: '',
     image_file: ''
   });
   const [loading, setLoading] = useState({
@@ -39,6 +40,7 @@ const Artisan = () => {
   const name = sessionStorage.getItem('username');
   const [page, setPage] = useState(1);
   const per_page = 5;
+  const [activeTab, setActiveTab] = useState('');
 
   const fetchData = async (endpoint, setter, loadingKey, errorKey, options = {}) => {
     try {
@@ -56,11 +58,18 @@ const Artisan = () => {
           'Content-Type': 'application/json',
         }
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (response.status === 401) {
+        if (sessionStorage.getItem('access_token')) {
+          sessionStorage.removeItem('access_token');
+          sessionStorage.clear();
+          window.location.href = '/login';
+          alert('Session expired. Please login again');
+          return;
+        }
+        else {
+          return < Redirect to='/login' />;
+        }
       }
-
       const data = await response.json();
       setter(data);
     } catch (err) {
@@ -78,6 +87,10 @@ const Artisan = () => {
     console.log(e.target.files[0]);
   };
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
+
   useEffect(() => {
     // Fetch profile details for client
     fetchData('/artisan', setProfile, 'profile', 'profile');
@@ -93,10 +106,10 @@ const Artisan = () => {
       }));
       setBookings(response.bookings);
     }, 'bookings', 'bookings', {
-      params: {page: page, per_page: per_page},
+      params: {activeTab, page: page, per_page: per_page},
     });
 
-  }, [page, per_page]);
+  }, [activeTab, page, per_page]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -119,6 +132,7 @@ const Artisan = () => {
     formData.append('location', profile.location);
     formData.append('skills', profile.skills);
     formData.append('specialization', profile.specialization);
+    formData.append('salary_per_hour', profile.salary_per_hour);
     if (file) {
       formData.append('picture', file);
     }
@@ -130,6 +144,18 @@ const Artisan = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
+      if (response.status === 401) {
+        if (sessionStorage.getItem('access_token')) {
+          sessionStorage.removeItem('access_token');
+          sessionStorage.clear();
+          window.location.href = '/login';
+          alert('Session expired. Please login again');
+          return;
+        }
+        else {
+          return;
+        }
+      }
       setProfile(response.data);
       alert('Profile updated successfully');
     } catch (err) {
@@ -140,7 +166,9 @@ const Artisan = () => {
   };
 
   const handleLogout = () => {
-    window.location.href = '/logout';
+    sessionStorage.removeItem('access_token');
+    sessionStorage.clear();
+    window.location.href = '/login';
   };
 
   const handleAbout = () => {
@@ -196,7 +224,7 @@ const Artisan = () => {
             </p>
           </div>
 
-          <Tabs defaultValue="bookings" className="space-y-3">
+          <Tabs defaultValue="bookings" className="space-y-3" onValueChange={handleTabChange}>
             <div className='text-center'>
               <TabsList className="bg-gray-900 te">
                 <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">
