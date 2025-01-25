@@ -17,6 +17,7 @@ from flask import (flash, request, current_app, jsonify)
 from flask_jwt_extended import get_jwt_identity, jwt_required
 # from flask_login import current_user, login_required
 from geopy.distance import geodesic
+from utils.email_service import send_email
 
 
 # create clients blueprint
@@ -275,3 +276,59 @@ def nearby_artisan(username: str = "") -> List:
     except Exception as e:
         # return error if unable to complete search
         return jsonify({"error": "An error occurred during search"}), 400
+
+
+@clients_Bp.route(
+        "/report",
+        methods=['GET', 'OPTIONS'], strict_slashes=False)
+@jwt_required()
+def report():
+    """ route to report an artisan
+    GET /report
+        - Success: return JSON with message
+            - JSON body:
+                - message
+        - Error:
+            - 403 if user is not authenticated
+            - 401 if user is not a client (forbiden)
+    """
+    # check OPTIONS method
+    if request.method == 'OPTIONS':
+        return jsonify({"message": "Preflight request"}), 200
+
+    # check if user is authenticated
+    user_id = get_jwt_identity()
+    current_user = User.query.filter_by(id=user_id).first()
+    if not current_user:
+        return jsonify({"error": "User not authenticated"}), 403
+
+    # check if the user is nor a client
+    if current_user.role != 'Client':
+        return jsonify({"error": "User is not a client"}), 401
+
+    # get the report details from the request body
+    try:
+        artisan_name = request.args.get('artisan_name', "")
+        booking_id = request.args.get('booking_id', "")
+        issue = request.args.get('issue', "")
+        client_name = request.args.get('client_name', "")
+    except Exception as e:
+        # return error if unable to get report data
+        return jsonify({"error": "An error occurred during report"}), 400
+    
+    # Sending notification email to the artisan
+    subject = f"Report: An issue with {artisan_name} artisan"
+    body = f"""
+    Hello Hirafic Team,
+
+    I am reporting an issue with the artisan {artisan_name},
+    Booking ID: {booking_id}.
+    The issue is as follows: {issue}
+    please take necessary action.
+
+    Best regards,
+    {client_name}
+    """
+    send_email("DuaaRabie11@gmail.com", subject, body)
+
+    return jsonify({"message": "Report sent successfully!"}), 200

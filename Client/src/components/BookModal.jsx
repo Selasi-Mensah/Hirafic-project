@@ -5,7 +5,7 @@ import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-const BookModal = ({ artisan, isOpen, onClose }) => {
+const ContactModal = ({ artisan, isOpen, onClose }) => {
   const [title, setTitle] = useState('');
   const [details, setDetails] = useState('');
   const [completionDate, setCompletionDate] = useState(null);
@@ -114,4 +114,4 @@ const BookModal = ({ artisan, isOpen, onClose }) => {
   );
 };
 
-export default BookModal;
+export default ContactModal;

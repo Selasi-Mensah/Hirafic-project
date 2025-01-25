@@ -105,7 +105,7 @@ const Client = () => {
     }, [activeTab]);
 
   useEffect(() => {
-    if (activeTab === 'bookings') {
+    if (activeTab === 'bookings' || activeTab === '') {
       // Fetch paginated bookings for client
       fetchData('/bookings', (response) => {
         // Extract and set pagination details
@@ -263,7 +263,7 @@ const Client = () => {
             </p>
           </div>
 
-          <Tabs defaultValue={document.referrer.includes('/map') ? 'artisans' : ''}
+          <Tabs defaultValue={document.referrer.includes('/map') ? 'artisans' : 'bookings'}
             className="space-y-3"
             onValueChange={handleTabChange}
           >
