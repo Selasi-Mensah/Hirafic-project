@@ -23,12 +23,12 @@ const Footer = () => {
           {/* <img src={health} alt="" height={40} width={40} /> */}
 
           <span className="flex gap-[20px]">
-            <Link
+            {/* <Link
               to="/Register"
               className="py-[10px] px-[30px] md:px-[40px] text-[14px] md:text-[16px] rounded-[8px] bg-blue-500 text-white font-medium"
             >
               Get Started
-            </Link>
+            </Link> */}
             {/* <Link
               to="/contact"
               className="py-[20px] px-[20px] md:px-[40px] text-[14px] md:text-[16px] rounded-[8px] bg-green-500 text-white font-medium"
@@ -64,7 +64,7 @@ const Footer = () => {
             Our Services
           </p>
           <Link href="/register" className="text-[14px] leading-[20px]">
-            Join Hirafic
+            Go to Dashboard
           </Link>
           <Link to="/contact" className="text-[14px] leading-[20px]">
             Contact Us

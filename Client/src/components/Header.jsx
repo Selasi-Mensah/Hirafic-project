@@ -38,12 +38,12 @@ const Header = () => {
           most modest crafts can create lasting value and transform lives. */}
         </p>
 
-        <Link
+        {/* <Link
           to="/register"
           className="text-white bg-[#161622] font-[500] text-[20px] lg:text-[18px] leading-[28px] lg:leading-[32px] py-[2px] px-[18px] rounded-[30px] self-start"
         >
           Join Hirafic
-        </Link>
+        </Link> */}
       </div>
 
       <div className="basis-1/2 w-full h-[90vh]">
