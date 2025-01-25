@@ -69,6 +69,7 @@ def update_artisan_object(form: ArtisanProfileForm, current_user: User):
     current_user.artisan.phone_number = form.phone_number.data
     current_user.artisan.location = form.location.data
     current_user.artisan.specialization = form.specialization.data
+    current_user.artisan.salary_per_hour = form.salary_per_hour.data
     current_user.artisan.skills = form.skills.data
 
 

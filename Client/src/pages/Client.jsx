@@ -349,8 +349,8 @@ const Client = () => {
                         </SelectTrigger>
                         <SelectContent className="bg-gray-800 border-gray-700 text-gray-100">
                           <SelectItem value="all">All Professions</SelectItem>
-                          <SelectItem value="Engineering">Engineering</SelectItem>
-                          <SelectItem value="Nursing">Nursing</SelectItem>
+                          <SelectItem value="Engineer">Engineer</SelectItem>
+                          <SelectItem value="Nurse">Nurse</SelectItem>
                           <SelectItem value="Cleaner">Cleaner</SelectItem>
                           <SelectItem value="Technician">Technician</SelectItem>
                           <SelectItem value="Mechanic">Mechanic</SelectItem>

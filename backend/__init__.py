@@ -33,6 +33,7 @@ def create_app(config_class=Config):
         from models.client import Client
         from models.artisan import Artisan
         from models.booking import Booking
+        from models.report import Report
         from routes.auth import users_Bp
         from routes.artisan import artisans_Bp
         from routes.client import clients_Bp

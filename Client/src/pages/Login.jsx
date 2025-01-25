@@ -108,7 +108,7 @@ const Login = () => {
       {/* Login card with dark theme styling */}
       <Card className="w-full max-w-md bg-gray-800 border-gray-700">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center text-white">Welcome Back</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center text-white">Welcome</CardTitle>
           <CardDescription className="text-center text-gray-400">
             Login to your Hirafic account
           </CardDescription>

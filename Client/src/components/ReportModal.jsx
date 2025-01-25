@@ -17,18 +17,29 @@ const BookModal = ({ booking, isOpen, onClose }) => {
     
         try {
             console.log(sessionStorage.getItem('email'));
-            const response = await axios.get('http://127.0.0.1:5000/report', {
-            params: {
-                artisan_name: booking.artisan_name,
-                client_name: booking.client_name,
-                issue: issue,
-                booking_id: booking.id
-            },
-            headers: {
+            const response = await axios.post('http://127.0.0.1:5000/report', {
+              artisan_name: booking.artisan_name,
+              client_name: booking.client_name,
+              issue: issue,
+              booking_id: booking.id
+            }, {
+              headers: {
                 Authorization: `Bearer ${sessionStorage.getItem('access_token')}`,
                 'Content-Type': 'application/json',
-            },
+              },
             });
+            if (response.status === 401) {
+              if (sessionStorage.getItem('access_token')) {
+                sessionStorage.removeItem('access_token');
+                sessionStorage.clear();
+                window.location.href = '/login';
+                alert('Session expired. Please login again');
+                return;
+              }
+              else {
+                return;
+              }
+            }
             alert('Report Sent to Hirafic Team Successfully');
             onClose();
         } catch (err) {

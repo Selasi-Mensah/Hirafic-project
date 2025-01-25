@@ -31,6 +31,18 @@ const ContactModal = ({ artisan, isOpen, onClose }) => {
           'Content-Type': 'application/json',
         },
       });
+      if (response.status === 401) {
+        if (sessionStorage.getItem('access_token')) {
+          sessionStorage.removeItem('access_token');
+          sessionStorage.clear();
+          window.location.href = '/login';
+          alert('Session expired. Please login again');
+          return;
+        }
+        else {
+          return;
+        }
+      }
       alert('Booking request sent successfully');
       onClose();
     } catch (err) {

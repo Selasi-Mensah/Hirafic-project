@@ -29,14 +29,6 @@ const Map = () => {
         },
         ...(distance && { body: JSON.stringify({ distance }) }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch artisans");
-      }
-
-      const data = await response.json();
-      setArtisans(data);
-    } catch (error) {
       if (response.status === 401) {
         if (sessionStorage.getItem('access_token')) {
           sessionStorage.removeItem('access_token');
@@ -49,6 +41,9 @@ const Map = () => {
           return;
         }
       }
+      const data = await response.json();
+      setArtisans(data);
+    } catch (error) {
       console.error("Error fetching artisans:", error);
     } finally {
       setLoading(false);

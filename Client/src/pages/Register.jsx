@@ -131,14 +131,14 @@ const Registration = () => {
 
             <div className="space-y-2">
               <label htmlFor="username" className="block text-sm font-medium text-gray-200">
-                Full Name
+                User Name
               </label>
               <Input
                 id="username"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                placeholder="Enter your user name"
+                placeholder="Enter your user name" 
                 className="bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:border-blue-500"
                 required
               />

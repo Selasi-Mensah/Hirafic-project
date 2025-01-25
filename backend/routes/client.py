@@ -12,6 +12,8 @@ from extensions import db
 from models.user import User
 from models.client import Client
 from models.artisan import Artisan
+from models.booking import Booking
+from models.report import Report
 from forms.client import ClientProfileForm
 from flask import (flash, request, current_app, jsonify)
 from flask_jwt_extended import get_jwt_identity, jwt_required
@@ -248,7 +250,7 @@ def nearby_artisan(username: str = "") -> List:
                             current_user.client.longitude)
         # search for nearby artisans within distance
         artisans = search_nearby_artisans(current_location, distance)
-    
+
         # check if the request is a GET request
         arg = request.args.get('page')
         if 'page' not in request.args:
@@ -280,7 +282,7 @@ def nearby_artisan(username: str = "") -> List:
 
 @clients_Bp.route(
         "/report",
-        methods=['GET', 'OPTIONS'], strict_slashes=False)
+        methods=['POST', 'OPTIONS'], strict_slashes=False)
 @jwt_required()
 def report():
     """ route to report an artisan
@@ -305,17 +307,45 @@ def report():
     # check if the user is nor a client
     if current_user.role != 'Client':
         return jsonify({"error": "User is not a client"}), 401
-
-    # get the report details from the request body
     try:
-        artisan_name = request.args.get('artisan_name', "")
-        booking_id = request.args.get('booking_id', "")
-        issue = request.args.get('issue', "")
-        client_name = request.args.get('client_name', "")
+        data = request.get_json()
+        client_name = data.get('client_name')
+        artisan_name = data.get('artisan_name')
+        issue = data.get('issue', '')
+        booking_id = data.get('booking_id', '')
+
+        # Validating client and artisan existence
+        client = Client.query.filter_by(name=client_name).first()
+        artisan = Artisan.query.filter_by(name=artisan_name).first()
+        # Check if client and artisan exist
+        if not client or not artisan:
+            return jsonify({"error": "Client or Artisan not found"}), 404
+        # Check if the booking exists
+        booking = Booking.query.filter_by(id=booking_id).first()
+        if not booking:
+            return jsonify({"error": "Booking not found"}), 404
+        # Create a report
+        report = Report(
+            client_id=client.id,
+            artisan_id=artisan.id,
+            booking_id=booking.id,
+            issue=issue
+        )
+        db.session.add(report)
+        db.session.commit()
     except Exception as e:
-        # return error if unable to get report data
-        return jsonify({"error": "An error occurred during report"}), 400
-    
+        return jsonify({"error": f"Invalid request: {str(e)}"}), 400
+
+    # get the report details from the request body (sent by params)
+    # try:
+    #     artisan_name = request.args.get('artisan_name', "")
+    #     booking_id = request.args.get('booking_id', "")
+    #     issue = request.args.get('issue', "")
+    #     client_name = request.args.get('client_name', "")
+    # except Exception as e:
+    #     # return error if unable to get report data
+    #     return jsonify({"error": "An error occurred during report"}), 400
+
     # Sending notification email to the artisan
     subject = f"Report: An issue with {artisan_name} artisan"
     body = f"""
@@ -331,4 +361,4 @@ def report():
     """
     send_email("DuaaRabie11@gmail.com", subject, body)
 
-    return jsonify({"message": "Report sent successfully!"}), 200
+    return jsonify({"message": "Report sent successfully!"}), 201

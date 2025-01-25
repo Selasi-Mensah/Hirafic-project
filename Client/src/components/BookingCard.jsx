@@ -35,17 +35,35 @@ const BookingCard = ({ booking }) => {
     }
   };
 
-  const handleBookingStatus = (newStatus) => {
-    console.log(`Changing status to: ${newStatus}`);
-    // Add status update logic here
+  const handleBookingStatus = async (action) => {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/book_artisan', {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('access_token')}`,
+          'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          booking_id: booking.id,
+          action: action
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update booking status.');
+      }
+      alert(`${action.charAt(0).toUpperCase() + action.slice(1)} action successful.`);
+      toggleDetailsModal();
+    } catch (error) {
+      console.error(error);
+      alert('An error occurred while processing your request.');
+    }
   };
 
   return (
     <>
       {/* Booking Card */}
-      <Card className="bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-md mx-auto">
+      <Card className="bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow w-[450px] h-[130px] mx-auto">
         <CardContent className="pl-4 pr-6 py-4">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
             <div className="flex justify-between items-start mb-4">
               <h4 className="text-lg font-semibold text-gray-100">
                 {booking.title}
@@ -149,7 +167,7 @@ const BookingCard = ({ booking }) => {
                 Complete
               </Button>
             )}
-            {userRole === "Client" && (
+            {userRole === "Client" &&  booking.status !== "Pending" && (
               <>
                 <Button
                   onClick={toggleReportModal}

@@ -146,7 +146,11 @@ def bookings():
         bookings = current_user.client.bookings
     # return JSON list of bookings or message if no bookings found
     if not bookings:
-        return jsonify({"message": "No bookings found"}), 404
+        return jsonify({
+            'bookings': [],
+            'total_pages': 0,
+            'current_page': 1
+        }), 200
 
     try:
         # Get query parameters for pagination

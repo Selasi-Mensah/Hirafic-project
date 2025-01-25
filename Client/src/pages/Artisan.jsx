@@ -20,6 +20,7 @@ const Artisan = () => {
     location: '',
     specialization: '',
     skills: '',
+    salary_per_hour: '',
     image_file: ''
   });
   const [loading, setLoading] = useState({
@@ -131,6 +132,7 @@ const Artisan = () => {
     formData.append('location', profile.location);
     formData.append('skills', profile.skills);
     formData.append('specialization', profile.specialization);
+    formData.append('salary_per_hour', profile.salary_per_hour);
     if (file) {
       formData.append('picture', file);
     }

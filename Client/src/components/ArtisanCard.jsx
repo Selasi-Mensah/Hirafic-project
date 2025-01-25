@@ -40,7 +40,7 @@ const ArtisanCard = ({ artisan }) => {
                   <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                     {artisan.username}
                     <span className="text-sm bg-blue-600 text-white px-2 py-1 rounded-lg">
-                      {artisan.hourlyRate}/hr
+                      {artisan.salary_per_hour}$ /hr
                     </span>
                   </h3>
                   <p className="text-sm text-gray-400 capitalize">{artisan.profession}</p>
