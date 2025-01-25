@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProfileSection from '@/components/ProfileSection';
@@ -9,6 +9,8 @@ import ArtisanCard from '@/components/ArtisanCard';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Filter } from 'lucide-react';
+import CloseIcon from '@mui/icons-material/Close';
+import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 
 const Client = () => {
   const [bookings, setBookings] = useState([]);
@@ -194,8 +196,8 @@ const Client = () => {
       <div className="max-w-7xl mx-auto px-4">
         {/* Sidebar */}
         {isSidebarOpen && (
-          <aside className="bg-gray-900 w-40 min-h-screen px-6 py-8 transition-all duration-300 fixed top-0 left-0 z-20">
-            <h2 className="text-l text-center font-bold text-white mb-8">Navigation</h2>
+          <aside className="bg-gray-900 w-80 min-h-screen px-6 py-20 transition-all duration-300 fixed top-0 left-0 z-20">
+            <h2 className="text-l text-center font-bold text-white mb-8">{name}</h2>
             <ul className="space-y-4">
               <li>
                 <button
@@ -223,12 +225,29 @@ const Client = () => {
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2 rounded-md absolute top-4 left-4 z-10"
           >
-            {isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'}
+            {/* {isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'} */}
+          </button>
+                    {/* Open Sidebar Button */}
+                    <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md absolute top-4 left-4 z-10 md:hidden"
+          >
+            <MenuOpenIcon />
           </button>
 
-          <div className="text-center justify-between items-center mb-8">
+          {/* Close Sidebar Button */}
+          {isSidebarOpen && (
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md absolute top-4 left-2 z-50 md:hidden"
+            >
+              <CloseIcon />
+            </button>
+          )}
+
+          <div className="text-center md:ml-80 justify-between items-center mb-8">
             {/* Welcome Message */}
-            <h1 className="text-3xl font-bold mb-4 md:mb-0 text-gray-100">
+            <h1 className="text-3xl font-bold mt-8 mb-4 md:mb-0 text-gray-100">
               Welcome, {name}
             </h1>
             <p className="text-gray-400 text-lg mb-8">
@@ -236,7 +255,7 @@ const Client = () => {
             </p>
           </div>
 
-          <Tabs defaultValue={artisans} className="space-y-3">
+          <Tabs defaultValue={artisans} className=" md:ml-80 space-y-3">
             <div className="text-center">
               <TabsList className="bg-gray-900 te" onChange={handleTabChange}>
                 <TabsTrigger value="profile" className="data-[state=active]:bg-gray-800">
