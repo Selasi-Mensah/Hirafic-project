@@ -68,7 +68,7 @@ const Artisan = () => {
             "Content-Type": "application/json",
           },
         }
-      });
+      );
       if (response.status === 401) {
         if (sessionStorage.getItem('access_token')) {
           sessionStorage.removeItem('access_token');

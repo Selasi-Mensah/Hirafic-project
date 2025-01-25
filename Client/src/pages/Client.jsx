@@ -48,7 +48,8 @@ const Client = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [distance, setDistance] = useState('');
   const [page, setPage] = useState(1);
-  const per_page = 5;
+  const [artisansPage, setArtisansPage] = useState(1);
+  const per_page = 3;
   const [activeTab, setActiveTab] = useState('');
 
   const fetchData = async (endpoint, setter, loadingKey, errorKey, options = {}) => {
@@ -131,8 +132,8 @@ const Client = () => {
       const options = distance ? {
         method: 'POST',
         body: {distance},
-        params: {page: page, per_page: per_page}
-      } : {params: {page: page, per_page: per_page}};
+        params: {page: artisansPage, per_page: per_page}
+      } : {params: {page: artisansPage, per_page: per_page}};
       fetchData(endpoint, (response) => {
         // Extract and set pagination detail
         setArtisanPage((prev) => ({
@@ -144,7 +145,7 @@ const Client = () => {
         setArtisans(response.artisans);
       }, 'artisans', 'artisans', options);
     }
-  }, [activeTab, distance, page, per_page]);
+  }, [activeTab, distance, artisansPage, per_page]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -217,6 +218,7 @@ const Client = () => {
   };
 
   const handlePageChange = (newPage) => setPage(newPage);
+  const handleArtisansPageChange = (newPage) => setArtisansPage(newPage);
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100 py-8">
@@ -423,7 +425,7 @@ const Client = () => {
                   {artisansPagination.current_page > 1 && (
                     <button 
                       className="px-4 py-2 bg-blue-600 text-white rounded-md mr-2"
-                      onClick={() => handlePageChange(artisansPagination.current_page - 1)}
+                      onClick={() => handleArtisansPageChange(artisansPagination.current_page - 1)}
                     >
                       Previous
                     </button>
@@ -438,7 +440,7 @@ const Client = () => {
                   {artisansPagination.current_page < artisansPagination.total_pages && (
                     <button 
                       className="px-4 py-2 bg-blue-600 text-white rounded-md ml-2"
-                      onClick={() => handlePageChange(artisansPagination.current_page + 1)}
+                      onClick={() => handleArtisansPageChange(artisansPagination.current_page + 1)}
                     >
                       Next
                     </button>
