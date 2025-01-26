@@ -71,6 +71,8 @@ def test_create_user(app: Flask, database: SQLAlchemy):
             "User('testuser', 'testuser@example.com')"
         # Test the to_dict method
         assert retrieved_user.to_dict() == {
+            'id': retrieved_user.id,
+            'image_file': '/default.jpeg',
             'username': 'testuser',
             'email': 'testuser@example.com',
             'phone_number': '+1234567890',
