@@ -193,49 +193,42 @@ const Artisan = () => {
       <div className="min-h-screen bg-gray-950 text-gray-100 py-8 flex items-center justify-center">
         {/* Sidebar */}
         {isSidebarOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-10 transition-all duration-300">
-            <aside
-              className={`bg-gray-900 w-40 min-h-screen px-4 py-12 transition-all transform ease-in-out z-20 absolute top-0 left-0 shadow-lg rounded-r-2xl ${
-                isSidebarOpen ? 'translate-x-0 ' : '-translate-x-full'
-              }`}
-            >
-              <h2 className="text-xl font-semibold text-center text-white mb-6">Menu</h2>
-              <ul className="space-y-4">
-                <li>
-                  <button
-                    onClick={handleAbout}
-                    className="w-full flex items-center gap-4 bg-gray-800 hover:bg-gray-700 text-white py-2 px-3 rounded-md transition-all duration-300 shadow-sm hover:shadow-md"
-                  >
-                    <span className="material-icons text-sm">About</span>
-                  </button>
-                </li>
-                <li>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-4 bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded-md transition-all duration-300 shadow-sm hover:shadow-md"
-                  >
-                    <span className="material-icons text-sm">Logout</span>
-                  </button>
-                </li>
-              </ul>
-            </aside>
-          </div>
+          <aside className="bg-gray-900 w-80 min-h-screen px-6 py-20 transition-all duration-300 fixed top-0 left-0 z-20">
+            <h2 className="text-l text-center font-bold text-white mb-8">
+              Navigation
+            </h2>
+            <ul className="space-y-4">
+              <li>
+                <button
+                  onClick={handleAbout}
+                  className="w-full items-center gap-4 bg-gray-800 hover:bg-gray-700 text-white py-1 px-1 rounded-md transition-all duration-300"
+                >
+                  <span className="material-icons">About</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={handleLogout}
+                  className="w-full items-center gap-4 bg-red-600 hover:bg-red-700 text-white py-1 px-1 rounded-md transition-all duration-300"
+                >
+                  <span className="material-icons">Logout</span>
+                </button>
+              </li>
+            </ul>
+          </aside>
         )}
-
         {/* Header */}
-        <main className={`${
-          isSidebarOpen ? "ml-64" : "ml-0"
-        } w-full min-h-screen flex-col justify-center items-center transition-all duration-300`}>
+        <main className="items-center justify-center px-8 py-8">
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="bg-gray-100 text-white hover:bg-gray-700 px-4 py-2 rounded-md absolute top-4 left-4 z-10"
+            className="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2  rounded-md absolute top-6 left-4 z-10"
           >
             {/* {isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'} */}
           </button>
           {/* Open Sidebar Button */}
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="bg-gray-100 text-white hover:bg-gray-700 p-4 rounded-md absolute top-4 left-4 z-10 md:hidden"
+            className="bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md absolute top-6 left-4 z-10  md:p-2"
           >
             <MenuOpenIcon />
           </button>
@@ -244,7 +237,7 @@ const Artisan = () => {
           {isSidebarOpen && (
             <button
               onClick={() => setIsSidebarOpen(false)}
-              className="bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md absolute top-4 left-2 z-50 md:hidden"
+              className="bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md absolute top-6 left-2 z-50 md:p-2"
             >
               <CloseIcon />
             </button>
@@ -280,7 +273,7 @@ const Artisan = () => {
 
           <Tabs defaultValue="bookings" className="mx-auto" onValueChange={handleTabChange}>
             <div className='text-center'>
-              <TabsList className="flex bg-gray-900 text-gray-100 w-[450px] mx-auto gap-6 mb-4">
+              <TabsList className="flex bg-gray-900 text-gray-100 w-[350px] mx-auto gap-6 mb-4">
                 <TabsTrigger
                   value="profile"
                   className=" w-[225px] data-[state=active]:bg-gray-800"
@@ -360,9 +353,9 @@ const Artisan = () => {
             </TabsContent>
           </Tabs>
         </main>
-        <p className="absolute top-4 right-4 flex items-center justify-center h-[130px] w-[130px] bg-white rounded-full shadow-lg transition-transform hover:scale-105 hover:shadow-xl">
+        <p className="absolute top-2 right-4 flex items-center justify-center h-[90px] w-[90px] bg-white rounded-full shadow-lg transition-transform hover:scale-105 hover:shadow-xl">
           <img
-            className="h-[120px] w-[120px] object-cover rounded-full"
+            className="h-[85px] w-[85px] object-cover rounded-full"
             src={Hirafic}
             alt="Logo"
           />
