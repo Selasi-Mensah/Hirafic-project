@@ -73,6 +73,7 @@ def update_client_object(form: ClientProfileForm, current_user: User):
     current_user.client.email = form.email.data.lower()
     current_user.client.phone_number = form.phone_number.data
     current_user.client.location = form.location.data
+    current_user.client.geocode_location()
 
 
 @clients_Bp.route("/client", methods=['GET', 'POST', 'OPTIONS'],
@@ -170,8 +171,8 @@ def search_nearby_artisans(
     results = []
     # search for artisans within the max distance
     for artisan in Artisan.query.all():
-        # make sure to geocode location before search
-        artisan.geocode_location()
+        # # make sure to geocode location before search
+        # artisan.geocode_location()
         # get the artisan location
         artisan_location = (artisan.latitude, artisan.longitude)
         # calculate the distance between the current location and the artisan
@@ -203,6 +204,7 @@ def nearby_artisan(username: str = "") -> List:
                 - image_file
                 - skills
                 - specialization
+                - salary_per_hour
                 - location
                 - longitude
                 - latitude
@@ -244,7 +246,7 @@ def nearby_artisan(username: str = "") -> List:
         # distance must be in km from the request 1km = 1000m
         # defautl distance is 5km
         # make sure to geocode the client location
-        current_user.client.geocode_location()
+        # current_user.client.geocode_location()
         # get the location tuple (longitude, latitude) of the client
         current_location = (current_user.client.latitude,
                             current_user.client.longitude)

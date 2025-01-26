@@ -71,6 +71,7 @@ def update_artisan_object(form: ArtisanProfileForm, current_user: User):
     current_user.artisan.specialization = form.specialization.data
     current_user.artisan.salary_per_hour = form.salary_per_hour.data
     current_user.artisan.skills = form.skills.data
+    current_user.artisan.geocode_location()
 
 
 @artisans_Bp.route("/artisan", methods=['GET', 'POST', 'OPTIONS'],
@@ -96,10 +97,11 @@ def artisan_profile(username: str = "") -> str:
                 - latitude
                 - specialization
                 - skills
+                - salary_per_hour
                 - image_file
                 - bookings
         - Error:
-            - 403 if user is not authenticated
+            - 401 if user is not authenticated
             - 403 if user is not an artisan
             - 400 if an error occurred during update
             - 400 if form validation failed
@@ -113,7 +115,7 @@ def artisan_profile(username: str = "") -> str:
     current_user = User.query.filter_by(id=user_id).first()
     if not current_user\
             or (username != current_user.username and username != ""):
-        return jsonify({"error": "User not authenticated"}), 403
+        return jsonify({"error": "User not authenticated"}), 401
 
     # # check if user is an artisan
     if current_user.role != 'Artisan':
@@ -145,7 +147,6 @@ def artisan_profile(username: str = "") -> str:
             # return error if unable to complete registration
             return jsonify(
                 {"error": "An error occurred during updating"}), 400
-
     else:
         # return error if form validation failed
         return jsonify({
@@ -163,7 +164,7 @@ def get_artisans():
         Return:
         - Success: JSON with list of all artisans
         - Error:
-            - 403 if user is not authenticated
+            - 401 if user is not authenticated
             - 403 if user is not an client
     """
     # check OPTIONS method
@@ -173,7 +174,7 @@ def get_artisans():
     user_id = get_jwt_identity()
     current_user = User.query.filter_by(id=user_id).first()
     if not current_user:
-        return jsonify({"error": "User not authenticated"}), 403
+        return jsonify({"error": "User not authenticated"}), 401
     # check if user is an artisan
     if current_user.role != 'Client':
         return jsonify({"error": "User is not a client"}), 403
@@ -214,7 +215,7 @@ def location() -> str:
         Return:
         - Success: JSON with latitude and longitude
         - Error:
-            - 403 if user is not authenticated
+            - 401 if user is not authenticated
             - 403 if user is not an artisan
     """
     # check OPTIONS method
@@ -224,7 +225,7 @@ def location() -> str:
     user_id = get_jwt_identity()
     current_user = User.query.filter_by(user_id=user_id).first()
     if not current_user:
-        return jsonify({"error": "User not authenticated"}), 403
+        return jsonify({"error": "User not authenticated"}), 401
     # check if user is an artisan
     if current_user.role != 'Artisan':
         return jsonify({"error": "User not authenticated"}), 403

@@ -20,7 +20,31 @@ booking_bp = Blueprint('booking', __name__)
                   strict_slashes=False)
 @jwt_required()
 def book_artisan():
-    """ Book an artisan """
+    """ Book an artisan
+    POST request: Create a booking
+    PUT request: Update a booking status
+
+    POST /booking/book_artisan
+    PUT /booking/book_artisan
+    to_book fields:
+        - client_email
+        - artisan_email
+        - title
+        - details
+        - completion_date
+    }
+    Return:
+        - Success: JSON with message
+            - JSON body:
+                - message
+        - Error:
+            - 401 if user is not authenticated
+            - 403 if user is not a client or artisan
+            - 404 if client or artisan not found
+            - 400 if an error occurred during booking creation
+            - 400 if an error occurred during booking update
+    """
+    
     # check OPTIONS method
     if request.method == 'OPTIONS':
         return jsonify({"message": "Preflight request"}), 200
@@ -29,7 +53,7 @@ def book_artisan():
     user_id = get_jwt_identity()
     current_user = User.query.filter_by(id=user_id).first()
     if not current_user:
-        return jsonify({"error": "User not authenticated"}), 403
+        return jsonify({"error": "User not authenticated"}), 401
 
     # handle PUT request
     if request.method == 'PUT':
@@ -130,7 +154,18 @@ def book_artisan():
         methods=['GET', 'OPTIONS'], strict_slashes=False)
 @jwt_required()
 def bookings():
-    """ This route returns all bookings for the current user """
+    """ This route returns all bookings for the current user 
+    GET /bookings
+        Return:
+        - Success: JSON with list of all bookings
+            - JSON body:
+                - bookings: list of bookings
+                - total_pages: total number of pages
+                - current_page: current page number
+        - Error:
+            - 401 if user is not authenticated
+            - 400 if an error occurred during pagination
+    """
     # check OPTIONS method
     if request.method == 'OPTIONS':
         return jsonify({"message": "Preflight request"}), 200
@@ -138,7 +173,7 @@ def bookings():
     user_id = get_jwt_identity()
     current_user = User.query.filter_by(id=user_id).first()
     if not current_user:
-        return jsonify({"error": "User not authenticated"}), 403
+        return jsonify({"error": "User not authenticated"}), 401
     # get the bookings
     if current_user.role == 'Artisan':
         bookings = current_user.artisan.bookings

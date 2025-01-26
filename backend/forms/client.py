@@ -8,6 +8,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Email, ValidationError
 from models.user import User
 from flask_jwt_extended import get_jwt_identity
+from geopy.geocoders import Nominatim
 
 
 class ClientProfileForm(FlaskForm):
@@ -57,3 +58,10 @@ class ClientProfileForm(FlaskForm):
             user = User.query.filter_by(email=email.data.lower()).first()
             if user:
                 raise ValidationError('Email is already taken!')
+
+    def validate_location(self, location: StringField) -> None:
+        """ method to validate location """
+        geolocator = Nominatim(user_agent="Hirafic_Project/1.0", timeout=10)
+        location = geolocator.geocode(location.data)
+        if location is None:
+            raise ValidationError("This location could not be found")

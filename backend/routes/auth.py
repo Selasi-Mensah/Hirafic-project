@@ -92,7 +92,6 @@ def register() -> str:
                 location=form.location.data,
                 role=form.role.data
                 )
-            print(user)
             # add user to DB
             db.session.add(user)
             db.session.commit()
@@ -108,6 +107,8 @@ def register() -> str:
                     password=user.password,
                     phone_number=user.phone_number,
                     )
+                # geocode location
+                client.geocode_location()
                 # add client to DB
                 db.session.add(client)
                 db.session.commit()
@@ -122,6 +123,8 @@ def register() -> str:
                     password=user.password,
                     phone_number=user.phone_number,
                     )
+                # geocode location
+                artisan.geocode_location()
                 # add artisan to DB
                 db.session.add(artisan)
                 db.session.commit()
@@ -256,7 +259,7 @@ def delete_account() -> str:
     POST /delete_account
     Return:
         - Success: JSON with message
-        - Error: 400 if user is not authenticated
+        - Error: 401 if user is not authenticated
     """
     # check OPTIONS method
     if request.method == 'OPTIONS':
@@ -266,7 +269,7 @@ def delete_account() -> str:
     user_id = get_jwt_identity()
     user = User.query.filter_by(id=user_id).first()
     if not user:
-        return jsonify({"error": "User not authenticated"}), 400
+        return jsonify({"error": "User not authenticated"}), 401
 
     # check if user has bookings
     bookings = Booking.query.filter_by(user_id=user.id).all()
@@ -324,6 +327,13 @@ def test():
 
     output = Artisan.query.all()
     print(f"artisans: {output}")
+
+    artisan = Artisan.query.filter_by(location="Shimokizukuri").first()
+    if artisan:
+        artisan.location = "Japan"
+        print(artisan)
+
+    db.session.commit()
 
     # delete all users
     # Must use ORM deletion to trigger cascade delete
