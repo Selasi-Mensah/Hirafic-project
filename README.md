@@ -2,35 +2,62 @@
 
 Hirafic is a web application that connects clients with artisans. The project consists of a backend server built with Flask and a frontend client built with React.
 
-## Technologies Used
+## Table of Contents
 
-### Backend
-- **Languages**: Python
-- **Frameworks**: Flask, Flask-SQLAlchemy
-- **Caching**: Redis
-- **Code Quality**: pycodestyle
-### Frontend
-- **Libraries**: React
-- **HTTP Client**: Axios
-> **Note:** Database must be updated to use PostgreSQL
-### Database
-- **Database Management System**: PostgreSQL
-### Authentication
-- **Method**: JWT (JSON Web Tokens)
-
-### Deployment
-- **Web Server**: Nginx
-- **Application Server**: Gunicorn
-- **Application Server**: Gunicorn
-### Additional Technologies
-- **Documentation**: Swagger UI
-> **Note:** The documentation part may be removed later if not implemented
-- **Version Control**: Git
-- **Testing**: pytest
+- [Motivation](#motivation)
+- [Authors](#authors)
+- [Technologies Used](#technologies-used)
+    - [Backend](#backend)
+    - [Frontend](#frontend)
+    - [Authentication](#authentication)
+    - [Additional Technologies](#additional-technologies)
+- [Future Enhancements](#future-enhancements)
+- [Challenges](#challenges)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+    - [Backend](#backend-1)
+    - [Frontend](#frontend-1)
+- [Running the Application](#running-the-application)
+    - [Backend](#backend-2)
+    - [Frontend](#frontend-2)
+    - [Running Both Servers Concurrently](#running-both-servers-concurrently)
+- [API Endpoints](#api-endpoints)
+    - [Authentication](#authentication-1)
+    - [Booking](#booking)
+    - [Artisan](#artisan)
+    - [Client](#client)
+    - [CORS and Preflight Requests](#cors-and-preflight-requests)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Motivation
 
 The Hirafic project was created to bridge the gap between clients and artisans by providing a seamless platform for booking and managing services. The goal is to empower local artisans by giving them a digital presence and making it easier for clients to find and book their services.
+ 
+## Authors:
+
+- **Duaa Obeid - Backend Developer** [GitHub](https://github.com/duaarabie) - [LinkedIn](https://www.linkedin.com/in/duaarabie)
+- **Oliver Maketso - Backend Developer** [GitHub](https://github.com/OliverMaketso)
+- **Selasi Agbenyegah Mensah - Backend Developer** [GitHub](https://github.com/Selasi-Mensah)
+- **Paul Levites - Backend Developer** [GitHub](https://github.com/Paulcode2)
+
+## Technologies Used
+
+#### Backend
+- **Languages**: Python
+- **Frameworks**: Flask, Flask-SQLAlchemy
+- **Caching**: Redis
+- **Code Quality**: pycodestyle
+#### Frontend
+- **Libraries**: React
+- **HTTP Client**: Axios
+#### Authentication
+- **Method**: JWT (JSON Web Tokens)
+#### Additional Technologies
+- **Version Control**: Git
+- **Testing**: pytest
 
 ## Future Enhancements
 
@@ -52,32 +79,6 @@ The Hirafic project was created to bridge the gap between clients and artisans b
 - **Security**: Protecting user data and ensuring secure transactions was a top priority.
 - **Integration**: Seamlessly integrating various third-party services and APIs required cross-platform compatibility and the use of CORS.
 
-## Contributors
-
-- **Duaa Obeid** [GitHub](https://github.com/duaarabie) - [LinkedIn](https://www.linkedin.com/in/duaarabie)
-- **Oliver Maketso** [GitHub](https://github.com/OliverMaketso)
-- **Selasi Agbenyegah Mensah** [GitHub](https://github.com/Selasi-Mensah)
-- **Paul Levites** [GitHub](https://github.com/Paulcode2)
-
-## Table of Contents
-
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-    - [Backend](#backend)
-    - [Frontend](#frontend)
-- [Running the Application](#running-the-application)
-    - [Backend](#backend-1)
-    - [Frontend](#frontend-1)
-    - [Running Both Servers Concurrently](#running-both-servers-concurrently)
-- [API Endpoints](#api-endpoints)
-    - [Authentication](#authentication)
-    - [Booking](#booking)
-    - [Artisan](#artisan)
-    - [Client](#client)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Features
 

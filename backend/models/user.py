@@ -10,12 +10,6 @@ from models.artisan import Artisan
 from typing import Dict, Any
 
 
-# @login_manager.user_loader
-# def load_user(user_id: int) -> 'User':
-#     return User.query.get(int(user_id))
-#     # return db.session.get(User, int(user_id))
-
-
 class User(Base):
     """ Representation of user table """
     __tablename__ = 'users'

@@ -23,14 +23,6 @@ class Artisan(Base):
     # Added latitude and longitude attributes to the table 'Artisans'
     latitude = db.Column(db.Float, nullable=True)
     longitude = db.Column(db.Float, nullable=True)
-    # Removed nullable=False in Specialization and skills
-    # specialization = db.Column(
-    #     Enum('Engineer', 'Nurse', "Plumber",
-    #          "Electrician", "Carpenter", "Painter",
-    #          "Mechanic", "Technician", "Cleaner",
-    #          'None', name='specialization'),
-    #     default='None'
-    #     )
     # let specializations be a determined by the frontend
     specialization = db.Column(db.String(20), nullable=False, default='None')
     skills = db.Column(db.Text, default='None')
