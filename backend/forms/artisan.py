@@ -19,6 +19,7 @@ class ArtisanProfileForm(FlaskForm):
         - location
         - specialization
         - skills
+        - salary_per_hour
         - picture
         - submit
     methods:
@@ -40,12 +41,6 @@ class ArtisanProfileForm(FlaskForm):
         ])
     # Specialization selection in frontend
     specialization = StringField('Specialization', validators=[DataRequired()])
-    # specialization = SelectField('Specialization',
-    #                              choices=[
-    #                                  ('Engineering', 'Engineering'),
-    #                                  ('Nursing', 'Nursing'),
-    #                                  ('None', 'None')],
-    #                              default='None')
     skills = TextAreaField('Skills', validators=[
         Length(
             max=500,
@@ -80,12 +75,3 @@ class ArtisanProfileForm(FlaskForm):
             user = User.query.filter_by(email=email.data.lower()).first()
             if user:
                 raise ValidationError('Email is already taken!')
-
-    # def validate_on_submit(self) -> bool:
-    #     """ Override to manually disable CSRF validation """
-    #     if not super().validate_on_submit():
-    #         # check if there are more than the csrf error
-    #         if len(self.errors) > 1:
-    #             return False
-    #         return True
-    #     return True

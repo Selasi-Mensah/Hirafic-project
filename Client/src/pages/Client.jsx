@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, act } from 'react';
 import axios from 'axios';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProfileSection from '@/components/ProfileSection';
@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Filter } from 'lucide-react';
 import CloseIcon from '@mui/icons-material/Close';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import Hirafic from '@/assets/Hirafic.jpg';
 
 const Client = () => {
   const [bookings, setBookings] = useState([]);
@@ -285,29 +286,61 @@ const Client = () => {
             </button>
           )}
 
-          <div className="text-center items-center">
-            {/* Welcome Message */}
-            <h1 className="text-3xl font-bold mt-8 mb-4 md:mb-0 text-gray-100">
-              Welcome, {sessionStorage.getItem('username')}
-            </h1>
-            <p className="text-gray-400 text-lg mb-8">
-              This is your home page. Use the navigation menu to explore.
-            </p>
+          {activeTab === '' && (
+            <div className="text-center flex flex-col items-center">
+              {/* Welcome Message */}
+              <h2 className="text-3xl font-bold mb-4 text-gray-200">
+                Welcome, {sessionStorage.getItem("username")}
+              </h2>
+              <p className="text-gray-400 text-lg mb-4">
+                Use the navigation menu or select a tab to explore.
+              </p>
+            </div>
+          )}
+          {activeTab === 'profile' && (
+           <div className="text-center flex flex-col items-center ">
+              <h2 className="text-3xl font-bold mb-4 text-gray-200">My Profile</h2>
+              <p className="text-gray-400 text-lg mb-4">
+                Manage your account details and preferences here.
+              </p>
+              {/* <img
+                src="/path/to/profile-placeholder.jpg" // Replace with an actual profile image path
+                alt="Profile Placeholder"
+                className="h-[150px] w-[150px] rounded-full shadow-md mb-4"
+              /> */}
+            </div>
+          )}
+          {activeTab === 'bookings' && (
+            <div className="text-center flex flex-col items-center ">
+              <h2 className="text-3xl font-bold mb-4 text-gray-200">Bookings Details</h2>
+              <p className="text-gray-400 text-lg mb-4">
+                View and manage your bookings here.
+              </p>
+            </div>
+          )}
+          {activeTab === 'artisans' && (
+            <div className="font-poppins text-center flex flex-col items-center ">
+              <h2 className="text-3xl font-bold mb-4 text-gray-200">Hirafic Artisan's</h2>
+              <p className="text-gray-400 text-lg mb-4">
+              Explore our skilled artisans and their profiles.
+              </p>
           </div>
+          )}
+          
 
           <Tabs defaultValue={document.referrer.includes('/map') ? 'artisans' : 'bookings'}
             className="mx-auto"
             onValueChange={handleTabChange}
           >
             <div className="text-center"> 
-              <TabsList className="flex bg-gray-900 text-gray-100 w-[500px] mx-auto gap-6 mb-4">
-                <TabsTrigger value="profile" className="w-[100px] data-[state=active]:bg-gray-800 ">
+              <TabsList className="flex bg-gray-900 text-gray-100 w-[615px] mx-auto gap-6 mb-4">
+                <TabsTrigger value="profile" className="w-[200px] data-[state=active]:bg-gray-800 ">
                   Profile
                 </TabsTrigger>
-                <TabsTrigger value="bookings" className="w-[100px] data-[state=active]:bg-gray-800">
+                <TabsTrigger value="bookings" className="w-[200px] data-[state=active]:bg-gray-800">
                   Bookings
                 </TabsTrigger>
-                <TabsTrigger value="artisans" className="w-[100px] data-[state=active]:bg-gray-800">
+                <TabsTrigger value="artisans" className="w-[200px] data-[state=active]:bg-gray-800">
                   Find Artisan
                 </TabsTrigger>
               </TabsList>
@@ -326,7 +359,7 @@ const Client = () => {
             </TabsContent>
 
             <TabsContent value="bookings" key="bookings">
-              <div className="items-center justify-center gap-6 max-w-lg mx-auto">
+              <div className="grid items-center justify-center max-w-lg mx-auto gap-2 ">
                 {loading.bookings ? (
                   <LoadingState />
                 ) : error.bookings ? (
@@ -366,8 +399,8 @@ const Client = () => {
                 </div>
             </TabsContent>
             <TabsContent value="artisans" key="artisans">
-              <Card className="mb-4 bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-2xl mx-auto p-4">
-                <CardContent className="space-y-4">
+              <Card className="grid mb-4 bg-gray-900 border-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow max-w-2xl mx-auto p-4">
+                <CardContent className="flex flex-col gap-4">
                   <div className="flex flex-col md:flex-row items-center gap-6">
                     {/* Profession Selector */}
                     <div className="flex flex-col w-full md:w-auto items-center">
@@ -460,6 +493,13 @@ const Client = () => {
             </TabsContent>
           </Tabs>
         </main>
+        <p className="absolute top-4 right-4 flex items-center justify-center h-[130px] w-[130px] bg-white rounded-full shadow-lg transition-transform hover:scale-105 hover:shadow-xl">
+          <img
+            className="h-[120px] w-[120px] object-cover rounded-full"
+            src={Hirafic}
+            alt="Logo"
+          />
+        </p>
       </div>
     </div>
   );
