@@ -88,16 +88,21 @@ def test_create_artisan(app: Flask, database: SQLAlchemy):
 
         # Test the __repr__ method
         assert repr(retrieved_artisan) ==\
-            "Artisan('Test Artisan', 'Engineering')"
+            "Artisan('Test Artisan', 'artisan@example.com, 'Engineering')"
 
         # Test the dict() method
         assert retrieved_artisan.to_dict() == {
-            'name': 'Test Artisan',
+            'username': 'Test Artisan',
             'email': 'artisan@example.com',
             'phone_number': '+1234567890',
             'location': 'Somewhere',
+            'image_file': None,
+            'bookings': [],
             'latitude': None,
             'longitude': None,
+            'id': retrieved_artisan.id,
+            'salary_per_hour': 0.0,
+            'image_file': '/default.jpeg',
             'specialization': 'Engineering',
             'skills': "Carpentry, Plumbing"
         }

@@ -121,7 +121,9 @@ def test_booking_creation(app: Flask, database: SQLAlchemy):
         assert retrieved_booking.to_dict() == {
             'artisan_name': db.session.get(Artisan, test_artisan.id).name,
             'client_name': db.session.get(Client, test_client.id).name,
+            'title': 'service',
             'details': None,
+            'id': retrieved_booking.id,
             'status': 'Pending',
             'request_date': retrieved_booking.request_date,
             'completion_date': None
@@ -207,9 +209,12 @@ def test_booking_validations(app: Flask, database: SQLAlchemy):
 
         # Test creating a booking with a missing required field
         test_booking = Booking(
-            client_id=test_client.id,
             artisan_id=test_artisan.id,
-            status=None,  # Status is required
+            title=None,
+            status=None,
+            completion_date=datetime.now(timezone.utc),
+            details=None,
+            created_at=datetime.now(timezone.utc),
             request_date=datetime.now(timezone.utc)
         )
         database.session.add(test_booking)

@@ -85,12 +85,15 @@ def test_create_client(app: Flask, database: SQLAlchemy):
             "Client('Test Client', 'client@example.com')"
         # Test the dict() method
         assert retrieved_client.to_dict() == {
-            'name': 'Test Client',
+            'id': retrieved_client.id,
+            'username': 'Test Client',
             'email': 'client@example.com',
             'phone_number': '+1234567890',
             'location': 'Somewhere',
             'latitude': None,
             'longitude': None,
+            'image_file': 'default.jpeg',
+            'bookings': []
         }
 
 
