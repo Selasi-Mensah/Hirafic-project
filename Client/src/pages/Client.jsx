@@ -226,7 +226,7 @@ const Client = () => {
   const handleArtisansPageChange = (newPage) => setArtisansPage(newPage);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 py-8 flex items-center justify-center">
+    <div className="min-h-screen bg-[#E6E5D2] text-gray-100 py-8 flex items-center justify-center">
       <div className="max-w-7xl mx-auto px-4">
         {/* Sidebar */}
         {isSidebarOpen && (
@@ -264,7 +264,7 @@ const Client = () => {
                     {/* Open Sidebar Button */}
                     <button
             onClick={() => setIsSidebarOpen(true)}
-            className="bg-gray-800 text-white hover:bg-gray-700 p-3 rounded-md absolute top-4 left-4 z-10"
+            className="bg-gray-800 text-white hover:bg-gray-700 p-3 rounded-md absolute top-4 left-2 z-10"
           >
             <MenuOpenIcon />
           </button>
@@ -273,7 +273,7 @@ const Client = () => {
           {isSidebarOpen && (
             <button
               onClick={() => setIsSidebarOpen(false)}
-              className="bg-gray-800 text-white hover:bg-gray-700 p-4 rounded-md absolute top-4 left-2 z-50"
+              className="bg-gray-800 text-white hover:bg-gray-700 p-3 rounded-md absolute top-4 left-2 z-50"
             >
               <CloseIcon />
             </button>
@@ -293,8 +293,8 @@ const Client = () => {
           )}
           {activeTab === 'profile' && (
            <div className="text-center flex flex-col items-center ">
-              <h2 className="text-3xl font-bold mb-4 text-gray-200">My Profile</h2>
-              <p className="text-gray-400 text-lg mb-4">
+              <h2 className="text-3xl font-bold mb-4 text-gray-900">My Profile</h2>
+              <p className="text-gray-700 text-lg mb-4">
                 Manage your account details and preferences here.
               </p>
               {/* <img
@@ -306,16 +306,16 @@ const Client = () => {
           )}
           {activeTab === 'bookings' && (
             <div className="text-center flex flex-col items-center ">
-              <h2 className="text-3xl font-bold mb-4 text-gray-200">Bookings Details</h2>
-              <p className="text-gray-400 text-lg mb-4">
+              <h2 className="text-3xl font-bold mb-4 text-gray-900">Bookings Details</h2>
+              <p className="text-gray-700 text-lg mb-4">
                 View and manage your bookings here.
               </p>
             </div>
           )}
           {activeTab === 'artisans' && (
             <div className="font-poppins text-center flex flex-col items-center ">
-              <h2 className="text-3xl font-bold mb-4 text-gray-200">Hirafic's Artisans</h2>
-              <p className="text-gray-400 text-lg mb-4">
+              <h2 className="text-3xl font-bold mb-4 text-gray-900">Hirafic's Artisans</h2>
+              <p className="text-gray-700 text-lg mb-4">
               Explore our skilled artisans and their profiles.
               </p>
           </div>
@@ -353,7 +353,7 @@ const Client = () => {
             </TabsContent>
 
             <TabsContent value="bookings" key="bookings">
-              <div className="grid items-center justify-center max-w-lg mx-auto gap-2 ">
+              <div className="bg-gray-900 text-gray-100 p-6 rounded-lg shadow-md max-w-md mx-auto grid gap-2">
                 {loading.bookings ? (
                   <LoadingState />
                 ) : error.bookings ? (
@@ -375,7 +375,7 @@ const Client = () => {
                       Previous
                     </button>
                   )}
-                  <span className="text-gray-400">
+                  <span className="text-gray-900">
                     {bookingsPagination.total_pages != 0 ? (
                       <>Page {bookingsPagination.current_page} of {bookingsPagination.total_pages}</>
                     ) : (
@@ -446,7 +446,7 @@ const Client = () => {
                 </CardContent>
               </Card>
 
-              <div className=" gap-6 items-center justify-center min-w-screen max-w-lg mx-auto">
+              <div className="bg-gray-900 text-gray-100 p-6 rounded-lg shadow-md max-w-md mx-auto gap-6 items-center justify-center min-w-screen max-w-lg mx-auto">
                 {loading.artisans ? (
                   <LoadingState />
                 ) : error.artisans ? (
@@ -468,7 +468,7 @@ const Client = () => {
                       Previous
                     </button>
                   )}
-                  <span className="text-gray-400">
+                  <span className="text-gray-900">
                     {artisansPagination.total_pages != 0 ? (
                       <>Page {artisansPagination.current_page} of {artisansPagination.total_pages}</>
                     ) : (
@@ -487,9 +487,9 @@ const Client = () => {
             </TabsContent>
           </Tabs>
         </main>
-        <p className="absolute top-4 right-4 flex items-center justify-center h-[80px] w-[80px] bg-white rounded-full shadow-lg transition-transform hover:scale-105 hover:shadow-xl">
+        <p className="absolute top-4 right-4 flex items-center justify-center h-[55px] w-[55px] bg-white rounded-full shadow-lg transition-transform hover:scale-105 hover:shadow-xl">
           <img
-            className="h-[75px] w-[75px] object-cover rounded-full"
+            className="h-[50px] w-[50px] object-cover rounded-full"
             src={Hirafic}
             alt="Logo"
           />
